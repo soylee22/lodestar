@@ -1,0 +1,2111 @@
+<!doctype html>
+<html lang="en-GB" data-theme="auto">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Lodestar — factor and sector rotation</title>
+<meta name="description" content="Lodestar: a systematic factor and sector ETF rotation strategy. Backtested record, London-listed lines, sterling total return, December 2015 to June 2026.">
+<meta name="color-scheme" content="light dark">
+<style>
+/* ─────────────────────────────────────────────────────────────────────────
+   Tokens. Light is the default; dark is a selected set, not an inversion.
+   The categorical four validated all-pairs in both modes against these
+   surfaces (light #fbfaf8, dark #131315).
+   ───────────────────────────────────────────────────────────────────────── */
+:root{
+  color-scheme: light;
+  --paper:#f2f1ed;
+  --paper-2:#e9e8e3;
+  --surface:#fbfaf8;
+  --surface-sunk:#f5f4f0;
+  --ink:#0b0b0b;
+  --ink-2:#52514e;
+  --muted:#898781;
+  --grid:#e1e0d9;
+  --axis:#c3c2b7;
+  --rule:rgba(11,11,11,.11);
+  --rule-2:rgba(11,11,11,.20);
+  --shadow:0 1px 2px rgba(11,11,11,.04), 0 8px 28px -18px rgba(11,11,11,.28);
+
+  --s1:#2a78d6;  /* Lodestar */
+  --s2:#eb6834;  /* FTSE All-World */
+  --s3:#1baf7a;  /* S&P 500 */
+  --s4:#51468b;  /* MSCI World */
+
+  --pos-ink:#006300;
+  --neg-ink:#a52a22;
+  --warn:#fab219;
+
+  /* diverging: red ← neutral → blue, four steps per arm */
+  --dv-n4:#96302e; --dv-n3:#cf4b48; --dv-n2:#e87f7c; --dv-n1:#f5b3b0;
+  --dv-0:#eeedea;
+  --dv-p1:#9ec5f4; --dv-p2:#5598e7; --dv-p3:#2a78d6; --dv-p4:#184f95;
+
+  --band:#141416;      /* inverted signal band */
+  --band-ink:#fbfaf8;
+  --band-ink-2:#a5a49d;
+  --band-rule:rgba(251,250,248,.16);
+
+  --sans:ui-sans-serif,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+  --serif:ui-serif,Georgia,"Iowan Old Style","Palatino Linotype","Times New Roman",Times,serif;
+  --mono:ui-monospace,SFMono-Regular,"SF Mono",Menlo,Consolas,"Liberation Mono",monospace;
+
+  --pad:clamp(20px,5vw,72px);
+  --maxw:1240px;
+}
+@media (prefers-color-scheme: dark){
+  :root:where(:not([data-theme="light"])){
+    color-scheme: dark;
+    --paper:#0b0b0c;
+    --paper-2:#121214;
+    --surface:#131315;
+    --surface-sunk:#0f0f11;
+    --ink:#f4f3f0;
+    --ink-2:#b6b5ae;
+    --muted:#8a8982;
+    --grid:#26262a;
+    --axis:#3a3a3f;
+    --rule:rgba(244,243,240,.12);
+    --rule-2:rgba(244,243,240,.22);
+    --shadow:0 1px 2px rgba(0,0,0,.5), 0 10px 34px -22px rgba(0,0,0,.9);
+    --s1:#3987e5; --s2:#d95926; --s3:#199e70; --s4:#5e5696;
+    --pos-ink:#0ca30c; --neg-ink:#e66767;
+    --dv-n4:#d96a63; --dv-n3:#b04641; --dv-n2:#833733; --dv-n1:#5a2b28;
+    --dv-0:#242428;
+    --dv-p1:#1e4067; --dv-p2:#21548f; --dv-p3:#2a6fbd; --dv-p4:#4b8ee0;
+    --band:#1c1c20; --band-ink:#f4f3f0; --band-ink-2:#9a998f;
+    --band-rule:rgba(244,243,240,.14);
+  }
+}
+:root[data-theme="dark"]{
+  color-scheme: dark;
+  --paper:#0b0b0c;
+  --paper-2:#121214;
+  --surface:#131315;
+  --surface-sunk:#0f0f11;
+  --ink:#f4f3f0;
+  --ink-2:#b6b5ae;
+  --muted:#8a8982;
+  --grid:#26262a;
+  --axis:#3a3a3f;
+  --rule:rgba(244,243,240,.12);
+  --rule-2:rgba(244,243,240,.22);
+  --shadow:0 1px 2px rgba(0,0,0,.5), 0 10px 34px -22px rgba(0,0,0,.9);
+  --s1:#3987e5; --s2:#d95926; --s3:#199e70; --s4:#5e5696;
+  --pos-ink:#0ca30c; --neg-ink:#e66767;
+  --dv-n4:#d96a63; --dv-n3:#b04641; --dv-n2:#833733; --dv-n1:#5a2b28;
+  --dv-0:#242428;
+  --dv-p1:#1e4067; --dv-p2:#21548f; --dv-p3:#2a6fbd; --dv-p4:#4b8ee0;
+  --band:#1c1c20; --band-ink:#f4f3f0; --band-ink-2:#9a998f;
+  --band-rule:rgba(244,243,240,.14);
+}
+
+*,*::before,*::after{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{
+  margin:0; background:var(--paper); color:var(--ink);
+  font-family:var(--sans); font-size:16px; line-height:1.55;
+  overflow-x:hidden; text-rendering:optimizeLegibility;
+  -webkit-font-smoothing:antialiased;
+}
+h1,h2,h3,h4{margin:0; font-weight:400; letter-spacing:-.015em}
+p{margin:0}
+a{color:inherit}
+button{font:inherit; color:inherit; background:none; border:0; cursor:pointer}
+:focus-visible{outline:2px solid var(--s1); outline-offset:3px; border-radius:3px}
+
+.wrap{max-width:var(--maxw); margin:0 auto; padding-inline:var(--pad)}
+.rule{border:0; border-top:1px solid var(--rule); margin:0}
+
+/* eyebrow / small caps label */
+.eyebrow{
+  font-family:var(--mono); font-size:11px; letter-spacing:.14em;
+  text-transform:uppercase; color:var(--muted); font-weight:500;
+}
+.num{font-variant-numeric:tabular-nums}
+.big{font-variant-numeric:proportional-nums; letter-spacing:-.03em}
+
+/* ── top rail ─────────────────────────────────────────────────────────── */
+.rail{
+  position:sticky; top:0; z-index:60;
+  background:color-mix(in srgb, var(--paper) 86%, transparent);
+  backdrop-filter:saturate(1.4) blur(14px);
+  -webkit-backdrop-filter:saturate(1.4) blur(14px);
+  border-bottom:1px solid var(--rule);
+}
+.rail .wrap{display:flex; align-items:center; gap:24px; height:56px}
+.mark{font-family:var(--serif); font-size:18px; letter-spacing:-.018em; white-space:nowrap}
+.mark b{font-weight:500}
+.railnav{display:flex; gap:2px; margin-left:auto; overflow-x:auto; scrollbar-width:none}
+.railnav::-webkit-scrollbar{display:none}
+.railnav a{
+  font-family:var(--mono); font-size:11px; letter-spacing:.1em; text-transform:uppercase;
+  color:var(--muted); text-decoration:none; padding:7px 9px; border-radius:5px; white-space:nowrap;
+}
+.railnav a:hover{color:var(--ink); background:var(--paper-2)}
+.toggle{
+  display:inline-flex; align-items:center; gap:7px; padding:6px 11px 6px 9px;
+  border:1px solid var(--rule-2); border-radius:999px; font-size:12px; color:var(--ink-2);
+  white-space:nowrap;
+}
+.toggle:hover{border-color:var(--ink-2); color:var(--ink)}
+.toggle svg{width:14px; height:14px; flex:none}
+@media (max-width:860px){ .railnav{display:none} }
+
+/* ── hero ─────────────────────────────────────────────────────────────── */
+.hero{padding:clamp(44px,7vw,92px) 0 clamp(36px,5vw,64px)}
+.hero-grid{display:grid; grid-template-columns:minmax(0,1.45fr) minmax(0,1fr); gap:clamp(32px,5vw,72px); align-items:start}
+@media (max-width:960px){ .hero-grid{grid-template-columns:1fr; gap:40px} }
+
+/* wordmark: one long word, so it gets optical tracking, a tight leading and a
+   rule that measures it out rather than a decorative flourish */
+.wordmark{margin:18px 0 0}
+h1.title{
+  font-family:var(--serif); font-weight:400;
+  font-size:clamp(52px,9.2vw,116px); line-height:.9; letter-spacing:-.038em;
+  margin:0; word-break:keep-all;
+}
+h1.title .lo{display:inline-block}
+h1.title .lo span{display:inline-block}
+h1.title .lo .t1{letter-spacing:-.052em}   /* Lo — kern the round pair tighter  */
+h1.title .lo .t2{letter-spacing:-.028em}   /* destar — open the stems back up   */
+.wordmark .strap{
+  display:flex; align-items:center; gap:16px; margin-top:clamp(16px,2.2vw,24px);
+}
+.wordmark .strap i{height:1px; width:clamp(36px,5vw,64px); background:var(--rule-2); flex:none}
+.wordmark .strap span{
+  font-family:var(--mono); font-size:clamp(10px,1.05vw,12px); letter-spacing:.26em;
+  text-transform:uppercase; color:var(--ink-2); white-space:nowrap;
+}
+.deck{
+  margin-top:26px; max-width:46ch; font-size:clamp(16px,1.6vw,18.5px);
+  line-height:1.6; color:var(--ink-2);
+}
+.deck strong{color:var(--ink); font-weight:600}
+
+.figure{margin-top:clamp(28px,4vw,44px); display:flex; align-items:flex-end; gap:clamp(20px,3vw,38px); flex-wrap:wrap}
+.figure .hero-num{
+  font-size:clamp(64px,9.4vw,104px); line-height:.86; font-weight:600;
+  letter-spacing:-.045em; font-variant-numeric:proportional-nums;
+}
+.figure .hero-cap{padding-bottom:9px; max-width:30ch}
+.figure .hero-cap .k{display:block; font-size:13.5px; color:var(--ink-2); line-height:1.5}
+
+.herocol{display:grid; gap:clamp(20px,2.6vw,30px); align-content:start}
+.minitable{margin:0; display:grid; grid-template-columns:1fr 1fr; gap:0 clamp(18px,2.4vw,30px)}
+.minitable div{padding:12px 0; border-top:1px solid var(--rule)}
+.minitable div:nth-child(-n+2){border-top:0; padding-top:0}
+.minitable dt{font-family:var(--mono); font-size:10.5px; letter-spacing:.11em; text-transform:uppercase; color:var(--muted)}
+.minitable dd{margin:4px 0 0; font-size:20px; font-weight:600; font-variant-numeric:tabular-nums}
+.minitable dd small{font-weight:400; font-size:12px; color:var(--muted); margin-left:7px; font-variant-numeric:normal}
+
+/* current book panel */
+.panel{
+  background:var(--surface); border:1px solid var(--rule); border-radius:14px;
+  box-shadow:var(--shadow); overflow:hidden;
+}
+.panel-hd{padding:16px 20px 13px; border-bottom:1px solid var(--rule); display:flex; align-items:baseline; gap:10px; flex-wrap:wrap}
+.panel-hd .t{font-size:14px; font-weight:600}
+.panel-hd .s{margin-left:auto; font-family:var(--mono); font-size:11px; color:var(--muted); letter-spacing:.04em}
+.tiles{display:grid; grid-template-columns:1fr 1fr; gap:1px; background:var(--rule)}
+@media (max-width:420px){ .tiles{grid-template-columns:1fr} }
+.tile{background:var(--surface); padding:18px 20px 20px; position:relative}
+.tile .leg{font-family:var(--mono); font-size:10px; letter-spacing:.12em; text-transform:uppercase; color:var(--muted)}
+.tile .nm{margin-top:9px; font-family:var(--serif); font-size:22px; line-height:1.16; letter-spacing:-.01em}
+.tile .tk{margin-top:11px; font-family:var(--mono); font-size:15px; font-weight:600; letter-spacing:.01em; display:flex; align-items:center; gap:8px}
+.tile .tk::before{content:""; width:9px; height:9px; border-radius:50%; background:var(--dot,var(--s1)); flex:none}
+.tile .isin{margin-top:5px; font-family:var(--mono); font-size:11px; color:var(--muted); letter-spacing:.02em}
+.tile .wt{
+  position:absolute; top:16px; right:18px; font-size:12.5px; font-weight:600;
+  font-variant-numeric:tabular-nums; color:var(--ink-2);
+  border:1px solid var(--rule-2); border-radius:999px; padding:2px 8px;
+}
+.panel-ft{padding:12px 20px 14px; font-size:12.5px; color:var(--muted); line-height:1.5}
+
+/* ── signal band (inverted) ───────────────────────────────────────────── */
+.band{background:var(--band); color:var(--band-ink)}
+.band .wrap{padding-block:clamp(30px,4.4vw,48px)}
+.band .eyebrow{color:var(--band-ink-2)}
+.bandgrid{display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1.25fr); gap:clamp(28px,5vw,64px); align-items:center}
+@media (max-width:860px){ .bandgrid{grid-template-columns:1fr; gap:28px} }
+.clock{display:flex; gap:clamp(14px,2.4vw,26px); margin-top:16px; flex-wrap:wrap}
+.clock div{min-width:62px}
+.clock .v{font-size:clamp(34px,5vw,50px); line-height:1; font-weight:600; letter-spacing:-.04em; font-variant-numeric:tabular-nums}
+.clock .l{margin-top:7px; font-family:var(--mono); font-size:10px; letter-spacing:.13em; text-transform:uppercase; color:var(--band-ink-2)}
+.bandfacts{display:grid; gap:0}
+.bandfacts .row{display:flex; gap:16px; padding:11px 0; border-top:1px solid var(--band-rule); align-items:baseline}
+.bandfacts .row:first-child{border-top:0}
+.bandfacts .k{font-size:13px; color:var(--band-ink-2); flex:none; width:clamp(120px,17vw,180px)}
+.bandfacts .v{font-size:14.5px; font-weight:500}
+.bandfacts .v small{display:block; font-weight:400; font-size:12.5px; color:var(--band-ink-2); margin-top:2px}
+
+/* ── sections ─────────────────────────────────────────────────────────── */
+section.sec{padding-block:clamp(46px,6.4vw,86px)}
+.sechd{display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1.15fr); gap:clamp(20px,4vw,56px); align-items:end; margin-bottom:clamp(24px,3.4vw,40px)}
+@media (max-width:800px){ .sechd{grid-template-columns:1fr; gap:14px} }
+.sechd h2{font-family:var(--serif); font-size:clamp(26px,3.5vw,40px); line-height:1.08; letter-spacing:-.022em; margin-top:10px}
+.sechd .lede{font-size:15px; color:var(--ink-2); line-height:1.62; max-width:62ch; padding-bottom:4px}
+.sechd .lede b{font-weight:600; color:var(--ink)}
+
+/* KPI row */
+.kpis{display:grid; grid-template-columns:repeat(6,minmax(0,1fr)); border-top:1px solid var(--rule-2)}
+@media (max-width:1080px){ .kpis{grid-template-columns:repeat(3,minmax(0,1fr))} }
+@media (max-width:600px){ .kpis{grid-template-columns:repeat(2,minmax(0,1fr))} }
+.kpi{padding:22px 20px 22px 0; border-bottom:1px solid var(--rule); position:relative}
+.kpi + .kpi{padding-left:20px}
+.kpi + .kpi::before{content:""; position:absolute; left:0; top:22px; bottom:22px; width:1px; background:var(--rule)}
+@media (max-width:1080px){
+  .kpi:nth-child(3n+1){padding-left:0}
+  .kpi:nth-child(3n+1)::before{display:none}
+}
+@media (max-width:600px){
+  .kpi{padding-left:20px}
+  .kpi:nth-child(2n+1){padding-left:0}
+  .kpi::before{display:block}
+  .kpi:nth-child(2n+1)::before{display:none}
+}
+.kpi .k{font-family:var(--mono); font-size:10.5px; letter-spacing:.12em; text-transform:uppercase; color:var(--muted)}
+.kpi .v{margin-top:12px; font-size:clamp(28px,3.4vw,38px); line-height:1; font-weight:600; letter-spacing:-.035em; font-variant-numeric:proportional-nums}
+.kpi .cmp{margin-top:14px; display:flex; align-items:center; gap:7px; font-size:12.5px; color:var(--ink-2)}
+.kpi .cmp .sw{width:8px; height:8px; border-radius:2px; background:var(--s2); flex:none}
+.kpi .cmp .n{font-variant-numeric:tabular-nums; font-weight:500}
+.kpi .note{margin-top:7px; font-size:11.5px; color:var(--muted); line-height:1.4}
+
+/* card + chart shell */
+.card{
+  background:var(--surface); border:1px solid var(--rule); border-radius:14px;
+  box-shadow:var(--shadow); overflow:hidden;
+}
+.card-hd{
+  display:flex; align-items:center; gap:16px; flex-wrap:wrap;
+  padding:15px 20px; border-bottom:1px solid var(--rule);
+}
+.card-hd .ttl{font-size:13.5px; font-weight:600}
+.card-hd .sub{font-size:12.5px; color:var(--muted)}
+.card-bd{padding:18px 20px 8px}
+.scroll{overflow-x:auto; overscroll-behavior-x:contain}
+.scroll:focus-visible{outline-offset:-2px}
+
+/* legend */
+.legend{display:flex; flex-wrap:wrap; gap:6px 18px; align-items:center}
+.legend button, .legend .item{
+  display:inline-flex; align-items:center; gap:8px; font-size:12.5px; color:var(--ink-2);
+  padding:3px 2px; border-radius:5px;
+}
+.legend button:hover{color:var(--ink)}
+.legend button[aria-pressed="false"]{opacity:.4}
+.legend .key{width:16px; height:3px; border-radius:2px; background:currentColor; flex:none}
+.legend .k1{color:var(--s1)} .legend .k2{color:var(--s2)}
+.legend .k3{color:var(--s3)} .legend .k4{color:var(--s4)}
+.legend .lbl{color:var(--ink-2)}
+.legend button[aria-pressed="true"] .lbl{color:var(--ink)}
+
+/* segmented control */
+.seg{display:inline-flex; border:1px solid var(--rule-2); border-radius:8px; overflow:hidden; margin-left:auto}
+.seg button{
+  padding:5px 12px; font-size:12px; color:var(--muted); border-left:1px solid var(--rule-2);
+  font-variant-numeric:tabular-nums;
+}
+.seg button:first-child{border-left:0}
+.seg button[aria-pressed="true"]{background:var(--paper-2); color:var(--ink); font-weight:600}
+.seg button:hover{color:var(--ink)}
+
+/* svg chart primitives */
+.chart{display:block; font-family:var(--sans); overflow:visible}
+.chart text{fill:var(--muted); font-size:11px}
+.chart .axlbl{font-variant-numeric:tabular-nums}
+.chart .gridline{stroke:var(--grid); stroke-width:1; shape-rendering:crispEdges}
+.chart .zeroline{stroke:var(--axis); stroke-width:1; shape-rendering:crispEdges}
+.chart .ser{fill:none; stroke-width:2; stroke-linejoin:round; stroke-linecap:round}
+.chart .endlbl{fill:var(--ink); font-size:11.5px; font-weight:600; font-variant-numeric:tabular-nums}
+.chart .endsub{fill:var(--muted); font-size:10.5px}
+.chart .leader{stroke:var(--axis); stroke-width:1}
+.chart .cursor{stroke:var(--ink-2); stroke-width:1; stroke-dasharray:0; opacity:.45}
+.chart .halo{stroke:var(--surface); stroke-width:2}
+.chart .gapfill{fill:var(--muted); opacity:.06}
+.chart .gaplbl{fill:var(--muted); font-size:10px}
+.draw{stroke-dasharray:var(--len); stroke-dashoffset:var(--len); animation:draw 1.15s cubic-bezier(.22,.61,.36,1) forwards}
+@keyframes draw{to{stroke-dashoffset:0}}
+
+/* tooltip */
+.tip{
+  position:fixed; z-index:200; pointer-events:none; opacity:0; transform:translateY(3px);
+  transition:opacity .12s ease, transform .12s ease;
+  background:var(--surface); color:var(--ink); border:1px solid var(--rule-2);
+  border-radius:9px; box-shadow:var(--shadow); padding:10px 12px; min-width:150px;
+  font-size:12.5px; line-height:1.45;
+}
+.tip[data-open="1"]{opacity:1; transform:translateY(0)}
+.tip .h{font-family:var(--mono); font-size:10.5px; letter-spacing:.1em; text-transform:uppercase; color:var(--muted); margin-bottom:7px}
+.tip .r{display:flex; align-items:center; gap:8px; padding:2px 0}
+.tip .r .sw{width:9px; height:3px; border-radius:2px; flex:none}
+.tip .r .nm{color:var(--ink-2); margin-right:auto; padding-right:12px}
+.tip .r .vl{font-variant-numeric:tabular-nums; font-weight:600}
+.tip .foot{margin-top:7px; padding-top:7px; border-top:1px solid var(--rule); color:var(--muted); font-size:11.5px}
+
+/* heatmap */
+.hm{display:grid; gap:2px; min-width:640px}
+.hm .cell{
+  border-radius:3px; height:34px; display:flex; align-items:center; justify-content:center;
+  font-size:10.5px; font-variant-numeric:tabular-nums; font-weight:600; letter-spacing:-.01em;
+}
+.hm .lbl{
+  display:flex; align-items:center; font-family:var(--mono); font-size:11px;
+  color:var(--muted); letter-spacing:.04em; height:34px;
+}
+.hm .colhd{font-family:var(--mono); font-size:10px; letter-spacing:.1em; text-transform:uppercase; color:var(--muted); text-align:center; padding-bottom:4px}
+.hm .void{background:repeating-linear-gradient(45deg,transparent,transparent 3px,var(--grid) 3px,var(--grid) 4px); border-radius:3px; height:34px}
+.hm .ytd{font-variant-numeric:tabular-nums; font-size:12px; font-weight:600; display:flex; align-items:center; justify-content:flex-end; height:34px; padding-left:10px}
+.scalekey{display:flex; align-items:center; gap:9px; font-size:11.5px; color:var(--muted); flex-wrap:wrap}
+.scalekey .sw{display:flex; gap:2px}
+.scalekey .sw i{width:20px; height:10px; border-radius:2px; display:block}
+
+/* ribbon */
+.ribbon{min-width:820px}
+.ribbon .lane-hd{
+  display:flex; align-items:baseline; gap:10px; padding:14px 0 8px;
+  border-bottom:1px solid var(--rule);
+}
+.ribbon .lane-hd .t{font-size:12.5px; font-weight:600}
+.ribbon .lane-hd .s{font-size:11.5px; color:var(--muted)}
+.ribbon .row{display:grid; grid-template-columns:176px minmax(0,1fr) 62px; align-items:center; height:24px; gap:12px}
+.ribbon .row:hover .rname{color:var(--ink)}
+.ribbon .rname{font-size:12.5px; color:var(--ink-2); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; transition:color .12s}
+.ribbon .track{position:relative; height:24px}
+.ribbon .track::after{content:""; position:absolute; left:0; right:0; top:11px; height:1px; background:var(--grid)}
+.ribbon .run{
+  position:absolute; top:5px; height:14px; border-radius:3px; cursor:default;
+  transition:transform .12s ease, filter .12s ease; transform-origin:center;
+}
+.ribbon .run:hover, .ribbon .run:focus-visible{transform:scaleY(1.35); filter:saturate(1.15)}
+.ribbon .run.unpriced{background:repeating-linear-gradient(45deg,transparent,transparent 3px,var(--axis) 3px,var(--axis) 4px); box-shadow:inset 0 0 0 1px var(--axis)}
+.ribbon .tenure{font-size:11.5px; color:var(--muted); font-variant-numeric:tabular-nums; text-align:right}
+.ribbon .axis{display:grid; grid-template-columns:176px minmax(0,1fr) 62px; gap:12px; margin-top:18px; padding-top:10px; border-top:1px solid var(--rule)}
+.ribbon .axis .ticks{position:relative; height:18px}
+.ribbon .axis .ticks span{position:absolute; top:0; font-family:var(--mono); font-size:10px; color:var(--muted); transform:translateX(-50%)}
+.ribbon .axis .ticks i{position:absolute; top:-4px; width:1px; height:5px; background:var(--axis)}
+
+/* year table-chart */
+.years{min-width:660px}
+.years .hd, .years .row{display:grid; grid-template-columns:64px minmax(0,1fr) 88px 88px 84px; gap:14px; align-items:center}
+.years .hd{padding-bottom:10px; border-bottom:1px solid var(--rule-2)}
+.years .hd span{font-family:var(--mono); font-size:10px; letter-spacing:.11em; text-transform:uppercase; color:var(--muted)}
+.years .hd .r{text-align:right}
+.years .row{padding:12px 0; border-bottom:1px solid var(--rule)}
+.years .row:hover{background:var(--surface-sunk)}
+.years .yr{font-family:var(--mono); font-size:13px; font-weight:600; letter-spacing:.02em}
+.years .yr small{display:block; font-weight:400; font-size:9.5px; color:var(--muted); letter-spacing:.06em}
+.years .bars{position:relative; height:34px}
+.years .bars .zero{position:absolute; top:0; bottom:0; width:1px; background:var(--axis)}
+.years .bars .bar{position:absolute; height:13px; transition:width .5s cubic-bezier(.22,.61,.36,1)}
+.years .bars .bar.sA{top:2px; background:var(--s1)}
+.years .bars .bar.sB{top:19px; background:var(--s2)}
+.years .bars .bar.pos{border-radius:0 4px 4px 0}
+.years .bars .bar.neg{border-radius:4px 0 0 4px}
+.years .v{text-align:right; font-variant-numeric:tabular-nums; font-size:14px; font-weight:600}
+.years .v.sub{font-weight:500; color:var(--ink-2)}
+.years .x{text-align:right; font-variant-numeric:tabular-nums; font-size:14px; font-weight:600; color:var(--pos-ink)}
+.years .x.dn{color:var(--neg-ink)}
+
+/* ── the universe ─────────────────────────────────────────────────────
+   Eleven hand-drawn glyphs on one 24-unit grid: four factor styles and
+   seven sectors. Same stroke weight, same joins, same optical size. */
+.gl{width:26px; height:26px; display:block; color:var(--ink-2); flex:none}
+.gl svg{
+  width:100%; height:100%; display:block; fill:none; stroke:currentColor;
+  stroke-width:1.5; stroke-linecap:round; stroke-linejoin:round;
+  vector-effect:non-scaling-stroke;
+}
+.gl svg .mass{fill:currentColor; stroke:none}
+
+.baskets{display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1fr); gap:0 clamp(30px,5vw,72px)}
+@media (max-width:900px){ .baskets{grid-template-columns:1fr; gap:44px} }
+.basket + .basket{position:relative}
+.basket + .basket::before{
+  content:""; position:absolute; left:calc(-1 * clamp(15px,2.5vw,36px)); top:6px; bottom:6px;
+  width:1px; background:var(--rule);
+}
+@media (max-width:900px){ .basket + .basket::before{display:none} }
+.basket > h3{
+  display:flex; align-items:baseline; gap:12px; padding-bottom:12px;
+  border-bottom:1px solid var(--rule-2); font-size:14px; font-weight:600;
+}
+.basket > h3 span{font-family:var(--mono); font-size:10.5px; letter-spacing:.12em; text-transform:uppercase; color:var(--muted); margin-left:auto}
+
+.style-grp{border-bottom:1px solid var(--rule)}
+.style-hd{display:flex; align-items:center; gap:13px; padding:15px 0 8px}
+.style-hd .nm{font-size:14.5px; font-weight:600; letter-spacing:-.005em}
+.style-hd .note{font-size:12px; color:var(--muted); margin-left:auto; text-align:right}
+
+.uni{
+  display:grid; grid-template-columns:26px minmax(0,1fr) clamp(60px,9vw,104px) 46px;
+  align-items:center; gap:13px; padding:9px 0;
+}
+.uni.sub{padding-left:39px; grid-template-columns:24px minmax(0,1fr) clamp(60px,9vw,104px) 46px}
+.style-grp .uni.sub + .uni.sub{border-top:1px solid var(--rule)}
+.basket .uni.row{border-top:1px solid var(--rule)}
+.uni:hover{background:var(--surface-sunk)}
+.uni .tag{
+  font-family:var(--mono); font-size:10px; font-weight:600; letter-spacing:.1em;
+  color:var(--muted); border:1px solid var(--rule-2); border-radius:4px;
+  padding:2px 0; text-align:center; width:24px;
+}
+.uni .nm{font-size:13.5px; line-height:1.25; display:flex; align-items:center; gap:8px; flex-wrap:wrap}
+.uni .id{margin-top:3px; font-family:var(--mono); font-size:10.5px; color:var(--muted); letter-spacing:.02em}
+.uni .id b{color:var(--ink-2); font-weight:600}
+.uni .live{
+  font-family:var(--mono); font-size:9px; letter-spacing:.12em; font-weight:600;
+  padding:2px 6px; border-radius:999px; white-space:nowrap;
+  color:var(--surface); background:var(--live,var(--s1));
+}
+.uni .meter{height:8px; border-radius:2px; background:var(--grid); overflow:hidden; position:relative}
+.uni .meter i{
+  position:absolute; left:0; top:0; bottom:0; border-radius:2px; display:block;
+  background:var(--live,var(--s1)); width:0;
+  transition:width .7s cubic-bezier(.22,.61,.36,1);
+}
+.uni .mo{font-size:12.5px; font-variant-numeric:tabular-nums; text-align:right; color:var(--ink-2); font-weight:600}
+.uni .mo.zero{color:var(--muted); font-weight:400}
+@media (max-width:520px){
+  .uni, .uni.sub{grid-template-columns:24px minmax(0,1fr) 46px; grid-template-rows:auto auto; gap:7px 11px}
+  .uni.sub{padding-left:16px}
+  .uni > :nth-child(1){grid-area:1 / 1 / 3 / 2; align-self:start; margin-top:1px}
+  .uni > :nth-child(2){grid-area:1 / 2 / 2 / 3}
+  .uni > :nth-child(3){grid-area:2 / 2 / 3 / 4; height:6px}
+  .uni > :nth-child(4){grid-area:1 / 3 / 2 / 4}
+}
+
+.cashnote{
+  display:grid; grid-template-columns:26px minmax(0,1fr); gap:14px; align-items:start;
+  margin-top:22px; padding:16px 18px; border:1px solid var(--rule); border-radius:11px;
+  background:var(--surface-sunk);
+}
+.cashnote .gl{color:var(--muted); margin-top:1px}
+.cashnote .nm{font-size:13px; font-weight:600}
+.cashnote p{margin-top:5px; font-size:12.5px; line-height:1.55; color:var(--ink-2)}
+
+/* methodology */
+.method{display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1fr); gap:clamp(28px,4.5vw,64px); align-items:start}
+@media (max-width:860px){ .method{grid-template-columns:1fr} }
+.steps{counter-reset:step; display:grid}
+.steps li{
+  list-style:none; counter-increment:step; padding:18px 0 18px 44px;
+  border-top:1px solid var(--rule); position:relative; font-size:15px; line-height:1.6; color:var(--ink-2);
+}
+.steps li:first-child{border-top:0; padding-top:4px}
+.steps li::before{
+  content:counter(step,decimal-leading-zero); position:absolute; left:0; top:19px;
+  font-family:var(--mono); font-size:11px; color:var(--muted); letter-spacing:.06em;
+}
+.steps li:first-child::before{top:5px}
+.steps li b{color:var(--ink); font-weight:600}
+.steps ol, .steps ul{margin:0; padding:0}
+.prose p{font-size:15px; line-height:1.68; color:var(--ink-2); margin-bottom:15px; max-width:62ch}
+.prose p:last-child{margin-bottom:0}
+.prose b{color:var(--ink); font-weight:600}
+
+/* caveats */
+.caveats{
+  background:var(--surface); border:1px solid var(--rule-2); border-radius:14px;
+  overflow:hidden; box-shadow:var(--shadow);
+}
+.caveats .hd{
+  display:flex; align-items:center; gap:11px; padding:16px 22px;
+  border-bottom:1px solid var(--rule-2); background:var(--surface-sunk);
+}
+.caveats .hd svg{width:17px; height:17px; flex:none; color:var(--warn)}
+.caveats .hd .t{font-size:14px; font-weight:600}
+.caveats ul{margin:0; padding:6px 22px 22px; list-style:none}
+.caveats li{
+  padding:16px 0 0; font-size:14.5px; line-height:1.62; color:var(--ink-2);
+  display:grid; grid-template-columns:auto minmax(0,1fr); gap:12px;
+}
+.caveats li b{color:var(--ink); font-weight:600}
+.caveats li::before{
+  content:""; width:5px; height:5px; border-radius:50%; background:var(--warn); margin-top:9px;
+}
+
+/* appendix */
+details.app{border-top:1px solid var(--rule); padding:16px 0}
+details.app summary{
+  cursor:pointer; font-size:13.5px; font-weight:600; list-style:none;
+  display:flex; align-items:center; gap:10px;
+}
+details.app summary::-webkit-details-marker{display:none}
+details.app summary::before{
+  content:"+"; font-family:var(--mono); font-size:14px; color:var(--muted); width:14px;
+}
+details.app[open] summary::before{content:"−"}
+details.app summary span{margin-left:auto; font-weight:400; font-size:12px; color:var(--muted)}
+.tblwrap{max-height:440px; overflow:auto; margin-top:14px; border:1px solid var(--rule); border-radius:10px}
+table.data{border-collapse:collapse; width:100%; font-size:12.5px; min-width:640px}
+table.data th, table.data td{padding:7px 12px; text-align:right; white-space:nowrap; border-bottom:1px solid var(--rule)}
+table.data th{
+  position:sticky; top:0; background:var(--surface); z-index:2;
+  font-family:var(--mono); font-size:10px; letter-spacing:.09em; text-transform:uppercase;
+  color:var(--muted); font-weight:500; text-align:right;
+}
+table.data th:first-child, table.data td:first-child{text-align:left; font-family:var(--mono); letter-spacing:.02em}
+table.data td{font-variant-numeric:tabular-nums; color:var(--ink-2)}
+table.data td.k{color:var(--ink); font-weight:600}
+table.data tbody tr:hover td{background:var(--surface-sunk)}
+table.data td.hold{text-align:left; font-family:var(--sans); font-size:12px}
+
+/* footer */
+footer{border-top:1px solid var(--rule-2); padding-block:38px 56px; color:var(--muted); font-size:12.5px; line-height:1.62}
+footer .wrap{display:grid; grid-template-columns:minmax(0,1.4fr) minmax(0,1fr); gap:32px; align-items:start}
+@media (max-width:700px){ footer .wrap{grid-template-columns:1fr} }
+footer b{color:var(--ink-2); font-weight:600}
+
+/* motion */
+.rise{opacity:0; transform:translateY(10px)}
+.rise.in{opacity:1; transform:none; transition:opacity .62s cubic-bezier(.22,.61,.36,1), transform .62s cubic-bezier(.22,.61,.36,1)}
+@media (prefers-reduced-motion: reduce){
+  .rise, .rise.in{opacity:1; transform:none; transition:none}
+  .draw{animation:none; stroke-dashoffset:0}
+  .years .bars .b{transition:none}
+  *{scroll-behavior:auto !important}
+}
+html{scroll-behavior:smooth; scroll-padding-top:72px}
+@media print{ .rail,.seg,.toggle{display:none} body{background:#fff} }
+</style>
+</head>
+<body>
+
+<header class="rail">
+  <div class="wrap">
+    <div class="mark"><b>Lodestar</b></div>
+    <nav class="railnav" aria-label="Sections">
+      <a href="#record">Record</a>
+      <a href="#growth">Growth</a>
+      <a href="#drawdown">Drawdown</a>
+      <a href="#years">Years</a>
+      <a href="#months">Months</a>
+      <a href="#book">Holdings</a>
+      <a href="#universe">Universe</a>
+      <a href="#method">Method</a>
+      <a href="#caveats">Caveats</a>
+    </nav>
+    <button class="toggle" id="themeBtn" type="button" aria-live="polite">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" aria-hidden="true" id="themeIcon"></svg>
+      <span id="themeLbl">Auto</span>
+    </button>
+  </div>
+</header>
+
+<main>
+
+<!-- ── HERO ──────────────────────────────────────────────────────────── -->
+<section class="hero">
+  <div class="wrap hero-grid">
+    <div>
+      <div class="eyebrow" id="heroEyebrow"></div>
+      <div class="wordmark">
+        <h1 class="title"><span class="lo"><span class="t1">Lo</span><span class="t2">destar</span></span></h1>
+        <div class="strap"><i></i><span>Factor and sector rotation</span></div>
+      </div>
+      <p class="deck" id="heroDeck"></p>
+
+      <div class="figure">
+        <div class="hero-num big" id="heroGrowth">—</div>
+        <div class="hero-cap">
+          <span class="k" id="heroGrowthCap"></span>
+        </div>
+      </div>
+
+    </div>
+
+    <aside class="herocol rise">
+      <div class="panel" aria-labelledby="bookTitle">
+        <div class="panel-hd">
+          <div class="t" id="bookTitle">The book, right now</div>
+          <div class="s" id="bookAsOf"></div>
+        </div>
+        <div class="tiles" id="bookTiles"></div>
+        <div class="panel-ft" id="bookFoot"></div>
+      </div>
+      <dl class="minitable" id="heroMini"></dl>
+    </aside>
+  </div>
+</section>
+
+<!-- ── SIGNAL BAND ───────────────────────────────────────────────────── -->
+<section class="band" id="signal">
+  <div class="wrap bandgrid">
+    <div>
+      <div class="eyebrow">Next signal</div>
+      <div class="clock" id="clock" role="timer" aria-live="off">
+        <div><div class="v num" id="cD">—</div><div class="l">Days</div></div>
+        <div><div class="v num" id="cH">—</div><div class="l">Hours</div></div>
+        <div><div class="v num" id="cM">—</div><div class="l">Minutes</div></div>
+        <div><div class="v num" id="cS">—</div><div class="l">Seconds</div></div>
+      </div>
+    </div>
+    <div class="bandfacts" id="bandFacts"></div>
+  </div>
+</section>
+
+<!-- ── 01 THE RECORD ─────────────────────────────────────────────────── -->
+<section class="sec wrap" id="record">
+  <div class="sechd">
+    <div>
+      <div class="eyebrow">01 — The record</div>
+      <h2>Higher return, shallower&nbsp;fall</h2>
+    </div>
+    <p class="lede" id="recordLede"></p>
+  </div>
+  <div class="kpis" id="kpis"></div>
+</section>
+
+<!-- ── 02 GROWTH ─────────────────────────────────────────────────────── -->
+<section class="sec wrap" id="growth">
+  <div class="sechd">
+    <div>
+      <div class="eyebrow">02 — Cumulative growth</div>
+      <h2>Growth of £1</h2>
+    </div>
+    <p class="lede" id="growthLede"></p>
+  </div>
+  <div class="card rise">
+    <div class="card-hd">
+      <div class="legend" id="growthLegend"></div>
+      <div class="seg" role="group" aria-label="Vertical scale">
+        <button type="button" data-scale="lin" aria-pressed="true">Linear</button>
+        <button type="button" data-scale="log" aria-pressed="false">Log</button>
+      </div>
+    </div>
+    <div class="card-bd">
+      <div class="scroll">
+        <div id="growthChart" tabindex="0" role="img" aria-label="Cumulative growth of one pound, Lodestar against three benchmarks, December 2015 to June 2026."></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── 03 DRAWDOWN ───────────────────────────────────────────────────── -->
+<section class="sec wrap" id="drawdown">
+  <div class="sechd">
+    <div>
+      <div class="eyebrow">03 — Drawdown</div>
+      <h2>Time spent under&nbsp;water</h2>
+    </div>
+    <p class="lede" id="ddLede"></p>
+  </div>
+  <div class="card rise">
+    <div class="card-hd">
+      <div class="legend" id="ddLegend"></div>
+    </div>
+    <div class="card-bd">
+      <div class="scroll">
+        <div id="ddChart" tabindex="0" role="img" aria-label="Drawdown from prior peak, Lodestar against the FTSE All-World."></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── 04 CALENDAR YEARS ─────────────────────────────────────────────── -->
+<section class="sec wrap" id="years">
+  <div class="sechd">
+    <div>
+      <div class="eyebrow">04 — Calendar years</div>
+      <h2>Twelve years, twelve&nbsp;wins</h2>
+    </div>
+    <p class="lede" id="yearsLede"></p>
+  </div>
+  <div class="card rise">
+    <div class="card-hd">
+      <div class="legend">
+        <span class="item k1"><i class="key"></i><span class="lbl">Lodestar</span></span>
+        <span class="item k2"><i class="key"></i><span class="lbl">FTSE All-World</span></span>
+      </div>
+      <div class="sub" style="margin-left:auto">Sterling total return, per calendar year</div>
+    </div>
+    <div class="card-bd">
+      <div class="scroll">
+        <div class="years" id="yearsChart"></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── 05 MONTHLY HEATMAP ────────────────────────────────────────────── -->
+<section class="sec wrap" id="months">
+  <div class="sechd">
+    <div>
+      <div class="eyebrow">05 — Monthly returns</div>
+      <h2>Every month on&nbsp;record</h2>
+    </div>
+    <p class="lede" id="hmLede"></p>
+  </div>
+  <div class="card rise">
+    <div class="card-hd">
+      <div class="scalekey" id="hmKey"></div>
+      <div class="seg" role="group" aria-label="Cell labels">
+        <button type="button" data-hm="off" aria-pressed="true">Colour</button>
+        <button type="button" data-hm="on" aria-pressed="false">Values</button>
+      </div>
+    </div>
+    <div class="card-bd">
+      <div class="scroll">
+        <div class="hm" id="hmChart"></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── 06 ALLOCATION RIBBON ──────────────────────────────────────────── -->
+<section class="sec wrap" id="book">
+  <div class="sechd">
+    <div>
+      <div class="eyebrow">06 — Allocation history</div>
+      <h2>What it actually&nbsp;held</h2>
+    </div>
+    <p class="lede" id="ribLede"></p>
+  </div>
+  <div class="card rise">
+    <div class="card-hd">
+      <div class="scalekey" id="ribKey"></div>
+      <div class="sub" style="margin-left:auto">Bar length is tenure. Shading is the book's mean monthly return over that run.</div>
+    </div>
+    <div class="card-bd">
+      <div class="scroll">
+        <div class="ribbon" id="ribChart"></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── 07 THE UNIVERSE ───────────────────────────────────────────────── -->
+<section class="sec wrap" id="universe">
+  <div class="sechd">
+    <div>
+      <div class="eyebrow">07 — The universe</div>
+      <h2>Fifteen things it may&nbsp;own</h2>
+    </div>
+    <p class="lede" id="uniLede"></p>
+  </div>
+  <div class="baskets rise" id="baskets"></div>
+</section>
+
+<!-- ── 08 METHOD ─────────────────────────────────────────────────────── -->
+<section class="sec wrap" id="method">
+  <div class="sechd">
+    <div>
+      <div class="eyebrow">08 — Method</div>
+      <h2>The whole rule, in&nbsp;six lines</h2>
+    </div>
+    <p class="lede">No discretion, no overrides, no position sizing. The entire strategy is a ranking, a pair of picks and a monthly rebalance. Everything on this page falls out of the six steps below.</p>
+  </div>
+  <div class="method">
+    <ol class="steps">
+      <li><b>Take fifteen indices.</b> Eight MSCI factor indices (USA and Europe, each in momentum, quality, enhanced value and small cap) and seven S&amp;P 500 GICS sector indices. Two separate baskets.</li>
+      <li><b>Rank on eight-month price momentum.</b> At each month-end, score every index by its price change over the trailing eight months. Price only, in local currency, on the index rather than the fund.</li>
+      <li><b>Hold the top of each basket.</b> One factor index, one sector index. Nothing else is held, and nothing is shorted.</li>
+      <li><b>Weight them 50/50, and reset only when you trade.</b> Equal money in each leg at the moment a leg changes, then left to drift until the next change. No tilt for conviction, momentum strength or volatility.</li>
+      <li><b>Trade at the start of the month.</b> The signal is fixed at the month-end close; the trade goes on at the first trading day of the following month. If neither leg's winner has changed, nothing trades at all &mdash; which is most months.</li>
+      <li><b>Go to cash on a deep decline.</b> Both legs move to cash when the S&amp;P 500 sits more than 25% below its level nineteen months earlier, and stay there until it does not. One signal, one market index, applied to both legs together.</li>
+    </ol>
+    <div class="prose">
+      <p><b>Why these two baskets.</b> Factor indices and sector indices break the same equity market along different seams. A factor leg captures style regimes such as value leading growth; a sector leg captures the specific thing that is working, energy in 2022, technology in 2020. Ranking them separately, then holding one of each, produces a book that is diversified by construction without any correlation estimate.</p>
+      <p><b>Why eight months.</b> Long enough that a single volatile month cannot flip the ranking, short enough to turn inside a regime change. On this data the strategy changed its factor leg 36 times and its sector leg 35 times in 127 months, so it holds a given pick for about three and a half months on average.</p>
+      <p><b>What the returns represent.</b> Signals come from the indices as described. Returns come from the London-listed UCITS lines that track them, in sterling, on a total-return basis, so dividends, fund charges and currency are already inside the number. Dealing costs, bid-offer spread, platform fees and tax are not.</p>
+      <p><b>Why this rebalancing rule.</b> Four schemes were tested on this data: reset every month, never reset, reset when the split passes 55/45, and the one used here, reset only when a leg changes. The first three are indistinguishable &mdash; they span 0.16pp of annual return and 0.01 of Sharpe over 118 months, which is noise. Never resetting is the only one that is genuinely worse: no more return, a third more drawdown, and one leg is allowed to reach 78% of the book. This rule was chosen because it needs no monitoring, not because it tested best.</p>
+      <p><b>Lineage.</b> The fifteen-index universe and the two-basket 50/50 structure follow a publicly documented approach; the momentum lookback, ranking convention, cash rule and London-listed implementation here were derived independently and differ from it.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ── 08 CAVEATS ────────────────────────────────────────────────────── -->
+<section class="sec wrap" id="caveats">
+  <div class="sechd">
+    <div>
+      <div class="eyebrow">09 — Read this before anything else</div>
+      <h2>What this is&nbsp;not</h2>
+    </div>
+    <p class="lede">The numbers above are real arithmetic on real prices. They are also, every one of them, a backtest. The list below is not boilerplate; each line names a specific reason to read the record as weaker than it looks.</p>
+  </div>
+  <div class="caveats rise">
+    <div class="hd">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 9v4"/><path d="M12 17h.01"/><path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0Z"/></svg>
+      <div class="t">Eight reasons to discount everything above</div>
+    </div>
+    <ul id="caveatList"></ul>
+  </div>
+</section>
+
+<!-- ── APPENDIX ──────────────────────────────────────────────────────── -->
+<section class="sec wrap" id="appendix" style="padding-top:0">
+  <div class="eyebrow" style="margin-bottom:14px">Appendix — the underlying numbers</div>
+  <details class="app">
+    <summary>Monthly record <span id="appMonthlyCount"></span></summary>
+    <div class="tblwrap"><table class="data" id="tblMonthly"></table></div>
+  </details>
+  <details class="app">
+    <summary>Calendar years <span>12 years</span></summary>
+    <div class="tblwrap"><table class="data" id="tblYears"></table></div>
+  </details>
+  <details class="app">
+    <summary>Statistics, all four series <span>Dec 2015 – Jun 2026</span></summary>
+    <div class="tblwrap"><table class="data" id="tblStats"></table></div>
+  </details>
+  <details class="app" style="border-bottom:1px solid var(--rule)">
+    <summary>Tradable lines <span>15 slots, ISIN and London ticker</span></summary>
+    <div class="tblwrap"><table class="data" id="tblUniverse"></table></div>
+  </details>
+</section>
+
+</main>
+
+<footer>
+  <div class="wrap">
+    <div>
+      <p><b>Lodestar</b> — a systematic factor and sector rotation rule, stated in full in the method section above and applied to London-listed UCITS lines in sterling. Every number on this page is computed from month-end index levels and fund prices. Nothing is estimated, smoothed or annotated after the fact.</p>
+      <p style="margin-top:12px" id="footBasis"></p>
+    </div>
+    <div>
+      <p><b>Not financial advice.</b> Nothing here is a recommendation, an offer, or a solicitation to buy or sell any security. Past performance is not a guide to future returns. Backtested results carry no fees, no slippage and no tax. Do your own work.</p>
+      <p style="margin-top:12px" id="footBuild"></p>
+    </div>
+  </div>
+</footer>
+
+<div class="tip" id="tip" role="tooltip" aria-hidden="true"></div>
+
+<script src="data.js"></script>
+<script>
+(function(){
+"use strict";
+
+/* ── tiny helpers ───────────────────────────────────────────────────── */
+var NS = "http://www.w3.org/2000/svg";
+var $  = function(s,r){ return (r||document).querySelector(s); };
+var MINUS = "−";
+
+function el(tag, attrs, text){
+  var n = document.createElement(tag);
+  if (attrs) for (var k in attrs) n.setAttribute(k, attrs[k]);
+  if (text != null) n.textContent = text;
+  return n;
+}
+function sv(tag, attrs, text){
+  var n = document.createElementNS(NS, tag);
+  if (attrs) for (var k in attrs) n.setAttribute(k, attrs[k]);
+  if (text != null) n.textContent = text;
+  return n;
+}
+function css(v){ return getComputedStyle(document.documentElement).getPropertyValue(v).trim(); }
+
+function nf(x, dp){
+  if (x == null || isNaN(x)) return "—";
+  var s = Math.abs(x).toFixed(dp == null ? 2 : dp);
+  return (x < 0 ? MINUS : "") + s;
+}
+function pct(x, dp){ return x == null ? "—" : nf(x, dp) + "%"; }
+var MABBR = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+function pm(m){ return m ? MABBR[+m.slice(5) - 1] + " " + m.slice(0, 4) : "—"; }
+var WORDS = ["zero","one","two","three","four","five","six","seven","eight","nine","ten","eleven","twelve"];
+function word(n){ return WORDS[n] || String(n); }
+function sgn(x, dp){
+  if (x == null || isNaN(x)) return "—";
+  return (x > 0 ? "+" : x < 0 ? MINUS : "") + Math.abs(x).toFixed(dp == null ? 2 : dp) + "%";
+}
+function sgnpp(x, dp){
+  if (x == null || isNaN(x)) return "—";
+  return (x > 0 ? "+" : x < 0 ? MINUS : "") + Math.abs(x).toFixed(dp == null ? 1 : dp) + "pp";
+}
+
+var M  = DATA.meta;
+var ST = DATA.stats;
+var LB = DATA.labels;
+var SERIES = DATA.order;                       // strategy, allworld, sp500, world
+var HUE = { strategy:"--s1", allworld:"--s2", sp500:"--s3", world:"--s4" };
+function hue(k){ return css(HUE[k]); }
+
+/* ── theme ──────────────────────────────────────────────────────────── */
+var ICONS = {
+  auto: '<circle cx="12" cy="12" r="8.5"/><path d="M12 3.5v17" /><path d="M12 20.5a8.5 8.5 0 0 0 0-17" fill="currentColor" stroke="none"/>',
+  light:'<circle cx="12" cy="12" r="4.4"/><path d="M12 2.5v2M12 19.5v2M2.5 12h2M19.5 12h2M5.3 5.3l1.4 1.4M17.3 17.3l1.4 1.4M18.7 5.3l-1.4 1.4M6.7 17.3l-1.4 1.4"/>',
+  dark: '<path d="M20.5 14.6A8.6 8.6 0 0 1 9.4 3.5a8.6 8.6 0 1 0 11.1 11.1Z"/>'
+};
+var order = ["auto","light","dark"], mode = "auto";
+try { var stored = localStorage.getItem("mf-theme"); if (stored && order.indexOf(stored) > -1) mode = stored; } catch(e){}
+function applyTheme(){
+  document.documentElement.setAttribute("data-theme", mode);
+  $("#themeIcon").innerHTML = ICONS[mode];
+  $("#themeLbl").textContent = mode.charAt(0).toUpperCase() + mode.slice(1);
+  $("#themeBtn").setAttribute("aria-label", "Colour theme: " + mode + ". Activate to change.");
+  redrawAll(true);
+}
+$("#themeBtn").addEventListener("click", function(){
+  mode = order[(order.indexOf(mode) + 1) % 3];
+  try { localStorage.setItem("mf-theme", mode); } catch(e){}
+  applyTheme();
+});
+if (window.matchMedia) {
+  var mq = window.matchMedia("(prefers-color-scheme: dark)");
+  var onmq = function(){ if (mode === "auto") redrawAll(true); };
+  if (mq.addEventListener) mq.addEventListener("change", onmq); else if (mq.addListener) mq.addListener(onmq);
+}
+
+/* ── tooltip ────────────────────────────────────────────────────────── */
+var tip = $("#tip");
+function showTip(html, x, y){
+  tip.innerHTML = html;
+  tip.setAttribute("data-open","1");
+  tip.setAttribute("aria-hidden","false");
+  var r = tip.getBoundingClientRect();
+  var left = x + 16, top = y - r.height / 2;
+  if (left + r.width > window.innerWidth - 10) left = x - r.width - 16;
+  if (left < 10) left = 10;
+  top = Math.max(10, Math.min(top, window.innerHeight - r.height - 10));
+  tip.style.left = left + "px";
+  tip.style.top  = top + "px";
+}
+function hideTip(){ tip.setAttribute("data-open","0"); tip.setAttribute("aria-hidden","true"); }
+/* A pointer tooltip is dismissed by scrolling; a keyboard one is not, because
+   moving focus into a chart scrolls it into view. */
+var tipSticky = false;
+function stick(v){ tipSticky = v; }
+window.addEventListener("scroll", function(){ if (!tipSticky) hideTip(); }, {passive:true});
+
+/* ── chart registry: re-render at the container's real pixel width ──── */
+var charts = [];
+function register(node, draw, minW){
+  var c = { node:node, draw:draw, minW:minW || 0, lastW:0 };
+  c.width = function(){ return Math.max(c.minW, (node.parentNode || node).clientWidth || 0); };
+  c.render = function(){ var w = c.width(); if (w > 0){ c.lastW = w; draw(node, w); } };
+  charts.push(c);
+  if (window.ResizeObserver){
+    var ro = new ResizeObserver(function(){ schedule(); });
+    ro.observe(node.parentNode || node);
+  }
+  return c;
+}
+var raf = null;
+function schedule(){ if (raf) return; raf = requestAnimationFrame(function(){ raf = null; redrawAll(false); }); }
+function redrawAll(force){
+  for (var i = 0; i < charts.length; i++){
+    var c = charts[i], w = c.width();
+    if (w > 0 && (force || w !== c.lastW)){ c.lastW = w; c.draw(c.node, w); }
+  }
+}
+window.addEventListener("resize", schedule, {passive:true});
+
+/* Set the dash length from the path's own geometry, once it is in the document,
+   so a jagged line never stops short of its end. */
+function measureDraw(svg){
+  var ps = svg.querySelectorAll("path[data-draw]");
+  for (var i = 0; i < ps.length; i++){
+    var L = 0;
+    try { L = ps[i].getTotalLength(); } catch(e){}
+    ps[i].style.setProperty("--len", Math.ceil(L) || 4000);
+    ps[i].classList.add("draw");           // start the animation only once sized
+  }
+}
+
+/* pick ink that clears contrast against a filled cell */
+function inkOn(hex){
+  var h = String(hex || "").trim().replace("#","");
+  if (h.length === 3) h = h[0]+h[0]+h[1]+h[1]+h[2]+h[2];
+  if (h.length !== 6) return "var(--ink)";
+  var f = function(x){ x /= 255; return x <= .03928 ? x/12.92 : Math.pow((x+.055)/1.055, 2.4); };
+  var L = .2126*f(parseInt(h.slice(0,2),16)) + .7152*f(parseInt(h.slice(2,4),16)) + .0722*f(parseInt(h.slice(4,6),16));
+  return L > .42 ? "#0b0b0b" : "#fbfaf8";
+}
+
+/* ── diverging scale (blue ↔ red, neutral midpoint) ─────────────────── */
+var BANDS = [2, 5, 8];            // thresholds on |monthly %|
+function divVar(v){
+  if (v == null) return "--dv-0";
+  var a = Math.abs(v), i = a < BANDS[0] ? 1 : a < BANDS[1] ? 2 : a < BANDS[2] ? 3 : 4;
+  if (a < 0.05) return "--dv-0";
+  return (v >= 0 ? "--dv-p" : "--dv-n") + i;
+}
+function divInk(v){ return v == null ? "var(--muted)" : inkOn(css(divVar(v))); }
+
+/* ══════════════════════════════════════════════════════════════════════
+   HERO
+   ══════════════════════════════════════════════════════════════════════ */
+(function hero(){
+  var s = ST.strategy, a = ST.allworld;
+  $("#heroEyebrow").textContent =
+    "Systematic ETF rotation · " + M.currency + " total return · " + M.startPretty + " – " + M.endPretty;
+
+  $("#heroDeck").innerHTML =
+    "Fifteen indices, ranked on eight-month momentum. Hold the strongest factor and the strongest sector, "
+    + "50/50, and rebalance once a month. Over " + M.months + " priced months that turned <strong>£1 into £"
+    + s.growth.toFixed(2) + "</strong>, against £" + a.growth.toFixed(2)
+    + " for a world tracker, with a shallower worst fall.";
+
+  $("#heroGrowth").textContent = "×" + s.growth.toFixed(2);
+  $("#heroGrowthCap").innerHTML =
+    "Growth of £1, " + M.startPretty + " to " + M.endPretty + ".<br>The FTSE All-World returned ×"
+    + a.growth.toFixed(2) + " over the same window.";
+
+  var mini = [
+    ["CAGR",          pct(s.cagr),        "vs " + pct(a.cagr)],
+    ["Volatility",    pct(s.vol),         "vs " + pct(a.vol)],
+    ["Sharpe",        s.sharpe.toFixed(2),"vs " + a.sharpe.toFixed(2)],
+    ["Max drawdown",  pct(s.maxdd),       "vs " + pct(a.maxdd)],
+    ["Priced months", String(M.months),   "of " + M.calendarMonths],
+    ["Years ahead",   DATA.excess.beatYears + " / " + DATA.excess.totalYears, "calendar"]
+  ];
+  var dl = $("#heroMini");
+  mini.forEach(function(r){
+    var d = el("div");
+    d.appendChild(el("dt", null, r[0]));
+    var dd = el("dd", {class:"num"}, r[1]);
+    dd.appendChild(el("small", null, r[2]));
+    d.appendChild(dd);
+    dl.appendChild(d);
+  });
+
+  // current book tiles
+  $("#bookAsOf").textContent = "As at " + DATA.current.asofPretty + " close";
+  var tiles = $("#bookTiles");
+  DATA.current.legs.forEach(function(leg, i){
+    var t = el("div", {class:"tile", style:"--dot:var(" + (i === 0 ? "--s1" : "--s2") + ")"});
+    t.appendChild(el("div", {class:"wt num"}, leg.weight + "%"));
+    t.appendChild(el("div", {class:"leg"}, leg.leg + " leg"));
+    t.appendChild(el("div", {class:"nm"}, leg.name));
+    t.appendChild(el("div", {class:"tk"}, leg.lse));
+    t.appendChild(el("div", {class:"isin"}, leg.isin));
+    tiles.appendChild(t);
+  });
+  $("#bookFoot").innerHTML =
+    "London lines shown. The same ISINs list on Xetra as "
+    + DATA.current.legs.map(function(l){ return l.xetra; }).join(" and ")
+    + ", and the equivalent US-listed funds are "
+    + DATA.current.legs.map(function(l){ return l.us; }).join(" and ")
+    + ". Unchanged since " + (function(){
+        var runs = DATA.lanes[1].runs, last = runs[runs.length - 1];
+        return last.from;
+      })() + " on the sector leg.";
+})();
+
+/* ══════════════════════════════════════════════════════════════════════
+   SIGNAL COUNTDOWN
+   Signal is taken at the last trading day of the current month, at the
+   close. The trade goes on at the first trading day of the next month.
+   Weekends are handled; exchange holidays are not, and the page says so.
+   ══════════════════════════════════════════════════════════════════════ */
+(function signal(){
+  var MONTHS = ["January","February","March","April","May","June",
+                "July","August","September","October","November","December"];
+  var DAYS = ["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"];
+
+  function lastWeekdayOfMonth(y, m){          // m 0-based
+    var d = new Date(y, m + 1, 0);            // last calendar day
+    while (d.getDay() === 0 || d.getDay() === 6) d.setDate(d.getDate() - 1);
+    return d;
+  }
+  function firstWeekdayOfMonth(y, m){
+    var d = new Date(y, m, 1);
+    while (d.getDay() === 0 || d.getDay() === 6) d.setDate(d.getDate() + 1);
+    return d;
+  }
+  function fmtDate(d){
+    return DAYS[d.getDay()] + " " + d.getDate() + " " + MONTHS[d.getMonth()] + " " + d.getFullYear();
+  }
+
+  function next(){
+    var now = new Date();
+    var y = now.getFullYear(), m = now.getMonth();
+    // Signal fires at 16:30 local on the last trading day of the month.
+    var sig = lastWeekdayOfMonth(y, m); sig.setHours(16, 30, 0, 0);
+    if (now > sig){                            // this month's signal has passed
+      m += 1; if (m > 11){ m = 0; y += 1; }
+      sig = lastWeekdayOfMonth(y, m); sig.setHours(16, 30, 0, 0);
+    }
+    var tm = sig.getMonth() + 1, ty = sig.getFullYear();
+    if (tm > 11){ tm = 0; ty += 1; }
+    return { signal:sig, trade:firstWeekdayOfMonth(ty, tm), now:now };
+  }
+
+  var facts = $("#bandFacts");
+  function rows(n){
+    facts.innerHTML = "";
+    [
+      ["Signal computed", fmtDate(n.signal), "At the close. Ranks all fifteen indices on eight-month momentum."],
+      ["Trade placed",    fmtDate(n.trade),  "First trading day of the month. Either leg only trades if its winner changed."],
+      ["Current book",    DATA.current.legs.map(function(l){ return l.lse; }).join("  +  ") + "   50/50",
+                          DATA.current.legs.map(function(l){ return l.name; }).join(" and ") + ", as at " + DATA.current.asofPretty + "."]
+    ].forEach(function(r){
+      var row = el("div", {class:"row"});
+      row.appendChild(el("div", {class:"k"}, r[0]));
+      var v = el("div", {class:"v"});
+      v.appendChild(document.createTextNode(r[1]));
+      v.appendChild(el("small", null, r[2]));
+      row.appendChild(v);
+      facts.appendChild(row);
+    });
+  }
+
+  var cur = null;
+  function tick(){
+    var n = next();
+    if (!cur || +cur.signal !== +n.signal){ cur = n; rows(n); }
+    var ms = n.signal - n.now;
+    if (ms < 0) ms = 0;
+    var d = Math.floor(ms / 864e5),
+        h = Math.floor(ms / 36e5) % 24,
+        mi = Math.floor(ms / 6e4) % 60,
+        s = Math.floor(ms / 1e3) % 60;
+    $("#cD").textContent = String(d);
+    $("#cH").textContent = ("0" + h).slice(-2);
+    $("#cM").textContent = ("0" + mi).slice(-2);
+    $("#cS").textContent = ("0" + s).slice(-2);
+    $("#clock").setAttribute("aria-label",
+      d + " days, " + h + " hours and " + mi + " minutes until the next month-end signal.");
+  }
+  tick();
+  setInterval(tick, 1000);
+})();
+
+/* ══════════════════════════════════════════════════════════════════════
+   01 KPI ROW
+   ══════════════════════════════════════════════════════════════════════ */
+(function kpis(){
+  var s = ST.strategy, a = ST.allworld;
+  $("#recordLede").innerHTML =
+    "Every figure on this page is computed from " + M.months + " priced monthly returns between "
+    + M.startPretty + " and " + M.endPretty + ", in sterling, on a total-return basis. "
+    + "Sharpe and Sortino use a <b>" + M.riskFree.toFixed(0) + "% risk-free rate</b>. "
+    + "The comparison series throughout is the FTSE All-World, the thing most UK investors would hold instead.";
+
+  var items = [
+    { k:"CAGR",           v:pct(s.cagr),          c:pct(a.cagr),          n:"Annualised, geometric." },
+    { k:"Sharpe",         v:s.sharpe.toFixed(2),  c:a.sharpe.toFixed(2),  n:"Excess return per unit of volatility." },
+    { k:"Sortino",        v:s.sortino.toFixed(2), c:a.sortino.toFixed(2), n:"Same, counting downside deviation only." },
+    { k:"Max drawdown",   v:pct(s.maxdd),         c:pct(a.maxdd),         n:"Peak " + pm(s.maxddPeak) + ", recovered in " + s.maxddRecoveryMonths + " months." },
+    { k:"Growth of £1",   v:"×" + s.growth.toFixed(2), c:"×" + a.growth.toFixed(2), n:"Over the whole window." },
+    { k:"Monthly win rate", v:pct(DATA.excess.winRate, 0), c:"—", n:DATA.excess.wins + " of " + M.months + " months ahead of the All-World." }
+  ];
+  var box = $("#kpis");
+  items.forEach(function(it){
+    var d = el("div", {class:"kpi"});
+    d.appendChild(el("div", {class:"k"}, it.k));
+    d.appendChild(el("div", {class:"v big"}, it.v));
+    var c = el("div", {class:"cmp"});
+    c.appendChild(el("span", {class:"sw"}));
+    c.appendChild(el("span", null, "All-World"));
+    c.appendChild(el("span", {class:"n"}, it.c));
+    d.appendChild(c);
+    d.appendChild(el("div", {class:"note"}, it.n));
+    box.appendChild(d);
+  });
+})();
+
+/* ══════════════════════════════════════════════════════════════════════
+   02 CUMULATIVE GROWTH  (inline SVG, hand-built)
+   ══════════════════════════════════════════════════════════════════════ */
+(function(){
+  var node = $("#growthChart"), scale = "lin", on = {strategy:1, allworld:1, sp500:1, world:1};
+  var T = DATA.t, SPAN = DATA.span, N = DATA.months.length;
+  var drawn = false, reg;
+
+  $("#growthLede").innerHTML =
+    "The whole record on one axis. The shaded band is nine months of 2016 with no priced record: "
+    + "one of the two funds held in those months had not listed in London yet, so the line is "
+    + "interpolated across the gap rather than measured. Switch to <b>log</b> to compare the shape "
+    + "of the compounding rather than its size.";
+
+  // legend (always present, doubles as a series toggle)
+  var lg = $("#growthLegend");
+  SERIES.forEach(function(k, i){
+    var b = el("button", {type:"button", class:"k" + (i + 1), "aria-pressed":"true"});
+    b.appendChild(el("i", {class:"key"}));
+    b.appendChild(el("span", {class:"lbl"}, LB[k]));
+    b.addEventListener("click", function(){
+      if (SERIES.filter(function(x){ return on[x]; }).length === 1 && on[k]) return;
+      on[k] = !on[k];
+      b.setAttribute("aria-pressed", on[k] ? "true" : "false");
+      reg.render();
+    });
+    lg.appendChild(b);
+  });
+
+  document.querySelectorAll('[data-scale]').forEach(function(b){
+    b.addEventListener("click", function(){
+      scale = b.getAttribute("data-scale");
+      document.querySelectorAll('[data-scale]').forEach(function(o){
+        o.setAttribute("aria-pressed", o === b ? "true" : "false");
+      });
+      drawn = false;
+      reg.render();
+    });
+  });
+
+  function draw(root, W){
+    W = Math.max(560, W);
+    var H = W < 720 ? 380 : W < 1000 ? 440 : 490;
+    var P = { t:22, r:W < 720 ? 74 : 118, b:34, l:46 };
+    var iw = W - P.l - P.r, ih = H - P.t - P.b;
+    var live = SERIES.filter(function(k){ return on[k]; });
+
+    var maxW = 0;
+    live.forEach(function(k){ ST[k].wealth.forEach(function(v){ if (v > maxW) maxW = v; }); });
+    var lo = 0.85, hi = maxW * 1.04;
+
+    var y = scale === "log"
+      ? function(v){ return P.t + ih - (Math.log(Math.max(v, lo)) - Math.log(lo)) / (Math.log(hi) - Math.log(lo)) * ih; }
+      : function(v){ return P.t + ih - (v / hi) * ih; };
+    var x = function(t){ return P.l + t / SPAN * iw; };
+
+    var svg = sv("svg", {class:"chart", viewBox:"0 0 " + W + " " + H, width:W, height:H});
+    svg.style.width = W + "px"; svg.style.height = H + "px";
+    root.style.minWidth = W + "px";
+
+    // y grid
+    var ticks;
+    if (scale === "log"){
+      ticks = [1, 1.5, 2, 3, 4, 6, 8].filter(function(v){ return v <= hi; });
+    } else {
+      var step = hi > 8 ? 2 : hi > 4 ? 1 : 0.5, tk = [];
+      for (var v = 0; v <= hi; v += step) tk.push(v);
+      ticks = tk;
+    }
+    ticks.forEach(function(v){
+      var yy = Math.round(y(v)) + 0.5;
+      svg.appendChild(sv("line", {class:"gridline", x1:P.l, x2:P.l + iw, y1:yy, y2:yy}));
+      svg.appendChild(sv("text", {class:"axlbl", x:P.l - 9, y:yy + 3.5, "text-anchor":"end"},
+                         "×" + (v % 1 ? v.toFixed(1) : v)));
+    });
+
+    // x ticks at each January
+    DATA.calendar.forEach(function(m, i){
+      if (m.slice(5) !== "01") return;
+      var yr = m.slice(0, 4);
+      if (W < 720 && (+yr) % 2) return;
+      var xx = Math.round(x(i)) + 0.5;
+      svg.appendChild(sv("line", {class:"gridline", x1:xx, x2:xx, y1:P.t + ih, y2:P.t + ih + 5}));
+      svg.appendChild(sv("text", {class:"axlbl", x:xx, y:P.t + ih + 19, "text-anchor":"middle"}, yr));
+    });
+
+    // the unpriced 2016 band
+    if (M.gaps.length){
+      var g0 = DATA.calendar.indexOf(M.gaps[0]) - 1;
+      var g1 = DATA.calendar.indexOf(M.gaps[M.gaps.length - 1]) + 1;
+      svg.appendChild(sv("rect", {class:"gapfill", x:x(g0), y:P.t, width:x(g1) - x(g0), height:ih, rx:3}));
+      if (W >= 720) svg.appendChild(sv("text", {class:"gaplbl", x:(x(g0) + x(g1)) / 2, y:P.t + 13,
+                                                "text-anchor":"middle"}, "no priced record"));
+    }
+
+    // series
+    var ends = [];
+    live.forEach(function(k){
+      var w = ST[k].wealth, d = "";
+      for (var i = 0; i < N; i++) d += (i ? "L" : "M") + x(T[i]).toFixed(2) + " " + y(w[i]).toFixed(2);
+      var path = sv("path", {class:"ser", d:d, stroke:hue(k)});
+      if (!drawn){
+        path.setAttribute("data-draw", "1");
+        path.style.animationDelay = (SERIES.indexOf(k) * 90) + "ms";
+      }
+      svg.appendChild(path);
+      ends.push({ k:k, y:y(w[N - 1]), v:w[N - 1] });
+    });
+
+    // end dots
+    ends.forEach(function(e){
+      svg.appendChild(sv("circle", {cx:x(SPAN), cy:e.y, r:4.5, fill:hue(e.k), class:"halo"}));
+    });
+
+    // direct end-labels with a simple collision resolver + leader lines
+    ends.sort(function(a, b){ return a.y - b.y; });
+    var minGap = 30, lx = x(SPAN) + 14;
+    var placed = ends.map(function(e){ return { e:e, ly:e.y }; });
+    for (var pass = 0; pass < 40; pass++){
+      var moved = false;
+      for (var i = 1; i < placed.length; i++){
+        var gap = placed[i].ly - placed[i - 1].ly;
+        if (gap < minGap){
+          var push = (minGap - gap) / 2;
+          placed[i - 1].ly -= push; placed[i].ly += push; moved = true;
+        }
+      }
+      if (!moved) break;
+    }
+    placed.forEach(function(p){
+      p.ly = Math.max(P.t + 12, Math.min(p.ly, P.t + ih - 6));
+      if (Math.abs(p.ly - p.e.y) > 2){
+        svg.appendChild(sv("path", {class:"leader", fill:"none",
+          d:"M" + (x(SPAN) + 5) + " " + p.e.y + " L" + (lx - 5) + " " + p.ly}));
+      }
+      svg.appendChild(sv("text", {class:"endlbl", x:lx, y:p.ly - 2}, "×" + p.e.v.toFixed(2)));
+      var nm = LB[p.e.k];
+      if (W < 720) nm = nm.replace("FTSE ", "").replace("MSCI ", "");
+      svg.appendChild(sv("text", {class:"endsub", x:lx, y:p.ly + 11}, nm));
+    });
+
+    // hover layer
+    var cursor = sv("line", {class:"cursor", y1:P.t, y2:P.t + ih, x1:-99, x2:-99});
+    svg.appendChild(cursor);
+    var dots = sv("g");
+    svg.appendChild(dots);
+    var hit = sv("rect", {x:P.l, y:P.t, width:iw, height:ih, fill:"transparent", style:"cursor:crosshair"});
+    svg.appendChild(hit);
+
+    var cursorI = -1;
+    function point(i, clientX, clientY){
+      if (i < 0 || i >= N) return;
+      cursorI = i;
+      var xx = x(T[i]);
+      cursor.setAttribute("x1", xx); cursor.setAttribute("x2", xx);
+      dots.textContent = "";
+      var rowsHtml = "";
+      live.forEach(function(k){
+        var w = ST[k].wealth[i];
+        dots.appendChild(sv("circle", {cx:xx, cy:y(w), r:4, fill:hue(k), class:"halo"}));
+        rowsHtml += '<div class="r"><i class="sw" style="background:' + hue(k) + '"></i>'
+                  + '<span class="nm">' + LB[k] + '</span>'
+                  + '<span class="vl">×' + w.toFixed(2) + '</span></div>';
+      });
+      var mr = DATA.returns.strategy[i];
+      var html = '<div class="h">' + DATA.monthsPretty[i] + '</div>' + rowsHtml
+               + '<div class="foot">Lodestar that month ' + sgn(mr) + '</div>';
+      var box = root.getBoundingClientRect();
+      showTip(html, clientX != null ? clientX : box.left + xx * (box.width / W),
+                    clientY != null ? clientY : box.top + box.height / 2);
+    }
+    function nearest(clientX){
+      var box = root.getBoundingClientRect();
+      var px = (clientX - box.left) * (W / box.width);
+      var tt = (px - P.l) / iw * SPAN;
+      var best = 0, bd = Infinity;
+      for (var i = 0; i < N; i++){ var d = Math.abs(T[i] - tt); if (d < bd){ bd = d; best = i; } }
+      return best;
+    }
+    hit.addEventListener("pointermove", function(ev){ stick(false); point(nearest(ev.clientX), ev.clientX, ev.clientY); });
+    hit.addEventListener("pointerleave", function(){ cursor.setAttribute("x1",-99); cursor.setAttribute("x2",-99); dots.textContent=""; hideTip(); });
+    root.onkeydown = function(ev){
+      if (ev.key !== "ArrowLeft" && ev.key !== "ArrowRight") return;
+      ev.preventDefault();
+      stick(true);
+      var i = cursorI < 0 ? N - 1 : cursorI + (ev.key === "ArrowRight" ? 1 : -1);
+      point(Math.max(0, Math.min(N - 1, i)));
+    };
+    root.onblur = function(){ stick(false); hideTip(); };
+
+    root.textContent = "";
+    root.appendChild(svg);
+    measureDraw(svg);
+    drawn = true;
+  }
+  reg = register(node, draw, 560);
+})();
+
+/* ══════════════════════════════════════════════════════════════════════
+   03 DRAWDOWN
+   ══════════════════════════════════════════════════════════════════════ */
+(function drawdown(){
+  var node = $("#ddChart"), T = DATA.t, SPAN = DATA.span, N = DATA.months.length;
+  var KEYS = ["strategy", "allworld"];
+  var drawn = false;
+
+  $("#ddLede").innerHTML =
+    "Distance below the previous high-water mark, month by month. The strategy takes more volatility than "
+    + "a world tracker yet its worst fall is <b>" + pct(ST.strategy.maxdd) + "</b> against <b>"
+    + pct(ST.allworld.maxdd) + "</b>. Read the caveats before treating that as a durable property: "
+    + "the cash filter that exists for a real bear market never fired once in this window.";
+
+  var lg = $("#ddLegend");
+  KEYS.forEach(function(k, i){
+    var s = el("span", {class:"item k" + (i + 1)});
+    s.appendChild(el("i", {class:"key"}));
+    s.appendChild(el("span", {class:"lbl"}, LB[k]));
+    lg.appendChild(s);
+  });
+
+  function draw(root, W){
+    W = Math.max(560, W);
+    var H = W < 720 ? 260 : 320;
+    var P = { t:18, r:W < 720 ? 20 : 30, b:32, l:46 }, iw = W - P.l - P.r, ih = H - P.t - P.b;
+    var lo = Math.min(ST.strategy.maxdd, ST.allworld.maxdd) * 1.08;
+    var y = function(v){ return P.t + (v / lo) * ih; };
+    var x = function(t){ return P.l + t / SPAN * iw; };
+
+    var svg = sv("svg", {class:"chart", viewBox:"0 0 " + W + " " + H, width:W, height:H});
+    svg.style.width = W + "px"; svg.style.height = H + "px";
+    root.style.minWidth = W + "px";
+
+    for (var v = 0; v >= lo; v -= 4){
+      var yy = Math.round(y(v)) + 0.5;
+      svg.appendChild(sv("line", {class: v === 0 ? "zeroline" : "gridline", x1:P.l, x2:P.l + iw, y1:yy, y2:yy}));
+      svg.appendChild(sv("text", {class:"axlbl", x:P.l - 9, y:yy + 3.5, "text-anchor":"end"}, nf(v, 0) + "%"));
+    }
+    DATA.calendar.forEach(function(m, i){
+      if (m.slice(5) !== "01") return;
+      var yr = m.slice(0, 4);
+      if (W < 720 && (+yr) % 2) return;
+      var xx = Math.round(x(i)) + 0.5;
+      svg.appendChild(sv("line", {class:"gridline", x1:xx, x2:xx, y1:P.t + ih, y2:P.t + ih + 5}));
+      svg.appendChild(sv("text", {class:"axlbl", x:xx, y:P.t + ih + 19, "text-anchor":"middle"}, yr));
+    });
+
+    KEYS.slice().reverse().forEach(function(k){
+      var dd = ST[k].drawdown, line = "", area = "";
+      for (var i = 0; i < N; i++){
+        var px = x(T[i]).toFixed(2), py = y(dd[i]).toFixed(2);
+        line += (i ? "L" : "M") + px + " " + py;
+      }
+      area = "M" + x(T[0]).toFixed(2) + " " + y(0) + " " + line.slice(1)
+           + "L" + x(T[N - 1]).toFixed(2) + " " + y(0) + "Z";
+      svg.appendChild(sv("path", {d:area, fill:hue(k), "fill-opacity":.10, stroke:"none"}));
+      var p = sv("path", {class:"ser", d:line, stroke:hue(k)});
+      if (!drawn) p.setAttribute("data-draw", "1");
+      svg.appendChild(p);
+    });
+
+    // annotate the strategy trough
+    var ti = DATA.months.indexOf(ST.strategy.maxddTrough);
+    if (ti > -1 && W >= 640){
+      var tx = x(T[ti]), ty = y(ST.strategy.drawdown[ti]);
+      svg.appendChild(sv("circle", {cx:tx, cy:ty, r:4.5, fill:hue("strategy"), class:"halo"}));
+      var anchor = tx > P.l + iw * 0.7 ? "end" : "start";
+      var off = anchor === "end" ? -10 : 10;
+      svg.appendChild(sv("text", {class:"endlbl", x:tx + off, y:ty + 15, "text-anchor":anchor},
+                         pct(ST.strategy.maxdd) + "  ·  " + pm(ST.strategy.maxddTrough)));
+      svg.appendChild(sv("text", {class:"endsub", x:tx + off, y:ty + 28, "text-anchor":anchor},
+                         "recovered in " + ST.strategy.maxddRecoveryMonths + " months"));
+    }
+
+    var cursor = sv("line", {class:"cursor", y1:P.t, y2:P.t + ih, x1:-99, x2:-99});
+    svg.appendChild(cursor);
+    var dots = sv("g"); svg.appendChild(dots);
+    var hit = sv("rect", {x:P.l, y:P.t, width:iw, height:ih, fill:"transparent", style:"cursor:crosshair"});
+    svg.appendChild(hit);
+    var ci = -1;
+    function point(i, cx, cy){
+      ci = i;
+      var xx = x(T[i]);
+      cursor.setAttribute("x1", xx); cursor.setAttribute("x2", xx);
+      dots.textContent = "";
+      var html = '<div class="h">' + DATA.monthsPretty[i] + '</div>';
+      KEYS.forEach(function(k){
+        var v = ST[k].drawdown[i];
+        dots.appendChild(sv("circle", {cx:xx, cy:y(v), r:4, fill:hue(k), class:"halo"}));
+        html += '<div class="r"><i class="sw" style="background:' + hue(k) + '"></i>'
+              + '<span class="nm">' + LB[k] + '</span><span class="vl">' + pct(v) + '</span></div>';
+      });
+      var b = root.getBoundingClientRect();
+      showTip(html, cx != null ? cx : b.left + xx * (b.width / W), cy != null ? cy : b.top + b.height / 2);
+    }
+    hit.addEventListener("pointermove", function(ev){
+      stick(false);
+      var b = root.getBoundingClientRect();
+      var tt = ((ev.clientX - b.left) * (W / b.width) - P.l) / iw * SPAN;
+      var best = 0, bd = Infinity;
+      for (var i = 0; i < N; i++){ var d = Math.abs(T[i] - tt); if (d < bd){ bd = d; best = i; } }
+      point(best, ev.clientX, ev.clientY);
+    });
+    hit.addEventListener("pointerleave", function(){ cursor.setAttribute("x1",-99); cursor.setAttribute("x2",-99); dots.textContent=""; hideTip(); });
+    root.onkeydown = function(ev){
+      if (ev.key !== "ArrowLeft" && ev.key !== "ArrowRight") return;
+      ev.preventDefault();
+      stick(true);
+      var i = ci < 0 ? N - 1 : ci + (ev.key === "ArrowRight" ? 1 : -1);
+      point(Math.max(0, Math.min(N - 1, i)));
+    };
+    root.onblur = function(){ stick(false); hideTip(); };
+
+    root.textContent = "";
+    root.appendChild(svg);
+    measureDraw(svg);
+    drawn = true;
+  }
+  register(node, draw, 560);
+})();
+
+/* ══════════════════════════════════════════════════════════════════════
+   04 CALENDAR YEARS
+   ══════════════════════════════════════════════════════════════════════ */
+(function years(){
+  var Y = DATA.years, root = $("#yearsChart");
+  $("#yearsLede").innerHTML =
+    "The strategy finished ahead of the FTSE All-World in <b>" + DATA.excess.beatYears + " of "
+    + DATA.excess.totalYears + " calendar years</b>, including both down years for the index. "
+    + "Two of those years are stubs: 2015 is a single month and 2026 runs to June. "
+    + "2016 covers only the three months that have a priced record.";
+
+  var lo = 0, hi = 0;
+  Y.forEach(function(r){
+    ["strategy","allworld"].forEach(function(k){
+      if (r[k] < lo) lo = r[k];
+      if (r[k] > hi) hi = r[k];
+    });
+  });
+  var pad = 1.06, LO = lo * pad, HI = hi * pad, RANGE = HI - LO;
+
+  function draw(node, W){
+    node.textContent = "";
+    var hd = el("div", {class:"hd"});
+    ["Year","Return","Lodestar","All-World","Excess"].forEach(function(t, i){
+      hd.appendChild(el("span", {class: i >= 2 ? "r" : ""}, t));
+    });
+    node.appendChild(hd);
+
+    Y.forEach(function(r, idx){
+      var row = el("div", {class:"row"});
+      var yr = el("div", {class:"yr"}, String(r.year));
+      if (r.partial) yr.appendChild(el("small", null, r.monthsCovered + " mo"));
+      row.appendChild(yr);
+
+      var bars = el("div", {class:"bars"});
+      var zero = (0 - LO) / RANGE * 100;
+      bars.appendChild(el("div", {class:"zero", style:"left:" + zero + "%"}));
+      [["strategy","sA"], ["allworld","sB"]].forEach(function(p){
+        var v = r[p[0]], w = Math.abs(v) / RANGE * 100;
+        var b = el("div", {class:"bar " + p[1] + " " + (v >= 0 ? "pos" : "neg")});
+        b.style.left  = (v >= 0 ? zero : zero - w) + "%";
+        b.style.width = "0%";
+        requestAnimationFrame(function(){
+          setTimeout(function(){ b.style.width = w + "%"; }, 40 + idx * 28);
+        });
+        bars.appendChild(b);
+      });
+      row.appendChild(bars);
+
+      row.appendChild(el("div", {class:"v"}, sgn(r.strategy)));
+      row.appendChild(el("div", {class:"v sub"}, sgn(r.allworld)));
+      row.appendChild(el("div", {class:"x" + (r.excess < 0 ? " dn" : "")}, sgnpp(r.excess)));
+
+      row.addEventListener("pointerenter", function(ev){
+        var html = '<div class="h">' + r.year + " · " + r.span + '</div>';
+        SERIES.forEach(function(k){
+          html += '<div class="r"><i class="sw" style="background:' + hue(k) + '"></i>'
+                + '<span class="nm">' + LB[k] + '</span><span class="vl">' + sgn(r[k]) + '</span></div>';
+        });
+        html += '<div class="foot">' + sgnpp(r.excess) + " against the All-World"
+              + (r.partial ? " · " + r.monthsCovered + " priced months only" : "") + '</div>';
+        showTip(html, ev.clientX, ev.clientY);
+      });
+      row.addEventListener("pointermove", function(ev){ showTip(tip.innerHTML, ev.clientX, ev.clientY); });
+      row.addEventListener("pointerleave", hideTip);
+      node.appendChild(row);
+    });
+
+    var ft = el("div", {class:"row", style:"border-bottom:0;padding-top:14px"});
+    ft.appendChild(el("div"));
+    ft.appendChild(el("div", {style:"font-size:12px;color:var(--muted)"},
+      "Bars share one scale, from " + pct(LO, 0) + " to " + pct(HI, 0) + "."));
+    ft.appendChild(el("div", {class:"v", style:"font-size:12.5px;color:var(--muted)"}, ""));
+    ft.appendChild(el("div"));
+    ft.appendChild(el("div", {class:"x", style:"color:var(--muted);font-size:12px"},
+      DATA.excess.beatYears + "/" + DATA.excess.totalYears));
+    node.appendChild(ft);
+  }
+  register(root, draw, 660);
+})();
+
+/* ══════════════════════════════════════════════════════════════════════
+   05 MONTHLY HEATMAP
+   ══════════════════════════════════════════════════════════════════════ */
+(function heatmap(){
+  var root = $("#hmChart"), showVals = false, reg;
+  var G = DATA.heatmap, GAPS = {};
+  M.gaps.forEach(function(m){ GAPS[m] = 1; });
+
+  $("#hmLede").innerHTML =
+    "Best month <b>" + sgn(ST.strategy.best) + "</b> (" + pm(ST.strategy.bestMonth)
+    + "), worst <b>" + sgn(ST.strategy.worst) + "</b> (" + pm(ST.strategy.worstMonth)
+    + "). " + ST.strategy.posMonths + " of " + M.months + " months were positive. "
+    + "Hatched cells have no priced record.";
+
+  // scale legend — a binned diverging key, four steps per arm plus a neutral middle
+  var key = $("#hmKey");
+  key.appendChild(el("span", null, "Monthly return"));
+  key.appendChild(el("span", null, MINUS + "8%"));
+  var sw = el("span", {class:"sw"});
+  ["--dv-n4","--dv-n3","--dv-n2","--dv-n1","--dv-0","--dv-p1","--dv-p2","--dv-p3","--dv-p4"].forEach(function(v){
+    sw.appendChild(el("i", {style:"background:var(" + v + ")"}));
+  });
+  key.appendChild(sw);
+  key.appendChild(el("span", null, "+8%"));
+
+  document.querySelectorAll("[data-hm]").forEach(function(b){
+    b.addEventListener("click", function(){
+      showVals = b.getAttribute("data-hm") === "on";
+      document.querySelectorAll("[data-hm]").forEach(function(o){
+        o.setAttribute("aria-pressed", o === b ? "true" : "false");
+      });
+      reg.render();
+    });
+  });
+
+  var nameOf = (function(){
+    var m = {};
+    DATA.universe.factors.concat(DATA.universe.sectors).forEach(function(u){ m[u.code] = u.name; });
+    return function(c){ return m[c] || c; };
+  })();
+  var holdBy = {};
+  DATA.holdings.forEach(function(h){ holdBy[h.m] = h; });
+
+  function draw(node){
+    node.textContent = "";
+    node.style.gridTemplateColumns = "46px repeat(12, minmax(0,1fr)) 66px";
+
+    node.appendChild(el("div"));
+    G.monthLabels.forEach(function(m){ node.appendChild(el("div", {class:"colhd"}, m)); });
+    node.appendChild(el("div", {class:"colhd", style:"text-align:right"}, "Year"));
+
+    G.years.forEach(function(row){
+      node.appendChild(el("div", {class:"lbl"}, String(row.year)));
+      row.cells.forEach(function(v, mi){
+        var m = row.year + "-" + ("0" + (mi + 1)).slice(-2);
+        if (v == null){
+          // hatched only where the record should have a value and does not;
+          // months outside the window are simply blank.
+          node.appendChild(el("div", GAPS[m] ? {class:"void", "aria-label":"no priced record"} : {}));
+          return;
+        }
+        var c = el("div", {class:"cell", role:"img",
+                           "aria-label":G.monthLabels[mi] + " " + row.year + ", " + sgn(v)});
+        c.style.background = "var(" + divVar(v) + ")";
+        if (showVals){
+          c.textContent = (v > 0 ? "" : MINUS) + Math.abs(v).toFixed(1);
+          c.style.color = divInk(v);
+        }
+        c.addEventListener("pointerenter", function(ev){
+          var h = holdBy[m];
+          var html = '<div class="h">' + G.monthLabels[mi] + " " + row.year + '</div>'
+            + '<div class="r"><i class="sw" style="background:var(' + divVar(v) + ')"></i>'
+            + '<span class="nm">Lodestar</span><span class="vl">' + sgn(v) + '</span></div>'
+            + '<div class="r"><i class="sw" style="background:' + hue("allworld") + '"></i>'
+            + '<span class="nm">All-World</span><span class="vl">'
+            + sgn(DATA.returns.allworld[DATA.months.indexOf(m)]) + '</span></div>';
+          if (h && !h.cash) html += '<div class="foot">' + nameOf(h.factor) + "  +  " + nameOf(h.sector) + '</div>';
+          showTip(html, ev.clientX, ev.clientY);
+        });
+        c.addEventListener("pointerleave", hideTip);
+        node.appendChild(c);
+      });
+      var y = el("div", {class:"ytd"}, row.ytd == null ? "—" : sgn(row.ytd, 1));
+      y.style.color = row.ytd == null ? "var(--muted)" : (row.ytd >= 0 ? "var(--pos-ink)" : "var(--neg-ink)");
+      y.title = row.year + " compounded from its priced months";
+      node.appendChild(y);
+    });
+  }
+  reg = register(root, draw, 640);
+})();
+
+/* ══════════════════════════════════════════════════════════════════════
+   06 ALLOCATION RIBBON
+   Two lanes, one row per candidate index. A bar marks every month that
+   index was in the book; its shade is the book's mean monthly return
+   across that run. Identity comes from the row label, never from colour.
+   ══════════════════════════════════════════════════════════════════════ */
+(function ribbon(){
+  var root = $("#ribChart"), CAL = DATA.calendar, NC = CAL.length;
+
+  var switches = DATA.lanes.map(function(l){ return l.runs.length; });
+  function tenureOf(code){
+    var n = 0;
+    DATA.lanes.forEach(function(l){ l.slots.forEach(function(s){ if (s.code === code) n = s.months; }); });
+    return n + " months";
+  }
+  $("#ribLede").innerHTML =
+    "Every month of the record, both legs. The factor leg changed <b>" + switches[0]
+    + " times</b> and the sector leg <b>" + switches[1] + " times</b> across " + NC
+    + " months, so the average holding lasts about " + (NC / ((switches[0] + switches[1]) / 2)).toFixed(1)
+    + " months. Long unbroken bars are months where nothing traded: "
+    + "Information Technology held the sector leg for " + tenureOf("INFOTECH") + " of them, more than any other index.";
+
+  var key = $("#ribKey");
+  key.appendChild(el("span", null, "Mean monthly return while held"));
+  var sw = el("span", {class:"sw"});
+  ["--dv-n4","--dv-n3","--dv-n2","--dv-n1","--dv-0","--dv-p1","--dv-p2","--dv-p3","--dv-p4"].forEach(function(v){
+    sw.appendChild(el("i", {style:"background:var(" + v + ")"}));
+  });
+  key.appendChild(el("span", null, MINUS + "8%"));
+  key.appendChild(sw);
+  key.appendChild(el("span", null, "+8%"));
+
+  function draw(node){
+    node.textContent = "";
+    DATA.lanes.forEach(function(lane){
+      var hd = el("div", {class:"lane-hd"});
+      hd.appendChild(el("span", {class:"t"}, lane.title));
+      hd.appendChild(el("span", {class:"s"}, lane.subtitle));
+      hd.appendChild(el("span", {class:"s", style:"margin-left:auto"},
+        lane.runs.length + " changes  ·  months held"));
+      node.appendChild(hd);
+
+      lane.slots.forEach(function(slot){
+        var row = el("div", {class:"row"});
+        row.appendChild(el("div", {class:"rname", title:slot.name + " — " + slot.ticker + " · " + slot.isin}, slot.name));
+        var track = el("div", {class:"track"});
+        lane.runs.forEach(function(run){
+          if (run.slot !== slot.code) return;
+          var left = run.start / NC * 100, width = (run.months / NC) * 100;
+          var b = el("div", {class:"run" + (run.avgRet == null ? " unpriced" : ""), tabindex:"0"});
+          b.style.left = left + "%";
+          b.style.width = "calc(" + width + "% - 2px)";
+          if (run.avgRet != null) b.style.background = "var(" + divVar(run.avgRet) + ")";
+          var label = slot.name + " · " + run.from + (run.months > 1 ? " to " + run.to : "")
+                    + " · " + run.months + (run.months === 1 ? " month" : " months");
+          b.setAttribute("aria-label", label);
+          var show = function(ev){
+            var html = '<div class="h">' + run.from + (run.months > 1 ? " – " + run.to : "") + '</div>'
+              + '<div class="r"><i class="sw" style="background:var(' + divVar(run.avgRet) + ')"></i>'
+              + '<span class="nm">' + slot.name + '</span><span class="vl">'
+              + run.months + (run.months === 1 ? " mo" : " mos") + '</span></div>'
+              + '<div class="foot">' + slot.ticker + " · "
+              + (run.avgRet == null
+                  ? "no priced record"
+                  : "book averaged " + sgn(run.avgRet) + " a month")
+              + '</div>';
+            var r = b.getBoundingClientRect();
+            showTip(html, ev.clientX != null ? ev.clientX : r.left + r.width / 2,
+                          ev.clientY != null ? ev.clientY : r.top);
+          };
+          b.addEventListener("pointerenter", function(ev){ stick(false); show(ev); });
+          b.addEventListener("focus", function(){ stick(true); show({}); });
+          b.addEventListener("pointerleave", hideTip);
+          b.addEventListener("blur", function(){ stick(false); hideTip(); });
+          track.appendChild(b);
+        });
+        row.appendChild(track);
+        row.appendChild(el("div", {class:"tenure"}, slot.months + " mo"));
+        node.appendChild(row);
+      });
+    });
+
+    var ax = el("div", {class:"axis"});
+    ax.appendChild(el("div"));
+    var ticks = el("div", {class:"ticks"});
+    CAL.forEach(function(m, i){
+      if (m.slice(5) !== "01") return;
+      var p = (i / NC) * 100;
+      var t = el("i"); t.style.left = p + "%"; ticks.appendChild(t);
+      var s = el("span", null, m.slice(0, 4)); s.style.left = p + "%"; ticks.appendChild(s);
+    });
+    ax.appendChild(ticks);
+    ax.appendChild(el("div"));
+    node.appendChild(ax);
+  }
+  register(root, draw, 820);
+})();
+
+/* ══════════════════════════════════════════════════════════════════════
+   07 THE UNIVERSE
+   Eleven glyphs, hand-drawn on one 24-unit grid: four factor styles and
+   seven sectors. Identical stroke weight and joins throughout, stroke-only
+   except where a solid mass is the point (small cap, bullion). The factor
+   basket is four styles crossed with two regions, so the region is a
+   typographic tag rather than a fifth and sixth drawing.
+   ══════════════════════════════════════════════════════════════════════ */
+(function universeSection(){
+  var G = {};
+
+  // ── factor styles ────────────────────────────────────────────────────
+  // Momentum: two stacked chevrons, rising — acceleration, not a trend line.
+  G.MOM = '<path d="M6 13.4 12 7.4l6 6"/><path d="M6 19 12 13l6 6"/>';
+  // Quality: a brilliant cut seen face-on — crown, girdle, two facets.
+  G.QUAL = '<path d="M12 3.8 19.6 10 12 20.2 4.4 10Z"/><path d="M4.4 10h15.2"/>'
+         + '<path d="M12 3.8 8.4 10"/><path d="M12 3.8 15.6 10"/>';
+  // Value: a price tag with its eyelet.
+  G.VAL = '<path d="M12.4 3.6H5.1A1.5 1.5 0 0 0 3.6 5.1v7.3a1.5 1.5 0 0 0 .44 1.06l6.9 6.9a1.5 1.5 0 0 0 2.12 0l7.3-7.3a1.5 1.5 0 0 0 0-2.12l-6.9-6.9a1.5 1.5 0 0 0-1.06-.44Z"/>'
+        + '<circle cx="7.7" cy="7.7" r="1.45"/>';
+  // Size: a small solid form beside a large empty one, on one baseline.
+  G.SMALL = '<rect x="3.4" y="6.6" width="9.2" height="13.6" rx="1.6"/>'
+          + '<rect class="mass" x="14.6" y="13.8" width="6" height="6.4" rx="1.2"/>';
+
+  // ── sectors ──────────────────────────────────────────────────────────
+  // Energy: an oil drum — cylinder and two hoops.
+  G.ENERGY = '<ellipse cx="12" cy="5.9" rx="5.4" ry="2.1"/>'
+           + '<path d="M6.6 5.9v12.2M17.4 5.9v12.2"/>'
+           + '<path d="M6.6 18.1a5.4 2.1 0 0 0 10.8 0"/>'
+           + '<path d="M6.6 10.2h10.8M6.6 13.9h10.8"/>';
+  // Information Technology: a package, its die, and three pins a side.
+  G.INFOTECH = '<rect x="7.6" y="7.6" width="8.8" height="8.8" rx="1.2"/>'
+             + '<rect x="10.6" y="10.6" width="2.8" height="2.8" rx="0.7"/>'
+             + '<path d="M9.9 7.6V4.7M12 7.6V4.7M14.1 7.6V4.7"/>'
+             + '<path d="M9.9 16.4v2.9M12 16.4v2.9M14.1 16.4v2.9"/>'
+             + '<path d="M7.6 9.9H4.7M7.6 12H4.7M7.6 14.1H4.7"/>'
+             + '<path d="M16.4 9.9h2.9M16.4 12h2.9M16.4 14.1h2.9"/>';
+  // Health Care: a capsule on the diagonal, with its seam.
+  G.HEALTH = '<g transform="rotate(-45 12 12)">'
+           + '<rect x="3.6" y="9.4" width="16.8" height="5.2" rx="2.6"/>'
+           + '<path d="M12 9.4v5.2"/></g>';
+  // Consumer Discretionary: a shopping bag.
+  G.CONS_DISC = '<path d="M5.6 8.2h12.8l-1 11.1a1.4 1.4 0 0 1-1.4 1.27H8a1.4 1.4 0 0 1-1.4-1.27Z"/>'
+              + '<path d="M9.1 8.2V6.5a2.9 2.9 0 0 1 5.8 0v1.7"/>';
+  // Consumer Staples: a gable-top carton.
+  G.CONS_STAP = '<path d="M6.9 9.1 12 4.3l5.1 4.8v10.6H6.9Z"/>'
+              + '<path d="M6.9 9.1h10.2"/><path d="M12 4.3v4.8"/>';
+  // Industrials: a cog — hub, body, eight teeth on the 45° grid.
+  G.INDUST = '<circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/>'
+           + '<path d="M18 12h2.2M16.24 16.24l1.56 1.56M12 18v2.2M7.76 16.24 6.2 17.8'
+           + 'M6 12H3.8M7.76 7.76 6.2 6.2M12 6V3.8M16.24 7.76 17.8 6.2"/>';
+  // Materials: three cast bars, stacked.
+  G.MATERIALS = '<rect x="3.7" y="14.5" width="7.6" height="5.3" rx="0.9"/>'
+              + '<rect x="12.7" y="14.5" width="7.6" height="5.3" rx="0.9"/>'
+              + '<rect x="8.2" y="8.5" width="7.6" height="5.3" rx="0.9"/>';
+
+  function glyph(key){
+    var d = el("div", {class:"gl"});
+    d.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">' + (G[key] || "") + "</svg>";
+    return d;
+  }
+
+  var U = DATA.universe, MAX = U.maxHeld;
+
+  $("#uniLede").innerHTML =
+    "Eight MSCI factor indices and seven S&amp;P 500 sector indices, and nothing else is ever bought. "
+    + "The bars count the priced months each one spent in the book. "
+    + "<b>Information Technology</b> held the sector leg for " + U.sectors.filter(function(s){ return s.code === "INFOTECH"; })[0].held
+    + " of " + U.pricedMonths + " months; <b>Materials</b> never held it for a priced month at all. "
+    + "That spread is the strategy: a long-tailed universe where a handful of slots do nearly all the work.";
+
+  function bar(u, hue){
+    var m = el("div", {class:"meter"});
+    var i = el("i");
+    i.style.setProperty("--live", hue);
+    m.appendChild(i);
+    requestAnimationFrame(function(){
+      setTimeout(function(){ i.style.width = (u.held / MAX * 100).toFixed(1) + "%"; }, 60);
+    });
+    m.setAttribute("role", "img");
+    m.setAttribute("aria-label", u.held + " of " + U.pricedMonths + " priced months");
+    return m;
+  }
+
+  function idline(u){
+    var d = el("div", {class:"id"});
+    d.appendChild(el("b", null, u.lse));
+    d.appendChild(document.createTextNode("  ·  " + u.isin));
+    return d;
+  }
+
+  function months(u){
+    var d = el("div", {class:"mo" + (u.held ? "" : " zero")}, u.held ? String(u.held) : "0");
+    d.title = u.held + " of " + U.pricedMonths + " priced months in the book";
+    return d;
+  }
+
+  var box = $("#baskets");
+
+  // ── factor basket: four styles, each crossed with two regions ────────
+  var fb = el("div", {class:"basket"});
+  var h1 = el("h3");
+  h1.appendChild(document.createTextNode("Factor basket"));
+  h1.appendChild(el("span", null, "4 styles × 2 regions"));
+  fb.appendChild(h1);
+
+  U.styles.forEach(function(st){
+    var members = U.factors.filter(function(f){ return f.style === st.key; });
+    var grp = el("div", {class:"style-grp"});
+    var hd = el("div", {class:"style-hd"});
+    hd.appendChild(glyph(st.key));
+    hd.appendChild(el("div", {class:"nm"}, st.name));
+    hd.appendChild(el("div", {class:"note"},
+      members.reduce(function(a, m){ return a + m.held; }, 0) + " months held"));
+    grp.appendChild(hd);
+
+    members.forEach(function(f){
+      var row = el("div", {class:"uni sub"});
+      if (f.live) row.style.setProperty("--live", "var(--s1)");
+      row.appendChild(el("div", {class:"tag"}, f.region));
+      var nmw = el("div");
+      var nm = el("div", {class:"nm"});
+      nm.appendChild(document.createTextNode(f.region === "US" ? "United States" : "Europe"));
+      if (f.live){
+        var p = el("span", {class:"live"}, "IN THE BOOK");
+        p.style.setProperty("--live", "var(--s1)");
+        nm.appendChild(p);
+      }
+      nmw.appendChild(nm);
+      nmw.appendChild(idline(f));
+      row.appendChild(nmw);
+      row.appendChild(bar(f, "var(--s1)"));
+      row.appendChild(months(f));
+      grp.appendChild(row);
+    });
+    fb.appendChild(grp);
+  });
+  box.appendChild(fb);
+
+  // ── sector basket: seven indices, one glyph each ─────────────────────
+  var sb = el("div", {class:"basket"});
+  var h2 = el("h3");
+  h2.appendChild(document.createTextNode("Sector basket"));
+  h2.appendChild(el("span", null, "7 S&P 500 sectors"));
+  sb.appendChild(h2);
+
+  U.sectors.slice().sort(function(a, b){ return b.held - a.held; }).forEach(function(u){
+    var row = el("div", {class:"uni row"});
+    if (u.live) row.style.setProperty("--live", "var(--s2)");
+    row.appendChild(glyph(u.code));
+    var nmw = el("div");
+    var nm = el("div", {class:"nm"});
+    nm.appendChild(document.createTextNode(u.name));
+    if (u.live){
+      var p = el("span", {class:"live"}, "IN THE BOOK");
+      p.style.setProperty("--live", "var(--s2)");
+      nm.appendChild(p);
+    }
+    nmw.appendChild(nm);
+    nmw.appendChild(idline(u));
+    row.appendChild(nmw);
+    row.appendChild(bar(u, "var(--s2)"));
+    row.appendChild(months(u));
+    sb.appendChild(row);
+  });
+
+  var cash = el("div", {class:"cashnote"});
+  cash.innerHTML =
+    '<div class="gl"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">'
+    + '<rect x="3.2" y="6.6" width="17.6" height="10.8" rx="1.8"/>'
+    + '<circle cx="12" cy="12" r="2.6"/>'
+    + '<path d="M6.6 9.6v4.8M17.4 9.6v4.8"/></svg></div>'
+    + '<div><div class="nm">Cash — the sixteenth destination</div>'
+    + '<p>Both legs move here together when the S&amp;P 500 sits more than 25% below its level '
+    + 'nineteen months earlier. Across all ' + M.calendarMonths + ' months of this record that never happened, '
+    + 'so the strategy was fully invested throughout and this row has no bar to draw.</p></div>';
+  sb.appendChild(cash);
+
+  box.appendChild(sb);
+})();
+
+/* ══════════════════════════════════════════════════════════════════════
+   08 CAVEATS
+   ══════════════════════════════════════════════════════════════════════ */
+(function caveats(){
+  var s = ST.strategy;
+  var items = [
+    ["The record is a backtest, not a live track record.",
+     "No money was at risk. No order was ever placed. Every figure is what the rule would have produced applied after the fact to prices that were already known. Nothing here has been traded."],
+    ["Signals come from indices, returns from funds.",
+     "The ranking is computed on index levels; the returns are the London-listed funds that track those indices. Tracking difference, fund launch dates and the gap between an index close and a fund's dealing price all sit between the two, and none of them is modelled."],
+    ["The window contains no slow, correlated bear market.",
+     M.startPretty + " to " + M.endPretty + " holds one fast V-shaped crash and one inflation rotation, and the strategy is built for exactly the second. The regime that would actually test it, a multi-year grinding decline with everything falling together, is simply absent."],
+    ["The cash filter never fires, so the drawdown is untested.",
+     "Across all " + M.calendarMonths + " months the S&P 500 never sat 25% below its level nineteen months earlier, so the strategy was fully invested throughout. Read " + pct(s.maxdd) + " as “not yet tested” rather than “safe”. The one component that would matter most in a crisis has contributed nothing here."],
+    [word(M.gaps.length).charAt(0).toUpperCase() + word(M.gaps.length).slice(1) + " months are missing from the priced record.",
+     "The record covers " + M.months + " priced months inside a " + M.calendarMonths + "-month span. All " + word(M.gaps.length) + " absent months fall in 2016, where one of the two funds held at the time had not yet listed in London. Annualised figures treat the " + M.months + " observations as consecutive, and the 2016 calendar figure covers three months, not twelve."],
+    ["Costs are only partly in the number.",
+     "Returns come from total-return fund prices, so dividends and fund charges are inside them. Bid-offer spread, dealing commission, platform fees, the friction on roughly " + (DATA.lanes[0].runs.length + DATA.lanes[1].runs.length) + " leg changes, and tax are not. On a monthly rebalance those matter."],
+    ["The rule was chosen with the answers visible.",
+     "An eight-month lookback, a 25% threshold and a nineteen-month window are specific choices, and they were made knowing how this window turned out. Any rule selected that way flatters itself, and flatters itself most in the sample it was selected on."],
+    ["Past performance is not a guide, and this is not advice.",
+     "Nothing on this page is a recommendation, an offer or a solicitation to buy or sell anything. Momentum strategies work until they do not, and they tend to stop working shortly after they have been most convincing."]
+  ];
+  var ul = $("#caveatList");
+  items.forEach(function(it){
+    var li = el("li");
+    var d = el("div");
+    d.appendChild(el("b", null, it[0]));
+    d.appendChild(document.createTextNode(" " + it[1]));
+    li.appendChild(d);
+    ul.appendChild(li);
+  });
+})();
+
+/* ══════════════════════════════════════════════════════════════════════
+   APPENDIX TABLES  (the WCAG-clean twin of every chart above)
+   ══════════════════════════════════════════════════════════════════════ */
+(function tables(){
+  function build(t, cols, rows){
+    var thead = el("thead"), tr = el("tr");
+    cols.forEach(function(c){ tr.appendChild(el("th", {scope:"col"}, c)); });
+    thead.appendChild(tr); t.appendChild(thead);
+    var tb = el("tbody");
+    rows.forEach(function(r){
+      var x = el("tr");
+      r.forEach(function(c, i){
+        var td = el("td", {class: c && c.cls ? c.cls : (i === 1 ? "k" : "")},
+                    c && c.v !== undefined ? c.v : c);
+        x.appendChild(td);
+      });
+      tb.appendChild(x);
+    });
+    t.appendChild(tb);
+  }
+
+  var names = {};
+  DATA.universe.factors.concat(DATA.universe.sectors).forEach(function(u){ names[u.code] = u.name; });
+  var holdByMonth = {};
+  DATA.holdings.forEach(function(h){ holdByMonth[h.m] = h; });
+
+  $("#appMonthlyCount").textContent = M.months + " priced months";
+  build($("#tblMonthly"),
+    ["Month","Lodestar","All-World","S&P 500","MSCI World","Excess","Holding"],
+    DATA.months.map(function(m, i){
+      var h = holdByMonth[m];
+      return [
+        DATA.monthsPretty[i],
+        {v:sgn(DATA.returns.strategy[i]), cls:"k"},
+        sgn(DATA.returns.allworld[i]),
+        sgn(DATA.returns.sp500[i]),
+        sgn(DATA.returns.world[i]),
+        sgnpp(DATA.excess.monthly[i]),
+        {v: h && !h.cash ? names[h.factor] + " + " + names[h.sector] : "Cash", cls:"hold"}
+      ];
+    }));
+
+  build($("#tblYears"),
+    ["Year","Lodestar","All-World","S&P 500","MSCI World","Excess","Months"],
+    DATA.years.map(function(y){
+      return [String(y.year), {v:sgn(y.strategy), cls:"k"}, sgn(y.allworld),
+              sgn(y.sp500), sgn(y.world), sgnpp(y.excess), String(y.monthsCovered)];
+    }));
+
+  var rowsDef = [
+    ["Growth of £1", function(s){ return "×" + s.growth.toFixed(2); }],
+    ["CAGR",         function(s){ return pct(s.cagr); }],
+    ["Volatility",   function(s){ return pct(s.vol); }],
+    ["Downside deviation", function(s){ return pct(s.downside); }],
+    ["Sharpe",       function(s){ return s.sharpe.toFixed(2); }],
+    ["Sortino",      function(s){ return s.sortino.toFixed(2); }],
+    ["Max drawdown", function(s){ return pct(s.maxdd); }],
+    ["Trough",       function(s){ return pm(s.maxddTrough); }],
+    ["Best month",   function(s){ return sgn(s.best) + "   " + pm(s.bestMonth); }],
+    ["Worst month",  function(s){ return sgn(s.worst) + "   " + pm(s.worstMonth); }],
+    ["Positive months", function(s){ return s.posMonths + " / " + s.months; }]
+  ];
+  build($("#tblStats"),
+    ["Statistic","Lodestar","All-World","S&P 500","MSCI World"],
+    rowsDef.map(function(r){
+      return [r[0]].concat(SERIES.map(function(k, i){
+        return i === 0 ? {v:r[1](ST[k]), cls:"k"} : r[1](ST[k]);
+      }));
+    }));
+
+  build($("#tblUniverse"),
+    ["Slot","Index","London line","ISIN","Months held"],
+    DATA.lanes.reduce(function(acc, lane){
+      lane.slots.forEach(function(s){
+        acc.push([lane.title.replace(" leg",""), {v:s.name, cls:"k"}, s.ticker, s.isin, String(s.months)]);
+      });
+      return acc;
+    }, []));
+
+  $("#footBasis").textContent =
+    "Basis: " + M.basis + " Signals from index levels in local currency; returns from London-listed UCITS "
+    + "lines in " + M.currency + ". Risk-free rate " + M.riskFree.toFixed(0) + "% for Sharpe and Sortino.";
+  $("#footBuild").textContent =
+    "Record " + M.startPretty + " – " + M.endPretty + " · " + M.months + " priced months in a "
+    + M.calendarMonths + "-month span · figures computed once, at build time, and embedded in the page.";
+})();
+
+/* ── entrance motion ────────────────────────────────────────────────── */
+(function motion(){
+  document.querySelectorAll(".sec, .panel.rise, .card.rise, .caveats.rise").forEach(function(n){
+    n.classList.add("rise");
+  });
+  if (!("IntersectionObserver" in window)){
+    document.querySelectorAll(".rise").forEach(function(n){ n.classList.add("in"); });
+    return;
+  }
+  var io = new IntersectionObserver(function(es){
+    es.forEach(function(e){ if (e.isIntersecting){ e.target.classList.add("in"); io.unobserve(e.target); } });
+  }, {rootMargin:"0px 0px -8% 0px", threshold:0.04});
+  document.querySelectorAll(".rise").forEach(function(n){ io.observe(n); });
+})();
+
+applyTheme();   // stamps the theme and performs the first (animated) render
+
+})();
+</script>
+</body>
+</html>

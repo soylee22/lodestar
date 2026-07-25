@@ -1,0 +1,41 @@
+name: Monthly signal
+
+on:
+  schedule:
+    # 06:00 UTC on the 1st: after the month-end close, before the London open.
+    - cron: '0 6 1 * *'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  signal:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+
+      - run: pip install -r requirements.txt
+
+      - name: Recompute signal and rebuild the page
+        env:
+          TG_TOKEN: ${{ secrets.TG_TOKEN }}
+          TG_CHAT: ${{ secrets.TG_CHAT }}
+        run: python run_monthly.py
+
+      - name: Commit refreshed data
+        run: |
+          git config user.name  "soylee22"
+          git config user.email "leeslater1992@gmail.com"
+          git add data data.js
+          if git diff --staged --quiet; then
+            echo "nothing changed"
+          else
+            git commit -m "signal: $(date -u +%Y-%m)"
+            git push
+          fi

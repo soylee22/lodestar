@@ -1,0 +1,43 @@
+{
+  "signal_month": "2026-06",
+  "factor": "USA_VAL",
+  "sector": "ENERGY",
+  "cash": false,
+  "factor_ticker": "IUVL.L",
+  "sector_ticker": "IUES.L",
+  "factor_table": {
+    "USA_MOM": 0.37206993646936004,
+    "USA_QUAL": 0.12148577974046071,
+    "USA_VAL": 0.5407075013626099,
+    "USA_SMALL": 0.23783075101590878,
+    "EUR_MOM": 0.13415635214662647,
+    "EUR_QUAL": 0.09359198693116388,
+    "EUR_VAL": 0.2050628888503141,
+    "EUR_SMALL": 0.058054474876476414
+  },
+  "sector_table": {
+    "CONS_DISC": -0.02854102554010085,
+    "CONS_STAP": 0.08756923088872215,
+    "ENERGY": 0.2018703855470947,
+    "HEALTH": 0.10245054678529941,
+    "INDUST": 0.1959427214744589,
+    "INFOTECH": 0.13893658265954456,
+    "MATERIALS": 0.17813893252031265
+  },
+  "previous": {
+    "factor": "USA_VAL",
+    "sector": "ENERGY"
+  },
+  "stale": false,
+  "expected_month": "2026-06",
+  "source_failures": [
+    "MSCI USA_MOM: RuntimeError",
+    "MSCI USA_QUAL: skipped (endpoint down)",
+    "MSCI USA_VAL: skipped (endpoint down)",
+    "MSCI USA_SMALL: skipped (endpoint down)",
+    "MSCI EUR_MOM: skipped (endpoint down)",
+    "MSCI EUR_QUAL: skipped (endpoint down)",
+    "MSCI EUR_VAL: skipped (endpoint down)",
+    "MSCI EUR_SMALL: skipped (endpoint down)"
+  ]
+}
