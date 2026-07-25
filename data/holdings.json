@@ -156,6 +156,7 @@
           "dividend_yield": 2.03
         }
       ],
+      "yield_unit": "percent",
       "sector_weights": {
         "realestate": 0.0178,
         "consumer_cyclical": 0.0987,
@@ -326,6 +327,7 @@
           "dividend_yield": 3.59
         }
       ],
+      "yield_unit": "percent",
       "sector_weights": {
         "energy": 1.0
       },

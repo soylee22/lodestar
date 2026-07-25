@@ -407,9 +407,161 @@ section.sec{padding-block:clamp(46px,6.4vw,86px)}
 .years .x{text-align:right; font-variant-numeric:tabular-nums; font-size:14px; font-weight:600; color:var(--pos-ink)}
 .years .x.dn{color:var(--neg-ink)}
 
+/* ── inside the book ───────────────────────────────────────────────────
+   Look-through into the two funds actually held. One bar is the whole
+   portfolio at 100%, cut 50/50 into the legs and then into the companies
+   inside them, so the concentration is a shape before it is a figure.
+   Colour carries fund identity only; size does all the other work. */
+.conc{min-width:720px}
+.conchd{display:grid; grid-template-columns:1fr 1fr; gap:2px; margin-bottom:11px}
+.conchd .h{
+  display:flex; align-items:center; gap:9px; flex-wrap:wrap;
+  padding-bottom:9px; border-bottom:1px solid var(--rule);
+}
+.conchd .h i{width:9px; height:9px; border-radius:50%; background:var(--dot,var(--s1)); flex:none}
+.conchd .h .t{font-size:13px; font-weight:600}
+.conchd .h .k{font-family:var(--mono); font-size:11px; color:var(--muted); letter-spacing:.03em}
+.conchd .h .w{margin-left:auto; font-size:12px; color:var(--ink-2); font-variant-numeric:tabular-nums}
+
+.conctrack{display:flex; gap:2px; height:58px}
+.cseg{
+  position:relative; min-width:2px; overflow:hidden; cursor:default;
+  display:flex; flex-direction:column; align-items:center; justify-content:center;
+}
+.cseg:first-child{border-radius:5px 0 0 5px}
+.cseg:last-child{border-radius:0 5px 5px 0}
+.cseg:hover, .cseg:focus-visible{filter:brightness(1.07) saturate(1.1)}
+.slab{display:flex; flex-direction:column; align-items:center; gap:4px; white-space:nowrap; padding:0 5px}
+.slab .sl{font-family:var(--mono); font-size:10.5px; font-weight:600; letter-spacing:.05em; line-height:1}
+.slab .sv{font-size:11px; font-variant-numeric:tabular-nums; line-height:1; opacity:.88}
+.cseg.rest .slab .sl{font-family:var(--sans); font-size:11.5px; font-weight:500; letter-spacing:0}
+.concfoot{margin-top:11px; font-size:12.5px; color:var(--muted); line-height:1.55}
+
+/* the two look-through columns */
+.bookcols{
+  display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1fr);
+  gap:0 clamp(30px,5vw,72px); margin-top:clamp(30px,4vw,48px);
+}
+@media (max-width:900px){ .bookcols{grid-template-columns:1fr; gap:44px} }
+.bookcol + .bookcol{position:relative}
+.bookcol + .bookcol::before{
+  content:""; position:absolute; left:calc(-1 * clamp(15px,2.5vw,36px)); top:6px; bottom:6px;
+  width:1px; background:var(--rule);
+}
+@media (max-width:900px){ .bookcol + .bookcol::before{display:none} }
+.bookcol > h3{
+  display:flex; align-items:center; gap:10px; flex-wrap:wrap;
+  padding-bottom:12px; border-bottom:1px solid var(--rule-2); font-size:14px; font-weight:600;
+}
+.bookcol > h3 i{width:9px; height:9px; border-radius:50%; background:var(--dot,var(--s1)); flex:none}
+.bookcol > h3 span{
+  font-family:var(--mono); font-size:10.5px; letter-spacing:.12em; text-transform:uppercase;
+  color:var(--muted); margin-left:auto;
+}
+.colnote{font-size:12.5px; color:var(--ink-2); line-height:1.55; padding:12px 0 4px}
+.colnote b{color:var(--ink); font-weight:600}
+
+/* shared meter (weight within a fund) */
+.mtr{height:8px; border-radius:2px; background:var(--grid); overflow:hidden; position:relative}
+.mtr i{
+  position:absolute; left:0; top:0; bottom:0; border-radius:2px; display:block;
+  background:var(--dot,var(--s1)); width:0;
+  transition:width .7s cubic-bezier(.22,.61,.36,1);
+}
+
+/* monogram: the ticker in mono, over its sector glyph, in one container shape.
+   No company logo is fetched, drawn or implied. */
+.chip{
+  position:relative; width:40px; height:40px; flex:none; display:grid; place-items:center;
+  border:1px solid var(--rule-2); border-radius:9px; background:var(--surface-sunk);
+}
+.chip .gl{position:absolute; width:25px; height:25px; color:var(--ink); opacity:.14}
+.chip b{
+  position:relative; font-family:var(--mono); font-size:10.5px; font-weight:600;
+  letter-spacing:.03em; line-height:1; color:var(--ink-2);
+}
+.chip[data-n="4"] b{font-size:9.5px; letter-spacing:.01em}
+.chip[data-n="5"] b{font-size:8.5px; letter-spacing:0}
+.chip[data-n="6"] b{font-size:7.5px; letter-spacing:0}
+
+/* one holding: the row is the summary, the fundamentals are the disclosure */
+details.hrow{border-top:1px solid var(--rule)}
+details.hrow summary{
+  list-style:none; cursor:pointer; display:grid; gap:13px; align-items:center;
+  grid-template-columns:40px minmax(0,1fr) clamp(44px,6vw,78px) 54px 13px;
+  padding:10px 0;
+}
+details.hrow summary::-webkit-details-marker{display:none}
+details.hrow summary:hover{background:var(--surface-sunk)}
+details.hrow[open] summary{background:var(--surface-sunk)}
+details.hrow .hnm{min-width:0; font-size:13.5px; line-height:1.25}
+details.hrow .hnm .c{display:block; overflow:hidden; text-overflow:ellipsis; white-space:nowrap}
+details.hrow .hnm small{
+  display:block; margin-top:3px; font-family:var(--mono); font-size:10.5px; color:var(--muted);
+  letter-spacing:.02em; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;
+}
+details.hrow .hw{font-size:13px; font-weight:600; font-variant-numeric:tabular-nums; text-align:right}
+details.hrow .hw small{display:block; margin-top:2px; font-size:10.5px; font-weight:400; color:var(--muted)}
+details.hrow .mk{font-family:var(--mono); font-size:13px; color:var(--muted); text-align:center; line-height:1}
+details.hrow .mk::before{content:"+"}
+details.hrow[open] .mk::before{content:"−"}
+
+.fund{
+  display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:15px 18px;
+  padding:12px 0 20px 53px; border-top:1px solid var(--rule);
+}
+@media (max-width:760px){ .fund{grid-template-columns:repeat(2,minmax(0,1fr)); padding-left:0} }
+.fund .f{min-width:0}
+/* One line per label, always: a wrapped label would drop its value out of line
+   with the rest of the row. */
+.fund .f .k{
+  font-family:var(--mono); font-size:9px; letter-spacing:.1em; text-transform:uppercase;
+  color:var(--muted); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+}
+.fund .f .v{margin-top:6px; font-size:14px; font-weight:600; font-variant-numeric:tabular-nums; letter-spacing:-.012em}
+.fund .f .v.up{color:var(--pos-ink)}
+.fund .f .v.dn{color:var(--neg-ink)}
+.fund .f .v.na{color:var(--muted); font-weight:400}
+/* Growth rates run from −100% to well past +1000%, so the bar is a fixed ±100%
+   scale and anything past it is hatched rather than allowed to set the scale. */
+.gbar{position:relative; height:5px; margin-top:7px; background:var(--grid); border-radius:2px}
+.gbar .z{position:absolute; left:50%; top:-3px; bottom:-3px; width:1px; background:var(--axis)}
+.gbar i{position:absolute; top:0; bottom:0; border-radius:1px; display:block}
+/* A rate past the end of the scale is cut to a point, so a clamped bar can never
+   be read as a measured one. */
+.gbar i.over.up{clip-path:polygon(0 0, calc(100% - 6px) 0, 100% 50%, calc(100% - 6px) 100%, 0 100%)}
+.gbar i.over.dn{clip-path:polygon(100% 0, 6px 0, 0 50%, 6px 100%, 100% 100%)}
+
+.mix{
+  margin-top:22px; padding:15px 17px 17px; border:1px solid var(--rule);
+  border-radius:11px; background:var(--surface-sunk);
+}
+.mix .mixhd{
+  font-family:var(--mono); font-size:10px; letter-spacing:.12em; text-transform:uppercase;
+  color:var(--muted); padding-bottom:4px;
+}
+.mix .mrow{
+  display:grid; grid-template-columns:20px minmax(0,1fr) clamp(38px,6vw,72px) 48px;
+  align-items:center; gap:11px; padding:8px 0 0;
+}
+.mix .mrow .gl{width:20px; height:20px; color:var(--muted)}
+.mix .mrow .n{font-size:12.5px; color:var(--ink-2); overflow:hidden; text-overflow:ellipsis; white-space:nowrap}
+.mix .mrow .p{font-size:12px; font-weight:600; font-variant-numeric:tabular-nums; text-align:right}
+.mix .mtail{margin-top:11px; font-size:12px; color:var(--muted); line-height:1.5}
+@media (max-width:520px){
+  details.hrow summary{grid-template-columns:40px minmax(0,1fr) 56px 13px; grid-template-rows:auto auto; gap:8px 11px}
+  details.hrow summary > :nth-child(1){grid-area:1 / 1 / 3 / 2; align-self:start; margin-top:1px}
+  details.hrow summary > :nth-child(2){grid-area:1 / 2 / 2 / 3}
+  details.hrow summary > :nth-child(3){grid-area:2 / 2 / 3 / 5; height:6px}
+  details.hrow summary > :nth-child(4){grid-area:1 / 3 / 2 / 4}
+  details.hrow summary > :nth-child(5){grid-area:1 / 4 / 2 / 5}
+  .mix .mrow{grid-template-columns:20px minmax(0,1fr) 48px}
+  .mix .mrow .mtr{display:none}
+}
+
 /* ── the universe ─────────────────────────────────────────────────────
-   Eleven hand-drawn glyphs on one 24-unit grid: four factor styles and
-   seven sectors. Same stroke weight, same joins, same optical size. */
+   Fifteen hand-drawn glyphs on one 24-unit grid: four factor styles and
+   eleven sectors. Same stroke weight, same joins, same optical size. */
 .gl{width:26px; height:26px; display:block; color:var(--ink-2); flex:none}
 .gl svg{
   width:100%; height:100%; display:block; fill:none; stroke:currentColor;
@@ -576,12 +728,13 @@ html{scroll-behavior:smooth; scroll-padding-top:72px}
   <div class="wrap">
     <div class="mark"><b>Lodestar</b></div>
     <nav class="railnav" aria-label="Sections">
+      <a href="#inside" id="navInside">Holdings</a>
       <a href="#record">Record</a>
       <a href="#growth">Growth</a>
       <a href="#drawdown">Drawdown</a>
       <a href="#years">Years</a>
       <a href="#months">Months</a>
-      <a href="#book">Holdings</a>
+      <a href="#book">Allocation</a>
       <a href="#universe">Universe</a>
       <a href="#method">Method</a>
       <a href="#caveats">Caveats</a>
@@ -645,11 +798,35 @@ html{scroll-behavior:smooth; scroll-padding-top:72px}
   </div>
 </section>
 
-<!-- ── 01 THE RECORD ─────────────────────────────────────────────────── -->
+<!-- ── 01 INSIDE THE BOOK ────────────────────────────────────────────── -->
+<section class="sec wrap" id="inside" hidden>
+  <div class="sechd">
+    <div>
+      <div class="eyebrow">01 — Inside the book</div>
+      <h2 id="insideTitle"></h2>
+    </div>
+    <p class="lede" id="insideLede"></p>
+  </div>
+  <div class="card rise">
+    <div class="card-hd">
+      <div class="ttl">The whole portfolio, in one bar</div>
+      <div class="sub" style="margin-left:auto">Every block is one company, sized by its share of the book</div>
+    </div>
+    <div class="card-bd">
+      <div class="scroll">
+        <div class="conc" id="concBar" role="group"></div>
+      </div>
+      <p class="concfoot" id="concFoot"></p>
+    </div>
+  </div>
+  <div class="bookcols" id="bookCols"></div>
+</section>
+
+<!-- ── 02 THE RECORD ─────────────────────────────────────────────────── -->
 <section class="sec wrap" id="record">
   <div class="sechd">
     <div>
-      <div class="eyebrow">01 — The record</div>
+      <div class="eyebrow">02 — The record</div>
       <h2>Higher return, shallower&nbsp;fall</h2>
     </div>
     <p class="lede" id="recordLede"></p>
@@ -657,11 +834,11 @@ html{scroll-behavior:smooth; scroll-padding-top:72px}
   <div class="kpis" id="kpis"></div>
 </section>
 
-<!-- ── 02 GROWTH ─────────────────────────────────────────────────────── -->
+<!-- ── 03 GROWTH ─────────────────────────────────────────────────────── -->
 <section class="sec wrap" id="growth">
   <div class="sechd">
     <div>
-      <div class="eyebrow">02 — Cumulative growth</div>
+      <div class="eyebrow">03 — Cumulative growth</div>
       <h2>Growth of £1</h2>
     </div>
     <p class="lede" id="growthLede"></p>
@@ -682,11 +859,11 @@ html{scroll-behavior:smooth; scroll-padding-top:72px}
   </div>
 </section>
 
-<!-- ── 03 DRAWDOWN ───────────────────────────────────────────────────── -->
+<!-- ── 04 DRAWDOWN ───────────────────────────────────────────────────── -->
 <section class="sec wrap" id="drawdown">
   <div class="sechd">
     <div>
-      <div class="eyebrow">03 — Drawdown</div>
+      <div class="eyebrow">04 — Drawdown</div>
       <h2>Time spent under&nbsp;water</h2>
     </div>
     <p class="lede" id="ddLede"></p>
@@ -703,11 +880,11 @@ html{scroll-behavior:smooth; scroll-padding-top:72px}
   </div>
 </section>
 
-<!-- ── 04 CALENDAR YEARS ─────────────────────────────────────────────── -->
+<!-- ── 05 CALENDAR YEARS ─────────────────────────────────────────────── -->
 <section class="sec wrap" id="years">
   <div class="sechd">
     <div>
-      <div class="eyebrow">04 — Calendar years</div>
+      <div class="eyebrow">05 — Calendar years</div>
       <h2>Twelve years, twelve&nbsp;wins</h2>
     </div>
     <p class="lede" id="yearsLede"></p>
@@ -728,11 +905,11 @@ html{scroll-behavior:smooth; scroll-padding-top:72px}
   </div>
 </section>
 
-<!-- ── 05 MONTHLY HEATMAP ────────────────────────────────────────────── -->
+<!-- ── 06 MONTHLY HEATMAP ────────────────────────────────────────────── -->
 <section class="sec wrap" id="months">
   <div class="sechd">
     <div>
-      <div class="eyebrow">05 — Monthly returns</div>
+      <div class="eyebrow">06 — Monthly returns</div>
       <h2>Every month on&nbsp;record</h2>
     </div>
     <p class="lede" id="hmLede"></p>
@@ -753,11 +930,11 @@ html{scroll-behavior:smooth; scroll-padding-top:72px}
   </div>
 </section>
 
-<!-- ── 06 ALLOCATION RIBBON ──────────────────────────────────────────── -->
+<!-- ── 07 ALLOCATION RIBBON ──────────────────────────────────────────── -->
 <section class="sec wrap" id="book">
   <div class="sechd">
     <div>
-      <div class="eyebrow">06 — Allocation history</div>
+      <div class="eyebrow">07 — Allocation history</div>
       <h2>What it actually&nbsp;held</h2>
     </div>
     <p class="lede" id="ribLede"></p>
@@ -775,11 +952,11 @@ html{scroll-behavior:smooth; scroll-padding-top:72px}
   </div>
 </section>
 
-<!-- ── 07 THE UNIVERSE ───────────────────────────────────────────────── -->
+<!-- ── 08 THE UNIVERSE ───────────────────────────────────────────────── -->
 <section class="sec wrap" id="universe">
   <div class="sechd">
     <div>
-      <div class="eyebrow">07 — The universe</div>
+      <div class="eyebrow">08 — The universe</div>
       <h2>Fifteen things it may&nbsp;own</h2>
     </div>
     <p class="lede" id="uniLede"></p>
@@ -787,11 +964,11 @@ html{scroll-behavior:smooth; scroll-padding-top:72px}
   <div class="baskets rise" id="baskets"></div>
 </section>
 
-<!-- ── 08 METHOD ─────────────────────────────────────────────────────── -->
+<!-- ── 09 METHOD ─────────────────────────────────────────────────────── -->
 <section class="sec wrap" id="method">
   <div class="sechd">
     <div>
-      <div class="eyebrow">08 — Method</div>
+      <div class="eyebrow">09 — Method</div>
       <h2>The whole rule, in&nbsp;six lines</h2>
     </div>
     <p class="lede">No discretion, no overrides, no position sizing. The entire strategy is a ranking, a pair of picks and a monthly rebalance. Everything on this page falls out of the six steps below.</p>
@@ -815,11 +992,11 @@ html{scroll-behavior:smooth; scroll-padding-top:72px}
   </div>
 </section>
 
-<!-- ── 08 CAVEATS ────────────────────────────────────────────────────── -->
+<!-- ── 10 CAVEATS ────────────────────────────────────────────────────── -->
 <section class="sec wrap" id="caveats">
   <div class="sechd">
     <div>
-      <div class="eyebrow">09 — Read this before anything else</div>
+      <div class="eyebrow">10 — Read this before anything else</div>
       <h2>What this is&nbsp;not</h2>
     </div>
     <p class="lede">The numbers above are real arithmetic on real prices. They are also, every one of them, a backtest. The list below is not boilerplate; each line names a specific reason to read the record as weaker than it looks.</p>
@@ -836,6 +1013,10 @@ html{scroll-behavior:smooth; scroll-padding-top:72px}
 <!-- ── APPENDIX ──────────────────────────────────────────────────────── -->
 <section class="sec wrap" id="appendix" style="padding-top:0">
   <div class="eyebrow" style="margin-bottom:14px">Appendix — the underlying numbers</div>
+  <details class="app" id="appBook" hidden>
+    <summary>Top ten holdings of both funds <span id="appBookAsOf"></span></summary>
+    <div class="tblwrap"><table class="data" id="tblBook"></table></div>
+  </details>
   <details class="app">
     <summary>Monthly record <span id="appMonthlyCount"></span></summary>
     <div class="tblwrap"><table class="data" id="tblMonthly"></table></div>
@@ -912,6 +1093,32 @@ function sgn(x, dp){
 function sgnpp(x, dp){
   if (x == null || isNaN(x)) return "—";
   return (x > 0 ? "+" : x < 0 ? MINUS : "") + Math.abs(x).toFixed(dp == null ? 1 : dp) + "pp";
+}
+function esc(s){
+  return String(s == null ? "" : s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+}
+function cap(s){ return String(s || "").charAt(0).toUpperCase() + String(s || "").slice(1); }
+/* Company money, in the currency the company reports in, which is dollars for
+   every line either fund currently holds. Two significant places, never more. */
+function money(x){
+  if (x == null || isNaN(x)) return "—";
+  var a = Math.abs(x), sign = x < 0 ? MINUS : "";
+  var U = [[1e12,"tn"],[1e9,"bn"],[1e6,"m"],[1e3,"k"]];
+  for (var i = 0; i < U.length; i++){
+    if (a >= U[i][0]){
+      var v = a / U[i][0];
+      return sign + "$" + (v >= 100 ? v.toFixed(0) : v >= 10 ? v.toFixed(1) : v.toFixed(2)) + U[i][1];
+    }
+  }
+  return sign + "$" + a.toFixed(0);
+}
+/* Growth arrives as a fraction and the tail is long: Micron's revenue grew 3.457,
+   which is +346%. Past 100% the decimal is noise, so it is dropped. */
+function grow(x){
+  if (x == null || isNaN(x)) return "—";
+  var p = x * 100, a = Math.abs(p);
+  var body = a >= 100 ? Math.round(a).toLocaleString("en-GB") : a.toFixed(1);
+  return (p > 0 ? "+" : p < 0 ? MINUS : "") + body + "%";
 }
 
 var M  = DATA.meta;
@@ -1022,6 +1229,87 @@ function divVar(v){
   return (v >= 0 ? "--dv-p" : "--dv-n") + i;
 }
 function divInk(v){ return v == null ? "var(--muted)" : inkOn(css(divVar(v))); }
+
+/* ══════════════════════════════════════════════════════════════════════
+   THE GLYPH SET
+   Fifteen marks drawn by hand on one 24-unit grid: four factor styles and
+   eleven sectors. Identical stroke weight and joins throughout, stroke-only
+   except where a solid mass is the point (small cap, bullion). Sectors are
+   shared between the universe list and the look-through monograms, so a
+   company and the sector index that would hold it wear the same mark.
+   ══════════════════════════════════════════════════════════════════════ */
+var GLYPH = {};
+
+/* ── factor styles ──────────────────────────────────────────────────── */
+// Momentum: two stacked chevrons, rising — acceleration, not a trend line.
+GLYPH.MOM = '<path d="M6 13.4 12 7.4l6 6"/><path d="M6 19 12 13l6 6"/>';
+// Quality: a brilliant cut seen face-on — crown, girdle, two facets.
+GLYPH.QUAL = '<path d="M12 3.8 19.6 10 12 20.2 4.4 10Z"/><path d="M4.4 10h15.2"/>'
+           + '<path d="M12 3.8 8.4 10"/><path d="M12 3.8 15.6 10"/>';
+// Value: a price tag with its eyelet.
+GLYPH.VAL = '<path d="M12.4 3.6H5.1A1.5 1.5 0 0 0 3.6 5.1v7.3a1.5 1.5 0 0 0 .44 1.06l6.9 6.9a1.5 1.5 0 0 0 2.12 0l7.3-7.3a1.5 1.5 0 0 0 0-2.12l-6.9-6.9a1.5 1.5 0 0 0-1.06-.44Z"/>'
+          + '<circle cx="7.7" cy="7.7" r="1.45"/>';
+// Size: a small solid form beside a large empty one, on one baseline.
+GLYPH.SMALL = '<rect x="3.4" y="6.6" width="9.2" height="13.6" rx="1.6"/>'
+            + '<rect class="mass" x="14.6" y="13.8" width="6" height="6.4" rx="1.2"/>';
+
+/* ── sectors ────────────────────────────────────────────────────────── */
+// Energy: an oil drum — cylinder and two hoops.
+GLYPH.ENERGY = '<ellipse cx="12" cy="5.9" rx="5.4" ry="2.1"/>'
+             + '<path d="M6.6 5.9v12.2M17.4 5.9v12.2"/>'
+             + '<path d="M6.6 18.1a5.4 2.1 0 0 0 10.8 0"/>'
+             + '<path d="M6.6 10.2h10.8M6.6 13.9h10.8"/>';
+// Information Technology: a package, its die, and three pins a side.
+GLYPH.INFOTECH = '<rect x="7.6" y="7.6" width="8.8" height="8.8" rx="1.2"/>'
+               + '<rect x="10.6" y="10.6" width="2.8" height="2.8" rx="0.7"/>'
+               + '<path d="M9.9 7.6V4.7M12 7.6V4.7M14.1 7.6V4.7"/>'
+               + '<path d="M9.9 16.4v2.9M12 16.4v2.9M14.1 16.4v2.9"/>'
+               + '<path d="M7.6 9.9H4.7M7.6 12H4.7M7.6 14.1H4.7"/>'
+               + '<path d="M16.4 9.9h2.9M16.4 12h2.9M16.4 14.1h2.9"/>';
+// Health Care: a capsule on the diagonal, with its seam.
+GLYPH.HEALTH = '<g transform="rotate(-45 12 12)">'
+             + '<rect x="3.6" y="9.4" width="16.8" height="5.2" rx="2.6"/>'
+             + '<path d="M12 9.4v5.2"/></g>';
+// Consumer Discretionary: a shopping bag.
+GLYPH.CONS_DISC = '<path d="M5.6 8.2h12.8l-1 11.1a1.4 1.4 0 0 1-1.4 1.27H8a1.4 1.4 0 0 1-1.4-1.27Z"/>'
+                + '<path d="M9.1 8.2V6.5a2.9 2.9 0 0 1 5.8 0v1.7"/>';
+// Consumer Staples: a gable-top carton.
+GLYPH.CONS_STAP = '<path d="M6.9 9.1 12 4.3l5.1 4.8v10.6H6.9Z"/>'
+                + '<path d="M6.9 9.1h10.2"/><path d="M12 4.3v4.8"/>';
+// Industrials: a cog — hub, body, eight teeth on the 45° grid.
+GLYPH.INDUST = '<circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/>'
+             + '<path d="M18 12h2.2M16.24 16.24l1.56 1.56M12 18v2.2M7.76 16.24 6.2 17.8'
+             + 'M6 12H3.8M7.76 7.76 6.2 6.2M12 6V3.8M16.24 7.76 17.8 6.2"/>';
+// Materials: three cast bars, stacked.
+GLYPH.MATERIALS = '<rect x="3.7" y="14.5" width="7.6" height="5.3" rx="0.9"/>'
+                + '<rect x="12.7" y="14.5" width="7.6" height="5.3" rx="0.9"/>'
+                + '<rect x="8.2" y="8.5" width="7.6" height="5.3" rx="0.9"/>';
+// Financial Services: a portico — pediment, four columns, plinth.
+GLYPH.FIN = '<path d="M3.6 8.4 12 4.1l8.4 4.3Z"/><path d="M3.6 8.4h16.8"/>'
+          + '<path d="M6.4 11v6.2M10.1 11v6.2M13.9 11v6.2M17.6 11v6.2"/>'
+          + '<path d="M4.4 17.2h15.2"/><path d="M3.6 19.9h16.8"/>';
+// Communication Services: a mast, with a signal breaking either side of it.
+GLYPH.COMMS = '<path d="M12 10.6v9.3"/><path d="M9.2 19.9h5.6"/>'
+            + '<circle cx="12" cy="8.1" r="1.9"/>'
+            + '<path d="M8.1 12a5.5 5.5 0 0 1 0-7.8M15.9 4.2a5.5 5.5 0 0 1 0 7.8"/>'
+            + '<path d="M5.3 14.8a9.5 9.5 0 0 1 0-13.4M18.7 1.4a9.5 9.5 0 0 1 0 13.4"/>';
+// Utilities: a pylon head — two crossarms on a tapered frame.
+GLYPH.UTIL = '<path d="M8.4 20.4 12 3.6l3.6 16.8"/>'
+           + '<path d="M4.7 9.2h14.6M6 14.6h12"/>'
+           + '<path d="M9.6 9.2 14.4 14.6M14.4 9.2 9.6 14.6"/>';
+// Real Estate: a block with its floors and one lit window.
+GLYPH.REALEST = '<path d="M5.3 20.4V6.1L14.2 3.6v16.8Z"/>'
+              + '<path d="M14.2 9.9h4.5v10.5"/><path d="M3.7 20.4h16.6"/>'
+              + '<path d="M8 8.4v1.6M11.4 7.5v1.6M8 13v1.6M11.4 12.2v1.6"/>';
+// Anything the taxonomy has not been taught yet: a plain disc, deliberately mute.
+GLYPH.OTHER = '<circle cx="12" cy="12" r="7.4"/><path d="M12 8.6v6.8"/>';
+
+function glyph(key){
+  var d = el("div", {class:"gl"});
+  d.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">'
+              + (GLYPH[key] || GLYPH.OTHER) + "</svg>";
+  return d;
+}
 
 /* ══════════════════════════════════════════════════════════════════════
    HERO
@@ -1163,7 +1451,299 @@ function divInk(v){ return v == null ? "var(--muted)" : inkOn(css(divVar(v))); }
 })();
 
 /* ══════════════════════════════════════════════════════════════════════
-   01 KPI ROW
+   01 INSIDE THE BOOK
+   The look-through. One bar is the entire portfolio: two halves, one per
+   leg, each cut into its ten largest companies and a pale remainder. Area
+   is share of the book, so the concentration is a shape before it is a
+   figure, and only the blocks big enough to hold a label carry one.
+
+   Colour carries fund identity and nothing else — the same two hues as the
+   hero tiles, so a reader who learned which is which upstairs does not
+   have to learn it again. Weight within a fund is a separate meter on a
+   scale shared by both columns, so the two are directly comparable.
+
+   No company logo is fetched or drawn. Each holding wears a monogram: its
+   ticker in the page's mono, over the sector glyph already used by the
+   universe list, in one container shape.
+   ══════════════════════════════════════════════════════════════════════ */
+(function insideTheBook(){
+  var B = DATA.book;
+  if (!B || !B.legs || B.legs.length !== 2 || !B.named.length){
+    var nav = $("#navInside");
+    if (nav) nav.parentNode.removeChild(nav);
+    return;                                  // section and appendix stay hidden
+  }
+  $("#inside").hidden = false;
+
+  var HUES = ["--s1", "--s2"];               // factor, sector — as in the hero tiles
+  var WMAX = 0;
+  B.legs.forEach(function(l){
+    l.holdings.forEach(function(h){ if ((h.w || 0) > WMAX) WMAX = h.w; });
+  });
+
+  function n1(x){ return nf(x, 1); }
+  function pct1(x){ return x == null ? "—" : nf(x, 1) + "%"; }
+  function joinList(a){
+    return a.length < 2 ? (a[0] || "") : a.slice(0, -1).join(", ") + " and " + a[a.length - 1];
+  }
+  /* Strip the legal furniture so a headline can say Exxon Mobil rather than
+     Exxon Mobil Corp. Rows and tables keep the fund's own wording. */
+  function shortName(s){
+    var out = String(s || "").replace(/[.,]/g, "")
+      .replace(/\s+(Incorporated|Inc|Corporation|Corp|Companies|Company|Co|Limited|Ltd|plc|PLC|NV|SA|AG|Group|Holdings|Class [A-Z]|Cl [A-Z])(?=\s|$)/g, "")
+      .trim();
+    return out || String(s || "");
+  }
+
+  /* ── the head ───────────────────────────────────────────────────────── */
+  $("#insideTitle").innerHTML =
+    cap(word(B.namedCount)) + " companies, " + n1(B.namedBook) + "% of the&nbsp;book";
+
+  var clauses = B.legs.map(function(l){
+    var mine = B.named.filter(function(h){ return h.legKey === l.leg.toLowerCase(); });
+    if (!mine.length) return null;
+    return "<b>" + esc(joinList(mine.map(function(h){ return shortName(h.name); })))
+         + (mine.length > 1 ? " are " : " is ")
+         + joinList(mine.map(function(h){ return pct1(h.w); }))
+         + " of the " + l.leg.toLowerCase() + " fund</b>";
+  }).filter(Boolean);
+
+  $("#insideLede").innerHTML =
+    "Two funds, split 50/50, is what the book looks like from outside. Inside it, "
+    + clauses.join("; ") + ". Weighted into the book, those " + word(B.namedCount)
+    + " companies are <b>" + n1(B.namedBook) + "% of everything held</b>. The top ten is "
+    + B.legs.map(function(l){ return pct1(l.top10) + " of the " + l.leg.toLowerCase() + " fund"; }).join(" and ")
+    + ".";
+
+  $("#concFoot").innerHTML =
+    "The whole bar is the whole portfolio. Named blocks are the ten largest holdings of each fund; "
+    + "the pale block closing each half is everything else that fund owns. Holdings as at "
+    + esc(B.asOfPretty) + ", from the funds' own published books."
+    + (B.stale ? " These are the previous pair of funds; the legs have changed since." : "");
+
+  /* ── the concentration bar ──────────────────────────────────────────── */
+  var root = $("#concBar");
+  root.setAttribute("aria-label",
+    "The whole portfolio as one bar. " + B.legs.map(function(l){
+      return l.leg + " leg " + pct1(l.legWeight) + ", of which " + l.ticker + "'s top ten is "
+           + pct1(l.top10Book) + " of the book";
+    }).join(". ") + ". Every figure is also in the appendix table.");
+
+  function bindTip(node, html){
+    node.addEventListener("pointerenter", function(ev){ stick(false); showTip(html, ev.clientX, ev.clientY); });
+    node.addEventListener("pointerleave", hideTip);
+    node.addEventListener("focus", function(){
+      stick(true);
+      var r = node.getBoundingClientRect();
+      showTip(html, r.left + r.width / 2, r.top + r.height / 2);
+    });
+    node.addEventListener("blur", function(){ stick(false); hideTip(); });
+  }
+
+  function block(l, i, flexBasis, cls){
+    var s = el("div", {class:"cseg" + (cls ? " " + cls : ""), tabindex:"0"});
+    s.style.flex = Math.max(flexBasis || 0, 0.01) + " 1 0";
+    return s;
+  }
+
+  function label(s, top, bottom, ink, labs){
+    var lab = el("div", {class:"slab"});
+    lab.style.color = ink;
+    lab.appendChild(el("div", {class:"sl"}, top));
+    lab.appendChild(el("div", {class:"sv num"}, bottom));
+    s.appendChild(lab);
+    labs.push(lab);
+  }
+
+  /* A label is only drawn where it fits with air on both sides. Everything it
+     would have said is in the tooltip, the list below and the appendix table. */
+  function fit(labs){
+    requestAnimationFrame(function(){
+      for (var i = 0; i < labs.length; i++){
+        var lab = labs[i], seg = lab.parentNode, need = 0;
+        for (var j = 0; j < lab.children.length; j++){
+          need = Math.max(need, lab.children[j].scrollWidth);
+        }
+        lab.style.visibility = (need + 12 > seg.clientWidth) ? "hidden" : "";
+      }
+    });
+  }
+
+  function drawConc(node){
+    node.textContent = "";
+
+    var hd = el("div", {class:"conchd"});
+    B.legs.forEach(function(l, i){
+      var d = el("div", {class:"h", style:"--dot:var(" + HUES[i] + ")"});
+      d.appendChild(el("i"));
+      d.appendChild(el("span", {class:"t"}, l.leg + " leg"));
+      d.appendChild(el("span", {class:"k"}, l.ticker));
+      d.appendChild(el("span", {class:"w num"}, pct1(l.legWeight) + " of the book"));
+      hd.appendChild(d);
+    });
+    node.appendChild(hd);
+
+    var track = el("div", {class:"conctrack"}), labs = [];
+    B.legs.forEach(function(l, i){
+      var ink = inkOn(css(HUES[i]));
+
+      l.holdings.forEach(function(h){
+        var s = block(l, i, h.bw);
+        s.style.background = "var(" + HUES[i] + ")";
+        label(s, h.sym, pct1(h.bw), ink, labs);
+        s.setAttribute("aria-label",
+          h.name + ", " + pct1(h.bw) + " of the book, " + pct1(h.w) + " of " + l.ticker);
+        bindTip(s,
+          '<div class="h">' + esc(h.sym) + "  ·  " + esc(l.leg) + ' leg</div>'
+          + '<div class="r"><i class="sw" style="width:9px;height:9px;border-radius:2px;background:var('
+          + HUES[i] + ')"></i><span class="nm">' + esc(h.name) + '</span>'
+          + '<span class="vl">' + pct1(h.bw) + '</span></div>'
+          + '<div class="foot">' + pct1(h.w) + " of " + esc(l.ticker) + "  ·  " + esc(h.sector)
+          + (h.mcap == null ? "" : "  ·  " + money(h.mcap)) + '</div>');
+        track.appendChild(s);
+      });
+
+      var r = block(l, i, l.restBook, "rest");
+      r.style.background = "var(--surface-sunk)";                       // fallback
+      r.style.background = "color-mix(in srgb, var(" + HUES[i] + ") 20%, var(--surface))";
+      label(r, "Everything else", pct1(l.restBook), "var(--ink-2)", labs);
+      r.setAttribute("aria-label",
+        "Everything else in " + l.ticker + ", " + pct1(l.restBook) + " of the book");
+      bindTip(r,
+        '<div class="h">' + esc(l.ticker) + '</div>'
+        + '<div class="r"><i class="sw" style="width:9px;height:9px;border-radius:2px;background:'
+        + 'var(--rule-2)"></i><span class="nm">Outside the top ten</span>'
+        + '<span class="vl">' + pct1(l.restBook) + '</span></div>'
+        + '<div class="foot">' + pct1(100 - l.top10) + " of the fund, spread across holdings the fund "
+        + "does not publish in its top ten.</div>");
+      track.appendChild(r);
+    });
+    node.appendChild(track);
+    fit(labs);
+  }
+  register(root, drawConc, 720);
+
+  /* ── the two columns ────────────────────────────────────────────────── */
+  function cell(k, v, cls){
+    var d = el("div", {class:"f"});
+    d.appendChild(el("div", {class:"k"}, k));
+    d.appendChild(el("div", {class:"v num" + (v === "—" ? " na" : (cls ? " " + cls : ""))}, v));
+    return d;
+  }
+
+  /* Revenue and earnings growth share one fixed ±100% scale rather than a scale
+     set by the widest value: one holding at +1,369% would flatten every other bar
+     to nothing. Anything past the end is hatched, and the figure above the bar is
+     always the true one. */
+  var GCAP = 1.0;
+  function growCell(k, x){
+    var d = el("div", {class:"f"});
+    d.appendChild(el("div", {class:"k"}, k));
+    d.appendChild(el("div", {class:"v num" + (x == null ? " na" : x > 0 ? " up" : x < 0 ? " dn" : "")},
+                     grow(x)));
+    if (x != null){
+      var g = el("div", {class:"gbar"});
+      g.appendChild(el("div", {class:"z"}));
+      var c = Math.max(-GCAP, Math.min(GCAP, x)), half = Math.abs(c) / GCAP * 50;
+      var bar = el("i", Math.abs(x) > GCAP ? {class:"over " + (x > 0 ? "up" : "dn")} : null);
+      bar.style[c >= 0 ? "left" : "right"] = "50%";
+      bar.style.width = half + "%";
+      bar.style.background = "var(" + (x >= 0 ? "--dv-p3" : "--dv-n3") + ")";
+      g.appendChild(bar);
+      g.title = k + " " + grow(x) + ". Bar scale ±100%"
+              + (Math.abs(x) > GCAP ? "; this one runs past the end." : ".");
+      d.appendChild(g);
+    }
+    return d;
+  }
+
+  function meter(value, max, hue, aria){
+    var m = el("div", {class:"mtr", style:"--dot:var(" + hue + ")", role:"img", "aria-label":aria});
+    var fill = el("i");
+    m.appendChild(fill);
+    requestAnimationFrame(function(){
+      setTimeout(function(){ fill.style.width = Math.min(100, (value || 0) / max * 100).toFixed(1) + "%"; }, 60);
+    });
+    return m;
+  }
+
+  function holdingRow(l, i, h){
+    var d = el("details", {class:"hrow"});
+    var sm = el("summary");
+
+    var chip = el("span", {class:"chip", "data-n":String((h.sym || "").length)});
+    chip.appendChild(glyph(h.glyph));
+    chip.appendChild(el("b", null, h.sym));
+    sm.appendChild(chip);
+
+    var nm = el("span", {class:"hnm"});
+    nm.appendChild(el("span", {class:"c"}, h.name));
+    var sub = h.sector + (h.industry ? "  ·  " + h.industry : "");
+    nm.appendChild(el("small", {title:sub}, sub));
+    sm.appendChild(nm);
+
+    sm.appendChild(meter(h.w, WMAX, HUES[i], pct1(h.w) + " of " + l.ticker));
+    sm.appendChild(el("span", {class:"hw num"}, pct1(h.w)));
+    sm.appendChild(el("span", {class:"mk", "aria-hidden":"true"}));
+    d.appendChild(sm);
+
+    var p = el("div", {class:"fund"});
+    p.appendChild(cell("Share of book", pct1(h.bw)));
+    p.appendChild(cell("Market cap", money(h.mcap)));
+    p.appendChild(cell("P/E trailing", h.pe == null ? "—" : nf(h.pe, 1)));
+    p.appendChild(cell("P/E forward", h.fpe == null ? "—" : nf(h.fpe, 1)));
+    p.appendChild(growCell("Revenue growth", h.rev));
+    p.appendChild(growCell("Earnings growth", h.earn));
+    p.appendChild(cell("Profit margin", h.margin == null ? "—" : nf(h.margin * 100, 1) + "%",
+                       h.margin != null && h.margin < 0 ? "dn" : ""));
+    p.appendChild(cell("Dividend yield", h["yield"] == null ? "—" : nf(h["yield"], 2) + "%"));
+    d.appendChild(p);
+    return d;
+  }
+
+  function mixBlock(l, i){
+    var m = el("div", {class:"mix"});
+    m.appendChild(el("div", {class:"mixhd"}, "Sector mix of " + l.ticker));
+    var mx = l.mix.reduce(function(a, s){ return Math.max(a, s.w); }, 1);
+    l.mix.forEach(function(s){
+      var r = el("div", {class:"mrow"});
+      r.appendChild(glyph(s.glyph));
+      r.appendChild(el("div", {class:"n"}, s.name));
+      r.appendChild(meter(s.w, mx, HUES[i], pct1(s.w) + " " + s.name));
+      r.appendChild(el("div", {class:"p num"}, pct1(s.w)));
+      m.appendChild(r);
+    });
+    if (l.mixTail){
+      m.appendChild(el("div", {class:"mtail"},
+        cap(word(l.mixTail.n)) + " smaller sector" + (l.mixTail.n === 1 ? "" : "s")
+        + " make up the remaining " + pct1(l.mixTail.w) + "."));
+    }
+    return m;
+  }
+
+  var cols = $("#bookCols");
+  B.legs.forEach(function(l, i){
+    var col = el("div", {class:"bookcol", style:"--dot:var(" + HUES[i] + ")"});
+    var h3 = el("h3");
+    h3.appendChild(el("i"));
+    h3.appendChild(document.createTextNode(l.leg + " leg — " + l.name));
+    h3.appendChild(el("span", null, l.ticker));
+    col.appendChild(h3);
+
+    var note = el("div", {class:"colnote"});
+    note.innerHTML = "Top ten is <b>" + pct1(l.top10) + " of the fund</b>, " + pct1(l.top10Book)
+      + " of the whole book. Bars are share of the fund, on one scale across both columns. "
+      + "Open any row for its fundamentals.";
+    col.appendChild(note);
+
+    l.holdings.forEach(function(h){ col.appendChild(holdingRow(l, i, h)); });
+    col.appendChild(mixBlock(l, i));
+    cols.appendChild(col);
+  });
+})();
+
+/* ══════════════════════════════════════════════════════════════════════
+   02 KPI ROW
    ══════════════════════════════════════════════════════════════════════ */
 (function kpis(){
   var s = ST.strategy, a = ST.allworld;
@@ -1197,7 +1777,7 @@ function divInk(v){ return v == null ? "var(--muted)" : inkOn(css(divVar(v))); }
 })();
 
 /* ══════════════════════════════════════════════════════════════════════
-   02 CUMULATIVE GROWTH  (inline SVG, hand-built)
+   03 CUMULATIVE GROWTH  (inline SVG, hand-built)
    ══════════════════════════════════════════════════════════════════════ */
 (function(){
   var node = $("#growthChart"), scale = "lin", on = {strategy:1, allworld:1, sp500:1, world:1};
@@ -1395,7 +1975,7 @@ function divInk(v){ return v == null ? "var(--muted)" : inkOn(css(divVar(v))); }
 })();
 
 /* ══════════════════════════════════════════════════════════════════════
-   03 DRAWDOWN
+   04 DRAWDOWN
    ══════════════════════════════════════════════════════════════════════ */
 (function drawdown(){
   var node = $("#ddChart"), T = DATA.t, SPAN = DATA.span, N = DATA.months.length;
@@ -1517,7 +2097,7 @@ function divInk(v){ return v == null ? "var(--muted)" : inkOn(css(divVar(v))); }
 })();
 
 /* ══════════════════════════════════════════════════════════════════════
-   04 CALENDAR YEARS
+   05 CALENDAR YEARS
    ══════════════════════════════════════════════════════════════════════ */
 (function years(){
   var Y = DATA.years, root = $("#yearsChart");
@@ -1598,7 +2178,7 @@ function divInk(v){ return v == null ? "var(--muted)" : inkOn(css(divVar(v))); }
 })();
 
 /* ══════════════════════════════════════════════════════════════════════
-   05 MONTHLY HEATMAP
+   06 MONTHLY HEATMAP
    ══════════════════════════════════════════════════════════════════════ */
 (function heatmap(){
   var root = $("#hmChart"), showVals = false, reg;
@@ -1689,7 +2269,7 @@ function divInk(v){ return v == null ? "var(--muted)" : inkOn(css(divVar(v))); }
 })();
 
 /* ══════════════════════════════════════════════════════════════════════
-   06 ALLOCATION RIBBON
+   07 ALLOCATION RIBBON
    Two lanes, one row per candidate index. A bar marks every month that
    index was in the book; its shade is the book's mean monthly return
    across that run. Identity comes from the row label, never from colour.
@@ -1787,67 +2367,12 @@ function divInk(v){ return v == null ? "var(--muted)" : inkOn(css(divVar(v))); }
 })();
 
 /* ══════════════════════════════════════════════════════════════════════
-   07 THE UNIVERSE
-   Eleven glyphs, hand-drawn on one 24-unit grid: four factor styles and
-   seven sectors. Identical stroke weight and joins throughout, stroke-only
-   except where a solid mass is the point (small cap, bullion). The factor
-   basket is four styles crossed with two regions, so the region is a
-   typographic tag rather than a fifth and sixth drawing.
+   08 THE UNIVERSE
+   The factor basket is four styles crossed with two regions, so the region
+   is a typographic tag rather than a fifth and sixth drawing. Glyphs come
+   from the shared set above.
    ══════════════════════════════════════════════════════════════════════ */
 (function universeSection(){
-  var G = {};
-
-  // ── factor styles ────────────────────────────────────────────────────
-  // Momentum: two stacked chevrons, rising — acceleration, not a trend line.
-  G.MOM = '<path d="M6 13.4 12 7.4l6 6"/><path d="M6 19 12 13l6 6"/>';
-  // Quality: a brilliant cut seen face-on — crown, girdle, two facets.
-  G.QUAL = '<path d="M12 3.8 19.6 10 12 20.2 4.4 10Z"/><path d="M4.4 10h15.2"/>'
-         + '<path d="M12 3.8 8.4 10"/><path d="M12 3.8 15.6 10"/>';
-  // Value: a price tag with its eyelet.
-  G.VAL = '<path d="M12.4 3.6H5.1A1.5 1.5 0 0 0 3.6 5.1v7.3a1.5 1.5 0 0 0 .44 1.06l6.9 6.9a1.5 1.5 0 0 0 2.12 0l7.3-7.3a1.5 1.5 0 0 0 0-2.12l-6.9-6.9a1.5 1.5 0 0 0-1.06-.44Z"/>'
-        + '<circle cx="7.7" cy="7.7" r="1.45"/>';
-  // Size: a small solid form beside a large empty one, on one baseline.
-  G.SMALL = '<rect x="3.4" y="6.6" width="9.2" height="13.6" rx="1.6"/>'
-          + '<rect class="mass" x="14.6" y="13.8" width="6" height="6.4" rx="1.2"/>';
-
-  // ── sectors ──────────────────────────────────────────────────────────
-  // Energy: an oil drum — cylinder and two hoops.
-  G.ENERGY = '<ellipse cx="12" cy="5.9" rx="5.4" ry="2.1"/>'
-           + '<path d="M6.6 5.9v12.2M17.4 5.9v12.2"/>'
-           + '<path d="M6.6 18.1a5.4 2.1 0 0 0 10.8 0"/>'
-           + '<path d="M6.6 10.2h10.8M6.6 13.9h10.8"/>';
-  // Information Technology: a package, its die, and three pins a side.
-  G.INFOTECH = '<rect x="7.6" y="7.6" width="8.8" height="8.8" rx="1.2"/>'
-             + '<rect x="10.6" y="10.6" width="2.8" height="2.8" rx="0.7"/>'
-             + '<path d="M9.9 7.6V4.7M12 7.6V4.7M14.1 7.6V4.7"/>'
-             + '<path d="M9.9 16.4v2.9M12 16.4v2.9M14.1 16.4v2.9"/>'
-             + '<path d="M7.6 9.9H4.7M7.6 12H4.7M7.6 14.1H4.7"/>'
-             + '<path d="M16.4 9.9h2.9M16.4 12h2.9M16.4 14.1h2.9"/>';
-  // Health Care: a capsule on the diagonal, with its seam.
-  G.HEALTH = '<g transform="rotate(-45 12 12)">'
-           + '<rect x="3.6" y="9.4" width="16.8" height="5.2" rx="2.6"/>'
-           + '<path d="M12 9.4v5.2"/></g>';
-  // Consumer Discretionary: a shopping bag.
-  G.CONS_DISC = '<path d="M5.6 8.2h12.8l-1 11.1a1.4 1.4 0 0 1-1.4 1.27H8a1.4 1.4 0 0 1-1.4-1.27Z"/>'
-              + '<path d="M9.1 8.2V6.5a2.9 2.9 0 0 1 5.8 0v1.7"/>';
-  // Consumer Staples: a gable-top carton.
-  G.CONS_STAP = '<path d="M6.9 9.1 12 4.3l5.1 4.8v10.6H6.9Z"/>'
-              + '<path d="M6.9 9.1h10.2"/><path d="M12 4.3v4.8"/>';
-  // Industrials: a cog — hub, body, eight teeth on the 45° grid.
-  G.INDUST = '<circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/>'
-           + '<path d="M18 12h2.2M16.24 16.24l1.56 1.56M12 18v2.2M7.76 16.24 6.2 17.8'
-           + 'M6 12H3.8M7.76 7.76 6.2 6.2M12 6V3.8M16.24 7.76 17.8 6.2"/>';
-  // Materials: three cast bars, stacked.
-  G.MATERIALS = '<rect x="3.7" y="14.5" width="7.6" height="5.3" rx="0.9"/>'
-              + '<rect x="12.7" y="14.5" width="7.6" height="5.3" rx="0.9"/>'
-              + '<rect x="8.2" y="8.5" width="7.6" height="5.3" rx="0.9"/>';
-
-  function glyph(key){
-    var d = el("div", {class:"gl"});
-    d.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">' + (G[key] || "") + "</svg>";
-    return d;
-  }
-
   var U = DATA.universe, MAX = U.maxHeld;
 
   $("#uniLede").innerHTML =
@@ -1968,7 +2493,7 @@ function divInk(v){ return v == null ? "var(--muted)" : inkOn(css(divVar(v))); }
 })();
 
 /* ══════════════════════════════════════════════════════════════════════
-   08 CAVEATS
+   10 CAVEATS
    ══════════════════════════════════════════════════════════════════════ */
 (function caveats(){
   var s = ST.strategy;
@@ -2026,6 +2551,30 @@ function divInk(v){ return v == null ? "var(--muted)" : inkOn(css(divVar(v))); }
   DATA.universe.factors.concat(DATA.universe.sectors).forEach(function(u){ names[u.code] = u.name; });
   var holdByMonth = {};
   DATA.holdings.forEach(function(h){ holdByMonth[h.m] = h; });
+
+  if (DATA.book && DATA.book.legs && DATA.book.legs.length === 2){
+    $("#appBook").hidden = false;
+    $("#appBookAsOf").textContent = "As at " + DATA.book.asOfPretty;
+    var bookRows = [];
+    DATA.book.legs.forEach(function(l){
+      l.holdings.forEach(function(h){
+        bookRows.push([
+          l.leg, {v:h.sym, cls:"k"}, {v:h.name, cls:"hold"},
+          nf(h.w, 2) + "%", nf(h.bw, 2) + "%",
+          money(h.mcap),
+          h.pe == null ? "—" : nf(h.pe, 1),
+          h.fpe == null ? "—" : nf(h.fpe, 1),
+          grow(h.rev), grow(h.earn),
+          h.margin == null ? "—" : nf(h.margin * 100, 1) + "%",
+          h["yield"] == null ? "—" : nf(h["yield"], 2) + "%"
+        ]);
+      });
+    });
+    build($("#tblBook"),
+      ["Leg","Ticker","Company","% of fund","% of book","Market cap","P/E","Fwd P/E",
+       "Revenue growth","Earnings growth","Margin","Yield"],
+      bookRows);
+  }
 
   $("#appMonthlyCount").textContent = M.months + " priced months";
   build($("#tblMonthly"),

@@ -62,6 +62,27 @@ def fundamentals(symbol):
     return _retry(go) or {}
 
 
+def normalise_yields(rows):
+    """yfinance reports dividendYield in PERCENT (Verizon 6.1 = 6.10%), unlike
+    every other rate here, and it has flipped between percent and fraction
+    across versions. Decide the unit from the SET, never per value: Micron
+    genuinely yields 0.06%, so a per-row threshold would inflate it a
+    hundredfold. If most payers look like fractions, scale the whole set.
+    """
+    vals = [r["dividend_yield"] for r in rows
+            if r.get("dividend_yield") not in (None, 0)]
+    if not vals:
+        return rows, "percent"
+    vals = sorted(float(v) for v in vals)
+    median = vals[len(vals) // 2]
+    if median < 0.25:                      # a 0.25% median payer is implausible
+        for r in rows:
+            if r.get("dividend_yield") is not None:
+                r["dividend_yield"] = float(r["dividend_yield"]) * 100
+        return rows, "percent (converted from fractions)"
+    return rows, "percent"
+
+
 def build(signal=None):
     signal = signal or json.loads((DATA / "signal.json").read_text())
     funds = {
@@ -95,8 +116,10 @@ def build(signal=None):
             })
             print(f"     {row['symbol']:6s} {row['weight']*100:5.2f}%  "
                   f"PE {f.get('trailingPE')}")
+        enriched, yield_unit = normalise_yields(enriched)
+        print(f"     dividend yield unit: {yield_unit}")
         top_n = sum(r["weight"] for r in enriched)
-        out["legs"][leg] = {**meta, "holdings": enriched,
+        out["legs"][leg] = {**meta, "holdings": enriched, "yield_unit": yield_unit,
                             "sector_weights": h["sector_weights"],
                             "top10_weight": top_n}
     (DATA / "holdings.json").write_text(json.dumps(out, indent=2, default=str))

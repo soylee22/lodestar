@@ -61,6 +61,26 @@ MONTH_ABBR = ["Jan", "Feb", "Mar", "Apr", "May", "Jun",
 STYLES = [("MOM", "Momentum"), ("QUAL", "Quality"), ("VAL", "Value"), ("SMALL", "Size")]
 REGION = {"USA": "US", "EUR": "EU"}
 
+# Look-through: the funds report their own sector taxonomy, which is not the GICS
+# naming the sector basket uses. Map both onto the glyph set the page already draws,
+# so a holding and a sector index that mean the same thing carry the same mark.
+SECTOR_META = {
+    "technology":             ("Technology", "INFOTECH"),
+    "energy":                 ("Energy", "ENERGY"),
+    "healthcare":             ("Health Care", "HEALTH"),
+    "consumer_cyclical":      ("Consumer Cyclical", "CONS_DISC"),
+    "consumer_defensive":     ("Consumer Defensive", "CONS_STAP"),
+    "industrials":            ("Industrials", "INDUST"),
+    "basic_materials":        ("Basic Materials", "MATERIALS"),
+    "financial_services":     ("Financial Services", "FIN"),
+    "communication_services": ("Communication Services", "COMMS"),
+    "utilities":              ("Utilities", "UTIL"),
+    "realestate":             ("Real Estate", "REALEST"),
+    "real_estate":            ("Real Estate", "REALEST"),
+}
+MIX_FLOOR = 5.0          # sectors under this fold into one tail line
+TOP_NAMED = 3            # how many companies the concentration headline names
+
 
 def r6(x):
     """Round for transport; keep NaN/inf out of the JSON."""
@@ -125,6 +145,124 @@ def stats_for(pct: pd.Series) -> dict:
         "wealth": [r6(v) for v in wealth],
         "drawdown": [r6(v * 100.0) for v in dd],
         "rolling12": roll,
+    }
+
+
+def num(x):
+    """Coerce a possibly-missing, possibly-stringified figure to a float or None."""
+    if x is None or x == "":
+        return None
+    try:
+        v = float(x)
+    except (TypeError, ValueError):
+        return None
+    return None if (math.isnan(v) or math.isinf(v)) else v
+
+
+def sector_meta(raw) -> tuple:
+    key = str(raw or "").strip().lower().replace(" ", "_").replace("-", "_")
+    if key in SECTOR_META:
+        return SECTOR_META[key]
+    return (str(raw).strip() or "Other", "OTHER")
+
+
+def build_book(current: dict) -> dict | None:
+    """Look-through into the two funds actually held: top ten and fundamentals.
+
+    Fund weights are shares of that fund; book weights are the same figure scaled by
+    the leg's 50%, so every number on the page is directly comparable. Written by the
+    monthly job; absent or half-empty, the page simply drops the section.
+    """
+    path = DATA_DIR / "holdings.json"
+    if not path.is_file():
+        return None
+    try:
+        raw = json.loads(path.read_text(encoding="utf-8"))
+    except (ValueError, OSError):
+        return None
+
+    live = {leg["leg"].lower(): leg for leg in current["legs"]}
+    legs, stale = [], False
+
+    for key in ("factor", "sector"):
+        src = (raw.get("legs") or {}).get(key) or {}
+        rows = src.get("holdings") or []
+        if not rows or key not in live:
+            return None                       # a half-drawn book is worse than none
+        held = live[key]
+        if src.get("slot") and src["slot"] != held["code"]:
+            stale = True
+        leg_w = float(held["weight"])         # 50, the leg's share of the book
+
+        holdings = []
+        for r in rows:
+            w = num(r.get("weight")) or 0.0
+            sec_name, glyph = sector_meta(r.get("sector"))
+            holdings.append({
+                "sym": str(r.get("symbol") or "").upper(),
+                # The fund's own holdings table names the company; the fundamentals
+                # feed sometimes disagrees with itself (ExxonMobil Holdings
+                # Corporation), so the fund is the authority on its own book.
+                "name": str(r.get("name") or r.get("company") or r.get("symbol") or ""),
+                "sector": sec_name,
+                "glyph": glyph,
+                "industry": (str(r["industry"]) if r.get("industry") else None),
+                "w": r6(w * 100.0),           # % of the fund
+                "bw": r6(w * leg_w),          # % of the whole book
+                "mcap": num(r.get("market_cap")),
+                "pe": r6(num(r.get("pe"))),
+                "fpe": r6(num(r.get("forward_pe"))),
+                "rev": r6(num(r.get("revenue_growth"))),
+                "earn": r6(num(r.get("earnings_growth"))),
+                "margin": r6(num(r.get("profit_margin"))),
+                "yield": r6(num(r.get("dividend_yield"))),
+            })
+        holdings.sort(key=lambda h: -(h["w"] or 0.0))
+
+        top10 = num(src.get("top10_weight"))
+        if top10 is None:
+            top10 = sum((h["w"] or 0.0) for h in holdings) / 100.0
+        top10 *= 100.0
+
+        mix = sorted(
+            ({"name": sector_meta(k)[0], "glyph": sector_meta(k)[1], "w": r6(num(v) * 100.0)}
+             for k, v in (src.get("sector_weights") or {}).items() if num(v)),
+            key=lambda m: -m["w"],
+        )
+        shown = [m for m in mix if m["w"] >= MIX_FLOOR]
+        tail = [m for m in mix if m["w"] < MIX_FLOOR]
+
+        legs.append({
+            "leg": held["leg"],                       # Factor / Sector
+            "code": held["code"],
+            "name": held["name"],
+            "ticker": str(src.get("ticker") or held["lse"]),
+            "isin": held["isin"],
+            "legWeight": r6(leg_w),
+            "top10": r6(top10),                       # % of the fund
+            "top10Book": r6(top10 * leg_w / 100.0),   # % of the book
+            "restBook": r6(leg_w - top10 * leg_w / 100.0),
+            "count": len(holdings),
+            "holdings": holdings,
+            "mix": shown,
+            "mixTail": ({"n": len(tail), "w": r6(sum(m["w"] for m in tail))} if tail else None),
+        })
+
+    flat = [dict(h, leg=leg["leg"], legKey=leg["leg"].lower()) for leg in legs for h in leg["holdings"]]
+    flat.sort(key=lambda h: -(h["bw"] or 0.0))
+    named = flat[:TOP_NAMED]
+
+    return {
+        "asOf": raw.get("as_at"),
+        "asOfPretty": pretty(raw["as_at"]) if raw.get("as_at") else None,
+        "stale": stale,
+        "legs": legs,
+        "named": [{"sym": h["sym"], "name": h["name"], "leg": h["leg"], "legKey": h["legKey"],
+                   "w": h["w"], "bw": h["bw"]} for h in named],
+        "namedBook": r6(sum((h["bw"] or 0.0) for h in named)),
+        "namedCount": len(named),
+        "topBook": r6(flat[0]["bw"]) if flat else None,
+        "topSym": flat[0]["sym"] if flat else None,
     }
 
 
@@ -295,6 +433,8 @@ def main() -> None:
         ],
     }
 
+    book = build_book(current)
+
     payload = {
         "meta": {
             "name": "Lodestar",
@@ -333,6 +473,7 @@ def main() -> None:
         "holdings": holdings,
         "lanes": lanes,
         "current": current,
+        "book": book,
         "universe": {
             "pricedMonths": len(months),
             "maxHeld": max(held_priced.values()),
@@ -377,6 +518,16 @@ def main() -> None:
     print(f"  cash months   {sum(1 for h in holdings if h['cash'])}")
     print(f"  current       {current['legs'][0]['name']} ({current['legs'][0]['lse']}) + "
           f"{current['legs'][1]['name']} ({current['legs'][1]['lse']})")
+    if book is None:
+        print("  look-through  none (data/holdings.json missing or incomplete) — section dropped")
+    else:
+        print(f"  look-through  as at {book['asOfPretty']}"
+              + ("  !! STALE: holdings do not match the current legs" if book["stale"] else ""))
+        for leg in book["legs"]:
+            print(f"    {leg['leg']:<7} {leg['ticker']:<8} top10 {leg['top10']:.1f}% of fund, "
+                  f"{leg['top10Book']:.1f}% of book")
+        print("    " + " + ".join(f"{h['sym']} {h['bw']:.1f}%" for h in book["named"])
+              + f" = {book['namedBook']:.1f}% of the book")
 
 
 if __name__ == "__main__":
