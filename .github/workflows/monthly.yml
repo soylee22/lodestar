@@ -34,7 +34,7 @@ jobs:
         run: |
           git config user.name  "soylee22"
           git config user.email "leeslater1992@gmail.com"
-          git add data data.js
+          git add data.js data/panel_local.csv data/last_alert.json
           if git diff --staged --quiet; then
             echo "nothing changed"
           else

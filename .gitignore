@@ -1,3 +1,10 @@
 __pycache__/
 *.pyc
 .DS_Store
+
+# derived each run from panel_local.csv; keeping them in git only causes
+# conflicts between the scheduled job and local work
+data/final_book.csv
+data/final_tradable.csv
+data/final_tradable_annual.csv
+data/signal.json
