@@ -235,8 +235,11 @@ def main():
     out.to_csv(DATA / "final_tradable.csv")
 
     yr = pd.Series(pd.PeriodIndex(out.index).year, index=out.index)
-    ann = out.groupby(yr).apply(lambda g: (np.prod(1 + g / 100) - 1) * 100)
-    ann["vs All-World"] = ann.iloc[:, 0] - ann["FTSE All-World"]
+    # compound each column within each year, explicitly per column: a frame-wide
+    # np.prod would collapse every column into one scalar
+    ann = pd.DataFrame({c: out[c].groupby(yr).apply(lambda s: ((1 + s / 100).prod() - 1) * 100)
+                        for c in out.columns})
+    ann["vs All-World"] = ann[out.columns[0]] - ann["FTSE All-World"]
     ann.to_csv(DATA / "final_tradable_annual.csv")
 
     last = panel.index[-1]
