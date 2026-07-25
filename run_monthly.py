@@ -14,6 +14,7 @@ from pathlib import Path
 HERE = Path(__file__).resolve().parent
 sys.path.insert(0, str(HERE))
 from pipeline import build            # noqa: E402
+from pipeline import holdings        # noqa: E402
 from notify import telegram           # noqa: E402
 from universe import FACTOR_NAMES, SECTOR_NAMES  # noqa: E402
 
@@ -41,6 +42,10 @@ def record_alert(month: str, picks: str) -> None:
 
 def main() -> int:
     signal = build.main()
+    try:
+        holdings.build(signal)
+    except Exception as e:               # holdings are decorative, never fatal
+        print(f"  !! holdings refresh failed ({type(e).__name__}); keeping previous")
     subprocess.run([sys.executable, str(HERE / "build_data.py"), str(HERE / "data")], check=True)
 
     prev, stale = signal["previous"], signal.get("stale")
