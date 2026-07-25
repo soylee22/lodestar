@@ -154,8 +154,10 @@ def build_signal_panel():
 def compute_book(panel, spx):
     """Month-by-month holding, from month-end signals."""
     mom = (panel.shift(SKIP) / panel.shift(SKIP + LOOKBACK) - 1) if SKIP else (panel / panel.shift(LOOKBACK) - 1)
-    fpick = mom[FACTOR_SLOTS].idxmax(axis=1)
-    spick = mom[SECTOR_SLOTS].idxmax(axis=1)
+    # the first LOOKBACK months have no trailing window; an all-NA row is an
+    # error for idxmax on newer pandas, so drop those rows rather than rank them
+    fpick = mom[FACTOR_SLOTS].dropna(how="all").idxmax(axis=1)
+    spick = mom[SECTOR_SLOTS].dropna(how="all").idxmax(axis=1)
     cash = (spx / spx.shift(CASH_LOOKBACK) - 1) < CASH_THRESHOLD
     rows = {}
     idx = panel.index
