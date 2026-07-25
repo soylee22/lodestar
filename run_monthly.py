@@ -54,7 +54,10 @@ def main() -> int:
                 else "\n".join(changed) + "\n\nReset both legs to 50/50 while you are trading.\n")
         ftab = sorted(signal["factor_table"].items(), key=lambda kv: -kv[1])[:3]
         stab = sorted(signal["sector_table"].items(), key=lambda kv: -kv[1])[:3]
-        msg = (f"{head}\n\nSignal computed at the {signal['signal_month']} close.\n\n{body}\n"
+        src = ("" if signal.get("factor_source") == "MSCI" else
+           "\n<i>Factor leg computed from ETF proxies: MSCI was unavailable. "
+           "Momentum values differ by roughly 1-4pp from the indices.</i>\n")
+    msg = (f"{head}\n\nSignal computed at the {signal['signal_month']} close.{src}\n\n{body}\n"
                f"<b>Hold:</b> <code>{ft}</code> + <code>{st}</code>, 50/50\n\n"
                "<b>Factor ranking</b>\n" +
                "\n".join(f"  {NAMES.get(k,k)} {v*100:+.1f}%" for k, v in ftab) +

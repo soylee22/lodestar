@@ -40,6 +40,16 @@ LSE = {"USA_MOM": "IUMO.L", "USA_QUAL": "IUQA.L", "USA_VAL": "IUVL.L",
        "INDUST": "IUIS.L", "INFOTECH": "IUIT.L", "MATERIALS": "IUMS.L"}
 BENCH = {"FTSE All-World": ("VWRL.L", "GBP"), "S&P 500": ("VUSA.L", "GBP"),
          "MSCI World": ("IWDA.L", "USD")}
+
+# Fallback for the factor leg when MSCI's endpoint is unreachable. These are the
+# US-listed, DISTRIBUTING factor funds, so their unadjusted close is a price
+# series, like the index. The three Europe slots map to International ex-US funds
+# (the substitution the strategy's originator uses himself), so they are the
+# least faithful part of the fallback -- acceptable because the Europe slots
+# rarely win, and the whole fallback is flagged wherever it is used.
+FACTOR_PROXY = {"USA_MOM": "MTUM", "USA_QUAL": "QUAL", "USA_VAL": "VLUE",
+                "USA_SMALL": "SMLF", "EUR_MOM": "IMTM", "EUR_QUAL": "IQLT",
+                "EUR_VAL": "IVLU", "EUR_SMALL": "IEUS"}
 FACTOR_SLOTS, SECTOR_SLOTS = list(FACTOR), list(SECTOR_YF)
 
 
@@ -143,12 +153,28 @@ def build_signal_panel():
         panel = panel.reindex(panel.index.union(s.index)) if len(panel) else pd.DataFrame(index=s.index)
         panel[name] = s.reindex(panel.index).combine_first(panel[name]) if name in panel else s.reindex(panel.index)
     panel = panel[list(FACTOR) + list(SECTOR_YF)].sort_index().dropna(how="all")
+    # never persist a month that has not ended: a partial month would be locked
+    # into the cache and could not be corrected on a later run
+    panel = panel[panel.index < pd.Timestamp.today().to_period("M")]
     panel.to_csv(PANEL_CSV)
     # a signal needs every one of the fifteen levels; partial months are unusable
     complete = panel.dropna(how="any")
     if len(complete) < len(panel):
         print(f"  dropping {len(panel)-len(complete)} incomplete month(s) from the signal panel")
     return complete, failures
+
+
+def proxy_factor_momentum(month):
+    """Factor momentum for one month from the ETF proxies, computed entirely
+    within the proxy's own price history so no series is ever spliced."""
+    cols = {}
+    for slot, sym in FACTOR_PROXY.items():
+        cols[slot] = yahoo_monthly(sym, adjusted=False, start="2015-01-01")
+    px = pd.DataFrame(cols).dropna()
+    mom = (px / px.shift(LOOKBACK) - 1)
+    if month not in mom.index or mom.loc[month].isna().any():
+        raise RuntimeError(f"proxy has no complete momentum for {month}")
+    return mom.loc[month]
 
 
 def compute_book(panel, spx):
@@ -244,22 +270,39 @@ def main():
 
     last = panel.index[-1]
     expected = (pd.Timestamp.today().to_period("M") - 1)
-    stale = last < expected
+    factor_source, factor_row = "MSCI", None
+    if last < expected:
+        # MSCI is behind. The sector leg and the cash rule come from elsewhere and
+        # may well be current, so try to rescue the factor leg from the proxies
+        # rather than abandon the month.
+        print(f"  !! MSCI panel ends {last}, expected {expected}: trying ETF proxy")
+        try:
+            factor_row = proxy_factor_momentum(expected)
+            factor_source = "ETF proxy"
+            print(f"  proxy factor pick for {expected}: {factor_row.idxmax()}")
+        except Exception as e:
+            print(f"  !! proxy also unavailable: {e}")
+    stale = (last < expected) and factor_source == "MSCI"
     if stale:
-        print(f"  !! panel newest month is {last}, expected {expected} -- signal NOT fresh")
+        print(f"  !! signal NOT fresh")
+    sig_month = expected if factor_source == "ETF proxy" else last
+    factor_pick = str(factor_row.idxmax()) if factor_row is not None else str(fpick.loc[last])
+    sector_pick = str(spick.loc[sig_month]) if sig_month in spick.index else str(spick.loc[last])
+    ftab = ({k: float(v) for k, v in factor_row.items()} if factor_row is not None
+            else {k: float(mom.loc[last, k]) for k in FACTOR_SLOTS})
     signal = {
-        "signal_month": str(last),
-        "factor": str(fpick.loc[last]), "sector": str(spick.loc[last]),
+        "signal_month": str(sig_month), "factor_source": factor_source,
+        "factor": factor_pick, "sector": sector_pick,
         "cash": bool(cash.get(last, False)),
-        "factor_ticker": LSE[str(fpick.loc[last])], "sector_ticker": LSE[str(spick.loc[last])],
-        "factor_table": {k: float(mom.loc[last, k]) for k in FACTOR_SLOTS},
-        "sector_table": {k: float(mom.loc[last, k]) for k in SECTOR_SLOTS},
+        "factor_ticker": LSE[factor_pick], "sector_ticker": LSE[sector_pick],
+        "factor_table": ftab,
+        "sector_table": {k: float(mom.loc[sig_month if sig_month in mom.index else last, k]) for k in SECTOR_SLOTS},
         "previous": {"factor": str(book.iloc[-1]["factor"]), "sector": str(book.iloc[-1]["sector"])},
         "stale": bool(stale), "expected_month": str(expected),
         "source_failures": failures,
     }
     (DATA / "signal.json").write_text(json.dumps(signal, indent=2))
-    print(f"\nsignal at {last}: {signal['factor']} ({signal['factor_ticker']}) + "
+    print(f"\nsignal at {signal['signal_month']} [{factor_source}]: {signal['factor']} ({signal['factor_ticker']}) + "
           f"{signal['sector']} ({signal['sector_ticker']}){'  [CASH]' if signal['cash'] else ''}")
     print(f"track: {len(track)} months to {track.index[-1]}")
     return signal
