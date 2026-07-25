@@ -25,12 +25,26 @@ in sterling, on a total-return basis.
     python run_monthly.py
 
 Recomputes the signal, rebuilds `data.js`, and sends a Telegram alert if
-`TG_TOKEN` and `TG_CHAT` are set. Runs automatically on the 1st of each month.
+`TG_TOKEN` and `TG_CHAT` are set.
 
-`data/panel_local.csv` is a cached index panel, refreshed incrementally. MSCI's
-public endpoint is intermittently unreachable; when it is, the job falls back to
-the cache and **refuses to publish a signal** rather than emit a stale one, and
-says so in the alert.
+**It runs every morning from the 1st to the 5th, not just the 1st.** The job is
+idempotent: it alerts once per signal month and then goes quiet, so the extra
+days are retries rather than noise. If a data source is down on the 1st, the
+following morning picks the month up instead of losing it. Failures alert on
+every attempt, because a month with no signal is the thing you must not miss.
+
+Half the universe is MSCI data (the eight factor indices); the sector leg and the
+cash rule come from S&P 500 indices. MSCI's public endpoint is intermittently
+unreachable, so there are three layers of defence:
+
+1. `data/panel_local.csv` caches the index panel and is refreshed incrementally,
+   so an outage cannot destroy history. Partial months are never persisted.
+2. If MSCI is behind for the current month, the factor leg is recomputed from
+   the US-listed factor ETFs, whose unadjusted closes are price series like the
+   index. Tested against the live month: same pick, momentum values within about
+   1&ndash;4pp. Any signal produced this way is flagged as such in the alert.
+3. Only if both fail does the job refuse to publish, and it then says so loudly
+   and retries the next morning.
 
 ## Layout
 

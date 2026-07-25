@@ -8,6 +8,7 @@ If a data source is unavailable, this refuses to publish a signal and says so
 in the alert. A wrong signal is worse than a late one.
 """
 import json, os, subprocess, sys
+from datetime import date
 from pathlib import Path
 
 HERE = Path(__file__).resolve().parent
@@ -17,6 +18,25 @@ from notify import telegram           # noqa: E402
 from universe import FACTOR_NAMES, SECTOR_NAMES  # noqa: E402
 
 NAMES = {**FACTOR_NAMES, **SECTOR_NAMES}
+
+
+STATE = HERE / "data" / "last_alert.json"
+
+
+def already_alerted(month: str, picks: str) -> bool:
+    """True if this exact signal has already been announced."""
+    if not STATE.is_file():
+        return False
+    try:
+        prev = json.loads(STATE.read_text())
+    except Exception:
+        return False
+    return prev.get("month") == month and prev.get("picks") == picks
+
+
+def record_alert(month: str, picks: str) -> None:
+    STATE.write_text(json.dumps({"month": month, "picks": picks,
+                                 "sent": date.today().isoformat()}, indent=2))
 
 
 def main() -> int:
@@ -64,10 +84,27 @@ def main() -> int:
                "\n<b>Sector ranking</b>\n" +
                "\n".join(f"  {NAMES.get(k,k)} {v*100:+.1f}%" for k, v in stab) +
                "\n\nhttps://soylee22.github.io/lodestar/")
+    picks = "CASH" if signal["cash"] else f"{f}+{s}"
+    month = signal["signal_month"]
+
+    # Alert once per signal month. Failures always shout, every retry, because a
+    # month with no signal is the thing you must not miss.
+    if stale:
+        print("\n--- alert (failure) ---\n" + msg)
+        telegram(msg)
+        return 2
+
+    if already_alerted(month, picks):
+        print(f"\nalready alerted {month} ({picks}); page refreshed, no repeat message")
+        return 0
+
     print("\n--- alert ---\n" + msg)
-    if not telegram(msg):
+    if telegram(msg):
+        record_alert(month, picks)
+    else:
         print("(telegram not configured; message printed only)")
-    return 2 if stale else 0
+        record_alert(month, picks)
+    return 0
 
 
 if __name__ == "__main__":

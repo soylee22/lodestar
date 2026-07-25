@@ -2,8 +2,10 @@ name: Monthly signal
 
 on:
   schedule:
-    # 06:00 UTC on the 1st: after the month-end close, before the London open.
-    - cron: '0 6 1 * *'
+    # 06:00 UTC, 1st to 5th. The job is idempotent and only alerts once per
+    # signal month, so the extra days are retries: if a data source is down on
+    # the 1st, the following morning picks it up rather than losing the month.
+    - cron: '0 6 1-5 * *'
   workflow_dispatch:
 
 permissions:
