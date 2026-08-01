@@ -179,23 +179,39 @@ def proxy_factor_momentum(month):
     return mom.loc[month]
 
 
-def compute_book(panel, spx):
-    """Month-by-month holding, from month-end signals."""
-    mom = (panel.shift(SKIP) / panel.shift(SKIP + LOOKBACK) - 1) if SKIP else (panel / panel.shift(LOOKBACK) - 1)
+def _momentum(px):
+    m = (px.shift(SKIP) / px.shift(SKIP + LOOKBACK) - 1) if SKIP else (px / px.shift(LOOKBACK) - 1)
     # the first LOOKBACK months have no trailing window; an all-NA row is an
     # error for idxmax on newer pandas, so drop those rows rather than rank them
-    fpick = mom[FACTOR_SLOTS].dropna(how="all").idxmax(axis=1)
-    spick = mom[SECTOR_SLOTS].dropna(how="all").idxmax(axis=1)
+    return m.dropna(how="all")
+
+
+def compute_book(raw, spx):
+    """Month-by-month holding, from month-end signals.
+
+    Each basket is ranked on its own completeness. The two come from different
+    sources -- MSCI for the factors, S&P via Yahoo for the sectors -- and they
+    fail separately, so requiring all fifteen levels in a month would discard a
+    good basket alongside a missing one.
+    """
+    fmom = _momentum(raw[FACTOR_SLOTS].dropna(how="any"))
+    smom = _momentum(raw[SECTOR_SLOTS].dropna(how="any"))
+    fpick, spick = fmom.idxmax(axis=1), smom.idxmax(axis=1)
     cash = (spx / spx.shift(CASH_LOOKBACK) - 1) < CASH_THRESHOLD
+    sig = sorted(set(fpick.index) & set(spick.index))
+    # A month's holding was set by the previous signal, so the month after the
+    # last signal is already determined and belongs in the book. Without this the
+    # page loses a month whenever a source is late, even though nothing about
+    # what is held that month is in doubt.
+    months = sig + [sig[-1] + 1] if sig else []
     rows = {}
-    idx = panel.index
-    for i in range(1, len(idx)):
-        prev, now = idx[i - 1], idx[i]
+    for i in range(1, len(months)):
+        prev, now = months[i - 1], months[i]
         f, s = fpick.get(prev), spick.get(prev)
         if not isinstance(f, str) or not isinstance(s, str):
             continue
         rows[now] = {"factor": f, "sector": s, "cash": bool(cash.get(prev, False))}
-    return pd.DataFrame(rows).T, mom, fpick, spick, cash
+    return pd.DataFrame(rows).T, fmom, smom, fpick, spick, cash
 
 
 def gbp_panel(symbols):
@@ -244,10 +260,10 @@ def build_track(book, funds, bench_rets):
 
 def main():
     print("fetching signal panel...")
-    panel, raw, failures = build_signal_panel()
+    _, raw, failures = build_signal_panel()
     spx = yahoo_monthly("^GSPC", adjusted=False)
     print("computing book...")
-    book, mom, fpick, spick, cash = compute_book(panel, spx)
+    book, fmom, smom, fpick, spick, cash = compute_book(raw, spx)
     print("fetching London lines...")
     funds, fx = gbp_panel(LSE)
     bench = {}
@@ -270,7 +286,7 @@ def main():
     ann["vs All-World"] = ann[out.columns[0]] - ann["FTSE All-World"]
     ann.to_csv(DATA / "final_tradable_annual.csv")
 
-    last = panel.index[-1]
+    last = fpick.index[-1]
     expected = (pd.Timestamp.today().to_period("M") - 1)
     factor_source, factor_row = "MSCI", None
     if last < expected:
@@ -286,12 +302,6 @@ def main():
             print(f"  !! proxy also unavailable: {e}")
     sig_month = expected if factor_source == "ETF proxy" else last
 
-    # The sector leg is S&P via Yahoo and the factor leg is MSCI, so they fail
-    # separately. Ranking sectors off the fifteen-column panel throws away a good
-    # sector month whenever MSCI is missing, which silently pairs a fresh factor
-    # leg with a month-old sector leg. Rank the basket on its own completeness.
-    sec = raw[SECTOR_SLOTS].dropna(how="any")
-    smom = (sec / sec.shift(LOOKBACK) - 1).dropna(how="all")
     sector_month = sig_month if sig_month in smom.index else smom.index[-1]
 
     stale = (sector_month < expected) or ((last < expected) and factor_source == "MSCI")
@@ -300,7 +310,10 @@ def main():
     factor_pick = str(factor_row.idxmax()) if factor_row is not None else str(fpick.loc[last])
     sector_pick = str(smom.loc[sector_month].idxmax())
     ftab = ({k: float(v) for k, v in factor_row.items()} if factor_row is not None
-            else {k: float(mom.loc[last, k]) for k in FACTOR_SLOTS})
+            else {k: float(fmom.loc[last, k]) for k in FACTOR_SLOTS})
+    # what is held going into this signal: the book row for the signal month was
+    # set by the month before it. Not the book's last row, which is this signal.
+    held = book.loc[sig_month] if sig_month in book.index else book.iloc[-1]
     signal = {
         "signal_month": str(sig_month), "factor_source": factor_source,
         "factor": factor_pick, "sector": sector_pick,
@@ -309,7 +322,7 @@ def main():
         "factor_table": ftab,
         "sector_table": {k: float(smom.loc[sector_month, k]) for k in SECTOR_SLOTS},
         "sector_month": str(sector_month),
-        "previous": {"factor": str(book.iloc[-1]["factor"]), "sector": str(book.iloc[-1]["sector"])},
+        "previous": {"factor": str(held["factor"]), "sector": str(held["sector"])},
         "stale": bool(stale), "expected_month": str(expected),
         "source_failures": failures,
     }
