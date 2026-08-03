@@ -14,7 +14,7 @@
           "industry": "Semiconductors",
           "market_cap": null,
           "pe": 18.586948,
-          "forward_pe": 5.3534055,
+          "forward_pe": 5.290652,
           "revenue_growth": 3.457,
           "earnings_growth": 13.685,
           "profit_margin": 0.55906,
@@ -90,8 +90,8 @@
           "market_cap": null,
           "pe": 14.307159,
           "forward_pe": 11.743118,
-          "revenue_growth": 0.214,
-          "earnings_growth": 0.36,
+          "revenue_growth": 0.168,
+          "earnings_growth": 0.341,
           "profit_margin": 0.29524,
           "dividend_yield": 2.07
         },
@@ -186,10 +186,10 @@
           "market_cap": null,
           "pe": 26.16835,
           "forward_pe": 14.692454,
-          "revenue_growth": 0.026,
-          "earnings_growth": -0.434,
-          "profit_margin": 0.077649996,
-          "dividend_yield": 2.63
+          "revenue_growth": 0.441,
+          "earnings_growth": 1.128,
+          "profit_margin": 0.09072,
+          "dividend_yield": 2.65
         },
         {
           "symbol": "CVX",
@@ -201,9 +201,9 @@
           "market_cap": 392006172672.0,
           "pe": 18.944176,
           "forward_pe": 15.407279,
-          "revenue_growth": 0.574,
+          "revenue_growth": 0.526,
           "earnings_growth": 3.229,
-          "profit_margin": 0.09764,
+          "profit_margin": 0.09835,
           "dividend_yield": 3.62
         },
         {
