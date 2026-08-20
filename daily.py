@@ -21,7 +21,7 @@ but they are not the index: momentum runs 1-4pp adrift. The sector leg uses the
 S&P sector indices themselves, which are daily and exact.
 """
 from __future__ import annotations
-import json, sys
+import json, sys, time
 from calendar import monthrange
 from datetime import date
 from pathlib import Path
@@ -54,12 +54,47 @@ LSE = {"USA_MOM": "IUMO.L", "USA_QUAL": "IUQA.L", "USA_VAL": "IUVL.L",
        "INDUST": "IUIS.L", "INFOTECH": "IUIT.L", "MATERIALS": "IUMS.L"}
 
 
-def closes(symbols, start, adjusted=False):
-    d = yf.download(list(symbols), start=start, interval="1d",
-                    auto_adjust=adjusted, progress=False, threads=False)
-    px = d["Close"] if isinstance(d.columns, pd.MultiIndex) else d[["Close"]]
-    px.index = pd.to_datetime(px.index).tz_localize(None)
-    return px.dropna(how="all").ffill()
+def _retry(fn, n=3, wait=4):
+    last = None
+    for _ in range(n):
+        try:
+            out = fn()
+            if out is not None and len(out):
+                return out
+        except Exception as e:
+            last = e
+        time.sleep(wait)
+    raise RuntimeError(f"failed after {n} attempts: {last}")
+
+
+def series(sym, start, adjusted=False):
+    """One symbol's daily closes. Fetched one at a time, with retries: Yahoo
+    throttles bulk requests from datacentre addresses, which is where this runs."""
+    def go():
+        d = yf.Ticker(sym).history(start=start, interval="1d", auto_adjust=adjusted)["Close"]
+        if d.empty:
+            return None
+        d.index = pd.to_datetime(d.index).tz_localize(None)
+        return d
+    return _retry(go)
+
+
+def closes(mapping, start, adjusted=False):
+    """Frame of daily closes keyed by slot, plus the slots that would not load.
+
+    A missing slot is reported rather than raised: this is a read, not a trade,
+    and a partial ranking flagged as partial beats no message at all.
+    """
+    out, missing = {}, []
+    for slot, sym in mapping.items():
+        try:
+            out[slot] = series(sym, start, adjusted)
+        except Exception as e:
+            missing.append(slot)
+            print(f"  !! {slot} ({sym}) unavailable: {type(e).__name__}")
+    if not out:
+        raise RuntimeError("no price history at all")
+    return pd.DataFrame(out).ffill(), missing
 
 
 def month_end_level(px: pd.DataFrame, period: pd.Period) -> pd.Series:
@@ -88,98 +123,106 @@ def ranked(mom: pd.Series) -> list[tuple[str, float]]:
 def main() -> int:
     today = date.today()
     now = pd.Timestamp(today).to_period("M")
-    base = now - LOOKBACK                 # the month-end the window opens at
+    base = now - LOOKBACK                 # the month-end the eight-month window opens at
     cash_base = now - CASH_LOOKBACK
-    start = (pd.Timestamp(today) - pd.DateOffset(months=CASH_LOOKBACK + 3)).date().isoformat()
+    start = (pd.Timestamp(today) - pd.DateOffset(months=CASH_LOOKBACK + 4)).date().isoformat()
 
-    factor_px = closes(FACTOR_PROXY.values(), start)
-    sector_px = closes(SECTOR_YF.values(), start)
-    spx = closes(["^GSPC"], start)
+    factor_px, f_missing = closes(FACTOR_PROXY, start)
+    sector_px, s_missing = closes(SECTOR_YF, start)
+    spx_px, _ = closes({"SPX": "^GSPC"}, start)
 
-    f_base, s_base = month_end_level(factor_px, base), month_end_level(sector_px, base)
-    f_now, s_now = factor_px.iloc[-1], sector_px.iloc[-1]
+    def momentum(px, missing):
+        lvl = month_end_level(px, base)
+        last = px.iloc[-1]
+        mom = (last / lvl - 1).dropna()
+        return mom, missing + [c for c in px.columns if c not in mom.index]
+
+    fmom, f_missing = momentum(factor_px, f_missing)
+    smom, s_missing = momentum(sector_px, s_missing)
     asof = max(factor_px.index[-1], sector_px.index[-1]).date()
 
-    fmom = pd.Series({k: f_now[v] / f_base[v] - 1 for k, v in FACTOR_PROXY.items()})
-    smom = pd.Series({k: s_now[v] / s_base[v] - 1 for k, v in SECTOR_YF.items()})
-    f_pick, s_pick = str(fmom.idxmax()), str(smom.idxmax())
-
-    spx_now = float(spx.iloc[-1].iloc[0])
-    spx_base = float(month_end_level(spx, cash_base).iloc[0])
+    spx_now = float(spx_px["SPX"].iloc[-1])
+    spx_base = float(month_end_level(spx_px, cash_base)["SPX"])
     spx_ret = spx_now / spx_base - 1
     cash = spx_ret < CASH_THRESHOLD
 
+    f_pick = str(fmom.idxmax()) if len(fmom) else None
+    s_pick = str(smom.idxmax()) if len(smom) else None
     hf, hs, hmonth = held_now()
-    if cash:
-        would = "CASH"
-    else:
-        would = f"{NAMES[f_pick]} (<code>{LSE[f_pick]}</code>) + {NAMES[s_pick]} (<code>{LSE[s_pick]}</code>)"
-    change = [] if cash else (
-        ([f"factor: {NAMES.get(hf, hf)} → <b>{NAMES[f_pick]}</b>"] if f_pick != hf else []) +
-        ([f"sector: {NAMES.get(hs, hs)} → <b>{NAMES[s_pick]}</b>"] if s_pick != hs else []))
 
-    # month-to-date on what is actually held, in sterling, against the benchmark
+    if cash:
+        would = "<b>cash, both legs</b>"
+    else:
+        would = " + ".join(
+            f"{NAMES[p]} (<code>{LSE[p]}</code>)" if p else "leg unavailable"
+            for p in (f_pick, s_pick))
+    change = [] if cash else (
+        ([f"factor: {NAMES.get(hf, hf)} → <b>{NAMES[f_pick]}</b>"] if f_pick and f_pick != hf else []) +
+        ([f"sector: {NAMES.get(hs, hs)} → <b>{NAMES[s_pick]}</b>"] if s_pick and s_pick != hs else []))
+    partial = bool(f_missing or s_missing)
+
+    # month to date on what is actually held, in sterling, against the benchmark
     mtd = ""
     try:
-        held_syms = [] if hf == "CASH" else [LSE[hf], LSE[hs]]
-        lse = closes(held_syms + ["VWRL.L"], start=str(base.to_timestamp("M").date()), adjusted=True)
+        wanted = ({} if hf == "CASH" else {hf: LSE[hf], hs: LSE[hs]}) | {"All-World": "VWRL.L"}
+        lse, _ = closes(wanted, start=str((now - 2).to_timestamp("M").date()), adjusted=True)
         m0 = month_end_level(lse, now - 1)
-        parts = [f"{sym} {(lse.iloc[-1][sym] / m0[sym] - 1) * 100:+.1f}%"
-                 for sym in held_syms + ["VWRL.L"]]
-        mtd = "  " + " · ".join(parts)
+        mtd = "  " + " · ".join(
+            f"{NAMES.get(k, k)} {(lse[k].iloc[-1] / m0[k] - 1) * 100:+.1f}%"
+            for k in lse.columns if k in m0.index)
     except Exception as e:
-        print(f"  !! MTD unavailable ({type(e).__name__})")
+        print(f"  !! month to date unavailable ({type(e).__name__})")
 
     last_day = monthrange(today.year, today.month)[1]
     signal_date = date(today.year + (today.month == 12), today.month % 12 + 1, 1)
     days_out = (signal_date - today).days
-    elapsed = today.day
 
-    head = ("<b>Lodestar — GO TO CASH would trigger</b>" if cash
+    head = ("<b>Lodestar — the cash rule would fire</b>" if cash
             else "<b>Lodestar — rebalance today: NO CHANGE</b>" if not change
             else "<b>Lodestar — rebalance today: WOULD TRADE</b>")
 
-    msg = [
-        head, "",
-        f"Holding now: <b>{NAMES.get(hf, hf)}</b> + <b>{NAMES.get(hs, hs)}</b>, 50/50"
-        + (f" (signal of {hmonth})" if hmonth != "?" else ""),
-        f"If rebalanced today: {would}",
-    ]
+    msg = [head, "",
+           f"Holding now: <b>{NAMES.get(hf, hf)}</b> + <b>{NAMES.get(hs, hs)}</b>, 50/50"
+           + (f" (signal of {hmonth})" if hmonth != "?" else ""),
+           f"If rebalanced today: {would}"]
     if change:
-        msg += ["", "\n".join("  " + c for c in change)]
-    msg += [
-        "",
-        f"Next signal at the {now} close, acting <b>{signal_date:%-d %b}</b> — "
-        f"<b>{days_out} day{'s' if days_out != 1 else ''} out</b> "
-        f"({elapsed} of {last_day} days of the month run).",
-    ]
+        msg += [""] + ["  " + c for c in change]
+    msg += ["",
+            f"Next signal at the {now} close, acting <b>{signal_date:%-d %b}</b>: "
+            f"<b>{days_out} day{'s' if days_out != 1 else ''} out</b>, "
+            f"{today.day} of {last_day} days of the month run."]
     if mtd:
         msg += ["", "<b>Month to date</b>", mtd]
-    msg += [
-        "", "<b>Factor</b> (ETF proxy, 1-4pp adrift of the index)",
-        "\n".join(f"  {NAMES[k]:<22s}{v*100:+6.1f}%" for k, v in ranked(fmom)[:4]),
-        "<b>Sector</b>",
-        "\n".join(f"  {NAMES[k]:<22s}{v*100:+6.1f}%" for k, v in ranked(smom)[:4]),
-        "",
-        f"Cash rule: S&amp;P 500 {spx_ret*100:+.1f}% vs its {cash_base} close "
-        f"(fires below {CASH_THRESHOLD*100:.0f}%) — "
-        + ("<b>CASH</b>" if cash else "invested"),
-        "",
-        f"<i>Prices to {asof:%-d %b %Y}. Provisional: the signal that counts is "
-        f"computed at the month-end close.</i>",
-        SITE,
-    ]
+    if len(fmom):
+        msg += ["", "<b>Factor</b> (ETF proxy, 1-4pp adrift of the index)",
+                "\n".join(f"  {NAMES[k]:<22s}{v*100:+6.1f}%" for k, v in ranked(fmom)[:4])]
+    if len(smom):
+        msg += ["<b>Sector</b>",
+                "\n".join(f"  {NAMES[k]:<22s}{v*100:+6.1f}%" for k, v in ranked(smom)[:4])]
+    msg += ["",
+            f"Cash rule: S&amp;P 500 {spx_ret*100:+.1f}% against its {cash_base} close, "
+            f"fires below {CASH_THRESHOLD*100:.0f}%. "
+            + ("<b>Cash.</b>" if cash else "Invested.")]
+    if partial:
+        msg += ["", "<i>Incomplete: no price today for "
+                + ", ".join(NAMES.get(k, k) for k in f_missing + s_missing)
+                + ". Those slots are absent from the ranking above.</i>"]
+    msg += ["",
+            f"<i>Prices to {asof:%-d %b %Y}. Provisional. The signal that counts is "
+            "computed at the month-end close.</i>",
+            SITE]
     body = "\n".join(msg)
     print(body)
 
-    plain = (body.replace("<b>", "").replace("</b>", "").replace("<i>", "")
-                 .replace("</i>", "").replace("<code>", "").replace("</code>", "")
-                 .replace("&amp;", "&"))
+    plain = body
+    for a, b in (("<b>", ""), ("</b>", ""), ("<i>", ""), ("</i>", ""),
+                 ("<code>", ""), ("</code>", ""), ("&amp;", "&")):
+        plain = plain.replace(a, b)
     html = ("<div style=\"font-family:-apple-system,Segoe UI,Helvetica,Arial,sans-serif;"
             "font-size:15px;line-height:1.5;max-width:640px\">"
             + body.replace("\n", "<br>").replace("  ", "&nbsp;&nbsp;")
             + "</div>")
-    subject = ("Lodestar: cash signal would trigger" if cash
+    subject = ("Lodestar: the cash rule would fire" if cash
                else f"Lodestar: no change, {days_out}d to rebalance" if not change
                else f"Lodestar: WOULD TRADE, {days_out}d to rebalance")
 
