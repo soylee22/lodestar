@@ -54,56 +54,73 @@ LSE = {"USA_MOM": "IUMO.L", "USA_QUAL": "IUQA.L", "USA_VAL": "IUVL.L",
        "INDUST": "IUIS.L", "INFOTECH": "IUIT.L", "MATERIALS": "IUMS.L"}
 
 
-def _retry(fn, n=3, wait=4):
+def _retry(fn, n=4, wait=5):
     last = None
     for _ in range(n):
         try:
             out = fn()
             if out is not None and len(out):
                 return out
+            last = "empty response"
         except Exception as e:
             last = e
         time.sleep(wait)
     raise RuntimeError(f"failed after {n} attempts: {last}")
 
 
-def series(sym, start, adjusted=False):
-    """One symbol's daily closes. Fetched one at a time, with retries: Yahoo
-    throttles bulk requests from datacentre addresses, which is where this runs."""
+def series(sym, start, need=None, adjusted=False):
+    """One symbol's daily closes, fetched alone and with retries.
+
+    Yahoo throttles this runner's addresses and answers a throttled request with
+    a short series rather than an error, so a response that does not reach back
+    to `need` counts as a failure and is retried.
+    """
     def go():
         d = yf.Ticker(sym).history(start=start, interval="1d", auto_adjust=adjusted)["Close"]
         if d.empty:
             return None
         d.index = pd.to_datetime(d.index).tz_localize(None)
+        if need is not None and d.index.min().to_period("M") > need:
+            print(f"  .. {sym} came back short (from {d.index.min():%Y-%m-%d}); retrying")
+            return None
         return d
     return _retry(go)
 
 
-def closes(mapping, start, adjusted=False):
+def closes(mapping, start, need=None, adjusted=False):
     """Frame of daily closes keyed by slot, plus the slots that would not load.
 
-    A missing slot is reported rather than raised: this is a read, not a trade,
-    and a partial ranking flagged as partial beats no message at all.
+    A missing slot is reported, never raised: this is a read, not a trade, and a
+    partial ranking flagged as partial beats a failed job and a silent morning.
     """
     out, missing = {}, []
     for slot, sym in mapping.items():
         try:
-            out[slot] = series(sym, start, adjusted)
+            out[slot] = series(sym, start, need, adjusted)
         except Exception as e:
             missing.append(slot)
-            print(f"  !! {slot} ({sym}) unavailable: {type(e).__name__}")
-    if not out:
-        raise RuntimeError("no price history at all")
-    return pd.DataFrame(out).ffill(), missing
+            print(f"  !! {slot} ({sym}) unavailable: {e}")
+    return (pd.DataFrame(out).ffill() if out else pd.DataFrame()), missing
 
 
 def month_end_level(px: pd.DataFrame, period: pd.Period) -> pd.Series:
-    """Last close in a completed month, as a row of the frame."""
+    """Closes at the end of one completed month. Empty if nothing reaches back."""
+    if px.empty:
+        return pd.Series(dtype=float)
     m = px.resample("ME").last()
     m.index = m.index.to_period("M")
     if period not in m.index:
-        raise RuntimeError(f"no history at {period}")
-    return m.loc[period]
+        return pd.Series(dtype=float)
+    return m.loc[period].dropna()
+
+
+def momentum(px: pd.DataFrame, base: pd.Period, missing: list) -> tuple[pd.Series, list]:
+    """Price return from the close of `base` to the latest close, per slot."""
+    lvl = month_end_level(px, base)
+    if lvl.empty:
+        return pd.Series(dtype=float), missing + list(px.columns)
+    mom = (px.iloc[-1][lvl.index] / lvl - 1).dropna()
+    return mom, missing + [c for c in px.columns if c not in mom.index]
 
 
 def held_now() -> tuple[str, str, str]:
@@ -120,6 +137,21 @@ def ranked(mom: pd.Series) -> list[tuple[str, float]]:
     return sorted(((k, float(v)) for k, v in mom.items()), key=lambda kv: -kv[1])
 
 
+def send(subject: str, body: str) -> int:
+    plain = body
+    for a, b in (("<b>", ""), ("</b>", ""), ("<i>", ""), ("</i>", ""),
+                 ("<code>", ""), ("</code>", ""), ("&amp;", "&")):
+        plain = plain.replace(a, b)
+    html = ("<div style=\"font-family:-apple-system,Segoe UI,Helvetica,Arial,sans-serif;"
+            "font-size:15px;line-height:1.5;max-width:640px\">"
+            + body.replace("\n", "<br>").replace("  ", "&nbsp;&nbsp;")
+            + "</div>")
+    print(body)
+    telegram(body)
+    email(subject, plain, html)
+    return 0
+
+
 def main() -> int:
     today = date.today()
     now = pd.Timestamp(today).to_period("M")
@@ -127,24 +159,29 @@ def main() -> int:
     cash_base = now - CASH_LOOKBACK
     start = (pd.Timestamp(today) - pd.DateOffset(months=CASH_LOOKBACK + 4)).date().isoformat()
 
-    factor_px, f_missing = closes(FACTOR_PROXY, start)
-    sector_px, s_missing = closes(SECTOR_YF, start)
-    spx_px, _ = closes({"SPX": "^GSPC"}, start)
+    factor_px, f_missing = closes(FACTOR_PROXY, start, need=base)
+    sector_px, s_missing = closes(SECTOR_YF, start, need=base)
+    spx_px, _ = closes({"SPX": "^GSPC"}, start, need=cash_base)
 
-    def momentum(px, missing):
-        lvl = month_end_level(px, base)
-        last = px.iloc[-1]
-        mom = (last / lvl - 1).dropna()
-        return mom, missing + [c for c in px.columns if c not in mom.index]
+    fmom, f_missing = momentum(factor_px, base, f_missing)
+    smom, s_missing = momentum(sector_px, base, s_missing)
 
-    fmom, f_missing = momentum(factor_px, f_missing)
-    smom, s_missing = momentum(sector_px, s_missing)
-    asof = max(factor_px.index[-1], sector_px.index[-1]).date()
+    if not len(fmom) and not len(smom):
+        return send("Lodestar: no read today",
+                    "<b>Lodestar — no read today</b>\n\nYahoo returned no usable price "
+                    "history for either leg. Nothing is wrong with the strategy and "
+                    "nothing needs doing; the month-end signal is computed from a "
+                    "different path.\n\n" + SITE)
 
-    spx_now = float(spx_px["SPX"].iloc[-1])
-    spx_base = float(month_end_level(spx_px, cash_base)["SPX"])
-    spx_ret = spx_now / spx_base - 1
-    cash = spx_ret < CASH_THRESHOLD
+    dates = [px.index[-1] for px in (factor_px, sector_px) if not px.empty]
+    asof = max(dates).date()
+
+    spx_lvl = month_end_level(spx_px, cash_base)
+    if len(spx_lvl):
+        spx_ret = float(spx_px["SPX"].iloc[-1] / spx_lvl["SPX"] - 1)
+        cash = spx_ret < CASH_THRESHOLD
+    else:
+        spx_ret, cash = None, False
 
     f_pick = str(fmom.idxmax()) if len(fmom) else None
     s_pick = str(smom.idxmax()) if len(smom) else None
@@ -153,23 +190,23 @@ def main() -> int:
     if cash:
         would = "<b>cash, both legs</b>"
     else:
-        would = " + ".join(
-            f"{NAMES[p]} (<code>{LSE[p]}</code>)" if p else "leg unavailable"
-            for p in (f_pick, s_pick))
+        would = " + ".join(f"{NAMES[p]} (<code>{LSE[p]}</code>)" if p else "leg unavailable"
+                           for p in (f_pick, s_pick))
     change = [] if cash else (
         ([f"factor: {NAMES.get(hf, hf)} → <b>{NAMES[f_pick]}</b>"] if f_pick and f_pick != hf else []) +
         ([f"sector: {NAMES.get(hs, hs)} → <b>{NAMES[s_pick]}</b>"] if s_pick and s_pick != hs else []))
-    partial = bool(f_missing or s_missing)
 
     # month to date on what is actually held, in sterling, against the benchmark
     mtd = ""
     try:
         wanted = ({} if hf == "CASH" else {hf: LSE[hf], hs: LSE[hs]}) | {"All-World": "VWRL.L"}
-        lse, _ = closes(wanted, start=str((now - 2).to_timestamp("M").date()), adjusted=True)
+        lse, _ = closes(wanted, start=str((now - 2).to_timestamp("M").date()),
+                        need=now - 1, adjusted=True)
         m0 = month_end_level(lse, now - 1)
-        mtd = "  " + " · ".join(
-            f"{NAMES.get(k, k)} {(lse[k].iloc[-1] / m0[k] - 1) * 100:+.1f}%"
-            for k in lse.columns if k in m0.index)
+        if len(m0):
+            mtd = "  " + " · ".join(
+                f"{NAMES.get(k, k)} {(lse[k].iloc[-1] / m0[k] - 1) * 100:+.1f}%"
+                for k in lse.columns if k in m0.index)
     except Exception as e:
         print(f"  !! month to date unavailable ({type(e).__name__})")
 
@@ -199,11 +236,14 @@ def main() -> int:
     if len(smom):
         msg += ["<b>Sector</b>",
                 "\n".join(f"  {NAMES[k]:<22s}{v*100:+6.1f}%" for k, v in ranked(smom)[:4])]
-    msg += ["",
-            f"Cash rule: S&amp;P 500 {spx_ret*100:+.1f}% against its {cash_base} close, "
-            f"fires below {CASH_THRESHOLD*100:.0f}%. "
-            + ("<b>Cash.</b>" if cash else "Invested.")]
-    if partial:
+    msg += [""]
+    if spx_ret is None:
+        msg += ["Cash rule: not read today, no S&amp;P 500 history."]
+    else:
+        msg += [f"Cash rule: S&amp;P 500 {spx_ret*100:+.1f}% against its {cash_base} close, "
+                f"fires below {CASH_THRESHOLD*100:.0f}%. "
+                + ("<b>Cash.</b>" if cash else "Invested.")]
+    if f_missing or s_missing:
         msg += ["", "<i>Incomplete: no price today for "
                 + ", ".join(NAMES.get(k, k) for k in f_missing + s_missing)
                 + ". Those slots are absent from the ranking above.</i>"]
@@ -211,24 +251,11 @@ def main() -> int:
             f"<i>Prices to {asof:%-d %b %Y}. Provisional. The signal that counts is "
             "computed at the month-end close.</i>",
             SITE]
-    body = "\n".join(msg)
-    print(body)
 
-    plain = body
-    for a, b in (("<b>", ""), ("</b>", ""), ("<i>", ""), ("</i>", ""),
-                 ("<code>", ""), ("</code>", ""), ("&amp;", "&")):
-        plain = plain.replace(a, b)
-    html = ("<div style=\"font-family:-apple-system,Segoe UI,Helvetica,Arial,sans-serif;"
-            "font-size:15px;line-height:1.5;max-width:640px\">"
-            + body.replace("\n", "<br>").replace("  ", "&nbsp;&nbsp;")
-            + "</div>")
     subject = ("Lodestar: the cash rule would fire" if cash
                else f"Lodestar: no change, {days_out}d to rebalance" if not change
                else f"Lodestar: WOULD TRADE, {days_out}d to rebalance")
-
-    telegram(body)
-    email(subject, plain, html)
-    return 0
+    return send(subject, "\n".join(msg))
 
 
 if __name__ == "__main__":
