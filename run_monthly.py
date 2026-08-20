@@ -16,6 +16,7 @@ sys.path.insert(0, str(HERE))
 from pipeline import build            # noqa: E402
 from pipeline import holdings        # noqa: E402
 from notify import telegram           # noqa: E402
+from mailer import email              # noqa: E402
 from universe import FACTOR_NAMES, SECTOR_NAMES  # noqa: E402
 
 NAMES = {**FACTOR_NAMES, **SECTOR_NAMES}
@@ -38,6 +39,23 @@ def already_alerted(month: str, picks: str) -> bool:
 def record_alert(month: str, picks: str) -> None:
     STATE.write_text(json.dumps({"month": month, "picks": picks,
                                  "sent": date.today().isoformat()}, indent=2))
+
+
+def _plain(html: str) -> str:
+    for a, b in (("<b>", ""), ("</b>", ""), ("<i>", ""), ("</i>", ""),
+                 ("<code>", ""), ("</code>", ""), ("&amp;", "&")):
+        html = html.replace(a, b)
+    return html
+
+
+def announce(subject: str, msg: str) -> bool:
+    """Telegram and email carry the same words; only the wrapping differs."""
+    ok = telegram(msg)
+    body = ("<div style=\"font-family:-apple-system,Segoe UI,Helvetica,Arial,sans-serif;"
+            "font-size:15px;line-height:1.5;max-width:640px\">"
+            + msg.replace("\n", "<br>") + "</div>")
+    email(subject, _plain(msg), body)
+    return ok
 
 
 def main() -> int:
@@ -96,7 +114,7 @@ def main() -> int:
     # month with no signal is the thing you must not miss.
     if stale:
         print("\n--- alert (failure) ---\n" + msg)
-        telegram(msg)
+        announce("Lodestar: SIGNAL NOT COMPUTED — do not trade", msg)
         return 2
 
     if already_alerted(month, picks):
@@ -104,11 +122,18 @@ def main() -> int:
         return 0
 
     print("\n--- alert ---\n" + msg)
-    if telegram(msg):
-        record_alert(month, picks)
+    if signal["cash"]:
+        subject = f"Lodestar {month}: GO TO CASH"
+    elif changed:
+        subject = f"Lodestar {month}: TRADE — {NAMES.get(f, f)} + {NAMES.get(s, s)}"
     else:
+        subject = f"Lodestar {month}: no trade, site updated"
+    site = "https://soylee22.github.io/lodestar/"
+    msg = msg.rstrip().removesuffix(site).rstrip()
+    msg += f"\n\nThe site has been rebuilt with {month} included:\n{site}"
+    if not announce(subject, msg):
         print("(telegram not configured; message printed only)")
-        record_alert(month, picks)
+    record_alert(month, picks)
     return 0
 
 

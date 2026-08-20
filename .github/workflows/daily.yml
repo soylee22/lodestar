@@ -1,0 +1,29 @@
+name: Daily read
+
+on:
+  schedule:
+    # 07:00 UTC on weekdays. An hour after the monthly job, so on the 1st the
+    # new signal is already recorded before the daily read describes it.
+    # Weekends are skipped: no session, no new prices, nothing to say.
+    - cron: '0 7 * * 1-5'
+  workflow_dispatch:
+
+jobs:
+  read:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+
+      - run: pip install -r requirements.txt
+
+      - name: Provisional signal and send the drumbeat
+        env:
+          TG_TOKEN: ${{ secrets.TG_TOKEN }}
+          TG_CHAT: ${{ secrets.TG_CHAT }}
+          GMAIL_APP_PASSWORD: ${{ secrets.GMAIL_APP_PASSWORD }}
+        run: python daily.py
