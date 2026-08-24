@@ -17,8 +17,17 @@ and evaluate it on today's prices, so the standing is never a surprise on the
 The factor leg uses the US-listed distributing factor ETFs rather than the MSCI
 indices, because MSCI publishes month-end levels only and there is no intra-month
 index level to read. Their unadjusted closes are price series, like the index,
-but they are not the index: momentum runs 1-4pp adrift. The sector leg uses the
-S&P sector indices themselves, which are daily and exact.
+but they are not the index: momentum runs 1-4pp adrift.
+
+The sector leg reads the S&P sector indices, which are daily and exact when the
+feed is whole. Since 21 Aug 2026 that feed has served a partial window: recent
+closes arrive but the month-end eight months back does not, which leaves the
+momentum undefined for every sector at once. When any sector slot comes back
+incomplete the whole leg is recomputed from the SPDR Select Sector ETFs, which
+are unadjusted price series on the same indices and matched the index momentum
+to 0.05pp on the last day both could be read. The leg switches wholesale, never
+slot by slot: a ranking built half on the index and half on a proxy is not a
+ranking.
 """
 from __future__ import annotations
 import json, sys, time
@@ -47,6 +56,9 @@ FACTOR_PROXY = {"USA_MOM": "MTUM", "USA_QUAL": "QUAL", "USA_VAL": "VLUE",
 SECTOR_YF = {"CONS_DISC": "^SP500-25", "CONS_STAP": "^SP500-30", "ENERGY": "^GSPE",
              "HEALTH": "^SP500-35", "INDUST": "^SP500-20", "INFOTECH": "^SP500-45",
              "MATERIALS": "^SP500-15"}
+SECTOR_PROXY = {"CONS_DISC": "XLY", "CONS_STAP": "XLP", "ENERGY": "XLE",
+                "HEALTH": "XLV", "INDUST": "XLI", "INFOTECH": "XLK",
+                "MATERIALS": "XLB"}
 LSE = {"USA_MOM": "IUMO.L", "USA_QUAL": "IUQA.L", "USA_VAL": "IUVL.L",
        "USA_SMALL": "CUSS.L", "EUR_MOM": "IEMO.L", "EUR_QUAL": "IEQU.L",
        "EUR_VAL": "IEVL.L", "EUR_SMALL": "XXSC.L", "CONS_DISC": "IUCD.L",
@@ -68,7 +80,7 @@ def _retry(fn, n=4, wait=5):
     raise RuntimeError(f"failed after {n} attempts: {last}")
 
 
-def series(sym, start, need=None, adjusted=False):
+def series(sym, start, need=None, adjusted=False, retries=4):
     """One symbol's daily closes, fetched alone and with retries.
 
     Yahoo throttles this runner's addresses and answers a throttled request with
@@ -84,23 +96,40 @@ def series(sym, start, need=None, adjusted=False):
             print(f"  .. {sym} came back short (from {d.index.min():%Y-%m-%d}); retrying")
             return None
         return d
-    return _retry(go)
+    return _retry(go, n=retries)
 
 
-def closes(mapping, start, need=None, adjusted=False):
+def closes(mapping, start, need=None, adjusted=False, retries=4, stale_days=5):
     """Frame of daily closes keyed by slot, plus the slots that would not load.
 
     A missing slot is reported, never raised: this is a read, not a trade, and a
     partial ranking flagged as partial beats a failed job and a silent morning.
+
+    Every slot in one mapping trades on one calendar, so a slot whose own last
+    close sits more than `stale_days` behind the newest date in the frame has
+    stopped updating at the source. It is dropped rather than carried: the frame
+    is forward-filled to align the calendars, and forward-filling a dead series
+    would hand `iloc[-1]` a months-old price under today's date. Yahoo currently
+    answers a long-window request for the S&P sector indices with rows that run
+    to yesterday and values that stop in July, which is exactly this.
     """
     out, missing = {}, []
     for slot, sym in mapping.items():
         try:
-            out[slot] = series(sym, start, need, adjusted)
+            out[slot] = series(sym, start, need, adjusted, retries)
         except Exception as e:
             missing.append(slot)
             print(f"  !! {slot} ({sym}) unavailable: {e}")
-    return (pd.DataFrame(out).ffill() if out else pd.DataFrame()), missing
+    if not out:
+        return pd.DataFrame(), missing
+    px = pd.DataFrame(out)
+    last = {c: px[c].last_valid_index() for c in px.columns}
+    asof = px.index.max()
+    stale = [c for c in px.columns if (asof - last[c]).days > stale_days]
+    for c in stale:
+        print(f"  !! {c} ({mapping[c]}) stops at {last[c]:%Y-%m-%d}, "
+              f"{asof:%Y-%m-%d} elsewhere: dropped as stale")
+    return px.drop(columns=stale).ffill(), missing + stale
 
 
 def month_end_level(px: pd.DataFrame, period: pd.Period) -> pd.Series:
@@ -160,11 +189,20 @@ def main() -> int:
     start = (pd.Timestamp(today) - pd.DateOffset(months=CASH_LOOKBACK + 4)).date().isoformat()
 
     factor_px, f_missing = closes(FACTOR_PROXY, start, need=base)
-    sector_px, s_missing = closes(SECTOR_YF, start, need=base)
+    sector_px, s_missing = closes(SECTOR_YF, start, need=base, retries=2)
     spx_px, _ = closes({"SPX": "^GSPC"}, start, need=cash_base)
 
     fmom, f_missing = momentum(factor_px, base, f_missing)
     smom, s_missing = momentum(sector_px, base, s_missing)
+
+    sector_proxy = False
+    if s_missing:
+        print(f"  .. sector index feed incomplete ({', '.join(sorted(s_missing))}); "
+              "recomputing the leg from the sector ETFs")
+        px2, miss2 = closes(SECTOR_PROXY, start, need=base)
+        smom2, miss2 = momentum(px2, base, miss2)
+        if len(smom2) > len(smom):
+            sector_px, smom, s_missing, sector_proxy = px2, smom2, miss2, True
 
     if not len(fmom) and not len(smom):
         return send("Lodestar: no read today",
@@ -234,7 +272,8 @@ def main() -> int:
         msg += ["", "<b>Factor</b> (ETF proxy, 1-4pp adrift of the index)",
                 "\n".join(f"  {NAMES[k]:<22s}{v*100:+6.1f}%" for k, v in ranked(fmom)[:4])]
     if len(smom):
-        msg += ["<b>Sector</b>",
+        msg += ["<b>Sector</b>" + (" (SPDR ETF proxy, the index feed is incomplete)"
+                                   if sector_proxy else ""),
                 "\n".join(f"  {NAMES[k]:<22s}{v*100:+6.1f}%" for k, v in ranked(smom)[:4])]
     msg += [""]
     if spx_ret is None:
