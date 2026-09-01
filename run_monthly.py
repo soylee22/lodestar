@@ -97,9 +97,12 @@ def main() -> int:
                 else "\n".join(changed) + "\n\nReset both legs to 50/50 while you are trading.\n")
         ftab = sorted(signal["factor_table"].items(), key=lambda kv: -kv[1])[:3]
         stab = sorted(signal["sector_table"].items(), key=lambda kv: -kv[1])[:3]
-        src = ("" if signal.get("factor_source") == "MSCI" else
-               "\n<i>Factor leg computed from ETF proxies: MSCI was unavailable. "
-               "Momentum values differ by roughly 1-4pp from the indices.</i>\n")
+        proxied = [n for n, k in (("Factor", "factor_source"), ("Sector", "sector_source"))
+                   if signal.get(k) == "ETF proxy"]
+        src = ("" if not proxied else
+               f"\n<i>{' and '.join(proxied)} leg{'s' if len(proxied) > 1 else ''} computed "
+               "from ETF proxies: the index feed was unavailable. Momentum values differ "
+               "by roughly 1-4pp from the indices.</i>\n")
         msg = (f"{head}\n\nSignal computed at the {signal['signal_month']} close.{src}\n\n{body}\n"
                f"<b>Hold:</b> <code>{ft}</code> + <code>{st}</code>, 50/50\n\n"
                "<b>Factor ranking</b>\n" +

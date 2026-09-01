@@ -48,6 +48,12 @@ unreachable, so there are three layers of defence:
 3. Only if both fail does the job refuse to publish, and it then says so loudly
    and retries the next morning.
 
+The sector leg has the same defence. Yahoo's S&P GICS index series stopped
+updating after July 2026, so when that feed falls behind the month just ended,
+the whole leg is recomputed from the SPDR Select Sector ETFs. The leg is
+replaced whole, never spliced slot by slot, and the alert names every leg that
+used a proxy.
+
 ## The daily read
 
     python daily.py

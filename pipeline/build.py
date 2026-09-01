@@ -50,6 +50,15 @@ BENCH = {"FTSE All-World": ("VWRL.L", "GBP"), "S&P 500": ("VUSA.L", "GBP"),
 FACTOR_PROXY = {"USA_MOM": "MTUM", "USA_QUAL": "QUAL", "USA_VAL": "VLUE",
                 "USA_SMALL": "SMLF", "EUR_MOM": "IMTM", "EUR_QUAL": "IQLT",
                 "EUR_VAL": "IVLU", "EUR_SMALL": "IEUS"}
+
+# Fallback for the sector leg when Yahoo's S&P GICS index series stop updating.
+# The SPDR Select Sector funds track the same seven GICS sectors, and they
+# distribute, so their unadjusted close is a price series like the index. The
+# whole leg is recomputed from the proxies, never spliced slot by slot: a
+# ranking built half on the index and half on a proxy is not a ranking.
+SECTOR_PROXY = {"CONS_DISC": "XLY", "CONS_STAP": "XLP", "ENERGY": "XLE",
+                "HEALTH": "XLV", "INDUST": "XLI", "INFOTECH": "XLK",
+                "MATERIALS": "XLB"}
 FACTOR_SLOTS, SECTOR_SLOTS = list(FACTOR), list(SECTOR_YF)
 
 
@@ -166,17 +175,25 @@ def build_signal_panel():
     return complete, panel, failures
 
 
-def proxy_factor_momentum(month):
-    """Factor momentum for one month from the ETF proxies, computed entirely
-    within the proxy's own price history so no series is ever spliced."""
+def proxy_momentum(proxies, month):
+    """Momentum for one month from the ETF proxies of one leg, computed entirely
+    within the proxies' own price history so no series is ever spliced."""
     cols = {}
-    for slot, sym in FACTOR_PROXY.items():
+    for slot, sym in proxies.items():
         cols[slot] = yahoo_monthly(sym, adjusted=False, start="2015-01-01")
     px = pd.DataFrame(cols).dropna()
     mom = (px / px.shift(LOOKBACK) - 1)
     if month not in mom.index or mom.loc[month].isna().any():
         raise RuntimeError(f"proxy has no complete momentum for {month}")
     return mom.loc[month]
+
+
+def proxy_factor_momentum(month):
+    return proxy_momentum(FACTOR_PROXY, month)
+
+
+def proxy_sector_momentum(month):
+    return proxy_momentum(SECTOR_PROXY, month)
 
 
 def _momentum(px):
@@ -303,14 +320,28 @@ def main():
     sig_month = expected if factor_source == "ETF proxy" else last
 
     sector_month = sig_month if sig_month in smom.index else smom.index[-1]
+    sector_source, sector_row = "S&P index", None
+    if sector_month < expected:
+        # Yahoo's GICS index series have stopped updating. The SPDR funds cover
+        # the same seven sectors, so rescue the leg rather than abandon the month.
+        print(f"  !! sector panel ends {sector_month}, expected {expected}: trying ETF proxy")
+        try:
+            sector_row = proxy_sector_momentum(expected)
+            sector_source, sector_month = "ETF proxy", expected
+            print(f"  proxy sector pick for {expected}: {sector_row.idxmax()}")
+        except Exception as e:
+            print(f"  !! sector proxy also unavailable: {e}")
 
     stale = (sector_month < expected) or ((last < expected) and factor_source == "MSCI")
     if stale:
         print(f"  !! signal NOT fresh (factor {sig_month}, sector {sector_month}, expected {expected})")
     factor_pick = str(factor_row.idxmax()) if factor_row is not None else str(fpick.loc[last])
-    sector_pick = str(smom.loc[sector_month].idxmax())
+    sector_pick = (str(sector_row.idxmax()) if sector_row is not None
+                   else str(smom.loc[sector_month].idxmax()))
     ftab = ({k: float(v) for k, v in factor_row.items()} if factor_row is not None
             else {k: float(fmom.loc[last, k]) for k in FACTOR_SLOTS})
+    stab = ({k: float(v) for k, v in sector_row.items()} if sector_row is not None
+            else {k: float(smom.loc[sector_month, k]) for k in SECTOR_SLOTS})
     # what is held going into this signal: the book row for the signal month was
     # set by the month before it. Not the book's last row, which is this signal.
     held = book.loc[sig_month] if sig_month in book.index else book.iloc[-1]
@@ -320,15 +351,17 @@ def main():
         "cash": bool(cash.get(sig_month, cash.get(last, False))),
         "factor_ticker": LSE[factor_pick], "sector_ticker": LSE[sector_pick],
         "factor_table": ftab,
-        "sector_table": {k: float(smom.loc[sector_month, k]) for k in SECTOR_SLOTS},
+        "sector_table": stab,
+        "sector_source": sector_source,
         "sector_month": str(sector_month),
         "previous": {"factor": str(held["factor"]), "sector": str(held["sector"])},
         "stale": bool(stale), "expected_month": str(expected),
         "source_failures": failures,
     }
     (DATA / "signal.json").write_text(json.dumps(signal, indent=2))
-    print(f"\nsignal at {signal['signal_month']} [{factor_source}]: {signal['factor']} ({signal['factor_ticker']}) + "
-          f"{signal['sector']} ({signal['sector_ticker']}){'  [CASH]' if signal['cash'] else ''}")
+    print(f"\nsignal at {signal['signal_month']}: {signal['factor']} ({signal['factor_ticker']}) [{factor_source}] + "
+          f"{signal['sector']} ({signal['sector_ticker']}) [{sector_source}]"
+          f"{'  [CASH]' if signal['cash'] else ''}")
     print(f"track: {len(track)} months to {track.index[-1]}")
     return signal
 
