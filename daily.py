@@ -166,6 +166,24 @@ def ranked(mom: pd.Series) -> list[tuple[str, float]]:
     return sorted(((k, float(v)) for k, v in mom.items()), key=lambda kv: -kv[1])
 
 
+def margin(mom: pd.Series, held: str) -> str | None:
+    """What has to happen, from here to the month end, for the held slot to keep
+    it. Momentum is a price ratio, so the gap between two rows compounds: the
+    difference in percentage points is not the return the laggard must make up.
+    Without this line a mid-month ranking reads as a decision, and it is not one.
+    """
+    if held not in mom.index or len(mom) < 2:
+        return None
+    (lead, lv), (second, sv) = ranked(mom)[:2]
+    if lead == held:
+        give = 1 - (1 + sv) / (1 + mom[held])
+        return (f"  <i>{NAMES[held]} holds the slot unless it gives back "
+                f"{give*100:.1f}% against {NAMES[second]} this month.</i>")
+    need = (1 + lv) / (1 + float(mom[held])) - 1
+    return (f"  <i>{NAMES[held]} keeps the slot only if it beats {NAMES[lead]} by "
+            f"{need*100:.1f}% over the rest of the month.</i>")
+
+
 def send(subject: str, body: str) -> int:
     plain = body
     for a, b in (("<b>", ""), ("</b>", ""), ("<i>", ""), ("</i>", ""),
@@ -271,10 +289,12 @@ def main() -> int:
     if len(fmom):
         msg += ["", "<b>Factor</b> (ETF proxy, 1-4pp adrift of the index)",
                 "\n".join(f"  {NAMES[k]:<22s}{v*100:+6.1f}%" for k, v in ranked(fmom)[:4])]
+        msg += [m for m in [margin(fmom, hf)] if m]
     if len(smom):
         msg += ["<b>Sector</b>" + (" (SPDR ETF proxy, the index feed is incomplete)"
                                    if sector_proxy else ""),
                 "\n".join(f"  {NAMES[k]:<22s}{v*100:+6.1f}%" for k, v in ranked(smom)[:4])]
+        msg += [m for m in [margin(smom, hs)] if m]
     msg += [""]
     if spx_ret is None:
         msg += ["Cash rule: not read today, no S&amp;P 500 history."]
