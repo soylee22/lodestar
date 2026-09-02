@@ -12,9 +12,9 @@
           "company": "Micron Technology, Inc.",
           "sector": "Technology",
           "industry": "Semiconductors",
-          "market_cap": 1082783105024.0,
-          "pe": 21.690723,
-          "forward_pe": 6.1843476,
+          "market_cap": 1054220746752.0,
+          "pe": 21.094688,
+          "forward_pe": 6.021213,
           "revenue_growth": 3.457,
           "earnings_growth": 13.685,
           "profit_margin": 0.55906,
@@ -27,13 +27,13 @@
           "company": "Cisco Systems, Inc.",
           "sector": "Technology",
           "industry": "Communication Equipment",
-          "market_cap": 435489112064.0,
-          "pe": 33.18018,
-          "forward_pe": 19.722397,
+          "market_cap": 432533012480.0,
+          "pe": 32.954956,
+          "forward_pe": 19.588522,
           "revenue_growth": 0.176,
           "earnings_growth": 0.52,
           "profit_margin": 0.20951,
-          "dividend_yield": 1.53
+          "dividend_yield": 1.52
         },
         {
           "symbol": "GM",
@@ -42,9 +42,9 @@
           "company": "General Motors Company",
           "sector": "Consumer Cyclical",
           "industry": "Auto Manufacturers",
-          "market_cap": 78072258560.0,
-          "pe": 38.535713,
-          "forward_pe": 5.8135386,
+          "market_cap": 77448183808.0,
+          "pe": 38.57207,
+          "forward_pe": 5.767068,
           "revenue_growth": 0.019,
           "earnings_growth": -0.262,
           "profit_margin": 0.01051,
@@ -57,13 +57,13 @@
           "company": "Verizon Communications Inc.",
           "sector": "Communication Services",
           "industry": "Telecom Services",
-          "market_cap": 207821864960.0,
-          "pe": 13.026042,
-          "forward_pe": 9.474059,
+          "market_cap": 208985194496.0,
+          "pe": 13.098958,
+          "forward_pe": 9.525631,
           "revenue_growth": -0.007,
           "earnings_growth": -0.22,
           "profit_margin": 0.11643,
-          "dividend_yield": 5.65
+          "dividend_yield": 5.66
         },
         {
           "symbol": "T",
@@ -72,9 +72,9 @@
           "company": "AT&T Inc.",
           "sector": "Communication Services",
           "industry": "Telecom Services",
-          "market_cap": 177408262144.0,
-          "pe": 8.544555,
-          "forward_pe": 10.098606,
+          "market_cap": 178162024448.0,
+          "pe": 8.580858,
+          "forward_pe": 10.141513,
           "revenue_growth": 0.023,
           "earnings_growth": 0.062,
           "profit_margin": 0.16943,
@@ -87,13 +87,13 @@
           "company": "Bank of America Corporation",
           "sector": "Financial Services",
           "industry": "Banks - Diversified",
-          "market_cap": 433130831872.0,
-          "pe": 14.30485,
-          "forward_pe": 11.697099,
+          "market_cap": 433480499200.0,
+          "pe": 14.316398,
+          "forward_pe": 11.706542,
           "revenue_growth": 0.168,
           "earnings_growth": 0.341,
           "profit_margin": 0.29524,
-          "dividend_yield": 2.05
+          "dividend_yield": 2.07
         },
         {
           "symbol": "F",
@@ -102,13 +102,13 @@
           "company": "Ford Motor Company",
           "sector": "Consumer Cyclical",
           "industry": "Auto Manufacturers",
-          "market_cap": 55587082240.0,
+          "market_cap": 55188324352.0,
           "pe": null,
-          "forward_pe": 7.285841,
+          "forward_pe": 7.2335753,
           "revenue_growth": -0.038,
           "earnings_growth": null,
           "profit_margin": -0.03935,
-          "dividend_yield": 4.32
+          "dividend_yield": 4.3
         },
         {
           "symbol": "CMCSA",
@@ -117,13 +117,13 @@
           "company": "Comcast Corporation",
           "sector": "Communication Services",
           "industry": "Telecom Services",
-          "market_cap": 94464712704.0,
-          "pe": 8.532052,
-          "forward_pe": 7.349064,
+          "market_cap": 93329145856.0,
+          "pe": 8.538961,
+          "forward_pe": 7.2607203,
           "revenue_growth": -0.012,
           "earnings_growth": -0.668,
           "profit_margin": 0.08966,
-          "dividend_yield": 4.88
+          "dividend_yield": 5.02
         },
         {
           "symbol": "C",
@@ -132,13 +132,13 @@
           "company": "Citigroup Inc.",
           "sector": "Financial Services",
           "industry": "Banks - Diversified",
-          "market_cap": 220784230400.0,
-          "pe": 14.183189,
-          "forward_pe": 10.216334,
+          "market_cap": 222327455744.0,
+          "pe": 14.282328,
+          "forward_pe": 10.2877445,
           "revenue_growth": 0.155,
           "earnings_growth": 0.61,
           "profit_margin": 0.21832001,
-          "dividend_yield": 2.02
+          "dividend_yield": 2.04
         },
         {
           "symbol": "PFE",
@@ -147,13 +147,13 @@
           "company": "Pfizer Inc.",
           "sector": "Healthcare",
           "industry": "Drug Manufacturers - General",
-          "market_cap": 162212708352.0,
-          "pe": 37.44737,
-          "forward_pe": 9.829384,
+          "market_cap": 162725675008.0,
+          "pe": 37.56579,
+          "forward_pe": 9.860468,
           "revenue_growth": 0.026,
           "earnings_growth": null,
           "profit_margin": 0.06804,
-          "dividend_yield": 6.15
+          "dividend_yield": 6.04
         }
       ],
       "yield_unit": "percent",
@@ -183,13 +183,13 @@
           "company": "ExxonMobil Holdings Corporation",
           "sector": "Energy",
           "industry": "Oil & Gas Integrated",
-          "market_cap": 661812215808.0,
-          "pe": 20.714285,
-          "forward_pe": 15.122702,
+          "market_cap": 676615094272.0,
+          "pe": 20.698114,
+          "forward_pe": 15.460955,
           "revenue_growth": 0.441,
           "earnings_growth": 1.128,
           "profit_margin": 0.09072,
-          "dividend_yield": 2.63
+          "dividend_yield": 2.56
         },
         {
           "symbol": "CVX",
@@ -198,13 +198,13 @@
           "company": "Chevron Corporation",
           "sector": "Energy",
           "industry": "Oil & Gas Integrated",
-          "market_cap": 404364918784.0,
-          "pe": 19.410545,
-          "forward_pe": 15.568299,
+          "market_cap": 413996384256.0,
+          "pe": 19.835526,
+          "forward_pe": 15.939117,
           "revenue_growth": 0.535,
           "earnings_growth": 3.219,
           "profit_margin": 0.09834,
-          "dividend_yield": 3.53
+          "dividend_yield": 3.45
         },
         {
           "symbol": "COP",
@@ -213,13 +213,13 @@
           "company": "ConocoPhillips",
           "sector": "Energy",
           "industry": "Oil & Gas E&P",
-          "market_cap": 159165202432.0,
-          "pe": 17.501982,
-          "forward_pe": 13.904252,
+          "market_cap": 163610148864.0,
+          "pe": 18.014551,
+          "forward_pe": 14.292551,
           "revenue_growth": 0.355,
           "earnings_growth": 1.07,
           "profit_margin": 0.144,
-          "dividend_yield": 2.58
+          "dividend_yield": 2.54
         },
         {
           "symbol": "VLO",
@@ -228,13 +228,13 @@
           "company": "Valero Energy Corporation",
           "sector": "Energy",
           "industry": "Oil & Gas Refining & Marketing",
-          "market_cap": 103342923776.0,
-          "pe": 14.685761,
-          "forward_pe": 11.715686,
+          "market_cap": 104226856960.0,
+          "pe": 14.970636,
+          "forward_pe": 11.89395,
           "revenue_growth": 0.517,
           "earnings_growth": 4.535,
           "profit_margin": 0.05446,
-          "dividend_yield": 1.36
+          "dividend_yield": 1.34
         },
         {
           "symbol": "MPC",
@@ -243,13 +243,13 @@
           "company": "Marathon Petroleum Corporation",
           "sector": "Energy",
           "industry": "Oil & Gas Refining & Marketing",
-          "market_cap": 104837505024.0,
-          "pe": 12.935551,
-          "forward_pe": 11.593129,
+          "market_cap": 107555889152.0,
+          "pe": 13.280167,
+          "forward_pe": 11.893733,
           "revenue_growth": 0.537,
           "earnings_growth": 3.48,
           "profit_margin": 0.05549,
-          "dividend_yield": 1.07
+          "dividend_yield": 1.04
         },
         {
           "symbol": "WMB",
@@ -258,13 +258,13 @@
           "company": "The Williams Companies, Inc.",
           "sector": "Energy",
           "industry": "Oil & Gas Midstream",
-          "market_cap": 91798724608.0,
-          "pe": 29.9004,
-          "forward_pe": 28.634218,
+          "market_cap": 92018892800.0,
+          "pe": 29.972113,
+          "forward_pe": 28.702896,
           "revenue_growth": 0.078,
           "earnings_growth": 0.512,
           "profit_margin": 0.24937001,
-          "dividend_yield": 2.85
+          "dividend_yield": 2.8
         },
         {
           "symbol": "PSX",
@@ -273,13 +273,13 @@
           "company": "Phillips 66",
           "sector": "Energy",
           "industry": "Oil & Gas Refining & Marketing",
-          "market_cap": 98862555136.0,
-          "pe": 14.066172,
-          "forward_pe": 11.918025,
+          "market_cap": 101043642368.0,
+          "pe": 14.063616,
+          "forward_pe": 12.180958,
           "revenue_growth": 0.531,
           "earnings_growth": 3.449,
           "profit_margin": 0.046609998,
-          "dividend_yield": 2.08
+          "dividend_yield": 2.02
         },
         {
           "symbol": "EOG",
@@ -288,13 +288,13 @@
           "company": "EOG Resources, Inc.",
           "sector": "Energy",
           "industry": "Oil & Gas E&P",
-          "market_cap": 76035751936.0,
-          "pe": 11.28972,
-          "forward_pe": 10.060471,
+          "market_cap": 77813907456.0,
+          "pe": 11.289954,
+          "forward_pe": 10.295742,
           "revenue_growth": 0.587,
           "earnings_growth": 1.094,
           "profit_margin": 0.25733,
-          "dividend_yield": 2.85
+          "dividend_yield": 2.81
         },
         {
           "symbol": "SLB",
@@ -303,13 +303,13 @@
           "company": "SLB N.V.",
           "sector": "Energy",
           "industry": "Oil & Gas Equipment & Services",
-          "market_cap": 89197002752.0,
-          "pe": 29.317074,
-          "forward_pe": 18.572138,
+          "market_cap": 84818788352.0,
+          "pe": 27.87805,
+          "forward_pe": 17.683262,
           "revenue_growth": 0.05,
           "earnings_growth": -0.297,
           "profit_margin": 0.08527,
-          "dividend_yield": 2.06
+          "dividend_yield": 1.96
         },
         {
           "symbol": "KMI",
@@ -318,13 +318,13 @@
           "company": "Kinder Morgan, Inc.",
           "sector": "Energy",
           "industry": "Oil & Gas Midstream",
-          "market_cap": 71792107520.0,
-          "pe": 20.800001,
-          "forward_pe": 20.966244,
+          "market_cap": 71480344576.0,
+          "pe": 20.844156,
+          "forward_pe": 20.875196,
           "revenue_growth": 0.108,
           "earnings_growth": 0.212,
           "profit_margin": 0.19305,
-          "dividend_yield": 3.74
+          "dividend_yield": 3.68
         }
       ],
       "yield_unit": "percent",
