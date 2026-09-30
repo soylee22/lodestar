@@ -14,10 +14,12 @@ The rule, in full:
     lines, in sterling, total return.
 """
 import json, time, urllib.request
+from functools import lru_cache
 from pathlib import Path
 import numpy as np
 import pandas as pd
 import yfinance as yf
+import exchange_calendars as xcals
 
 HERE = Path(__file__).resolve().parent
 DATA = HERE.parent / "data"
@@ -34,7 +36,7 @@ SECTOR_YF = {"CONS_DISC": "^SP500-25", "CONS_STAP": "^SP500-30", "ENERGY": "^GSP
              "HEALTH": "^SP500-35", "INDUST": "^SP500-20", "INFOTECH": "^SP500-45",
              "MATERIALS": "^SP500-15"}
 LSE = {"USA_MOM": "IUMO.L", "USA_QUAL": "IUQA.L", "USA_VAL": "IUVL.L",
-       "USA_SMALL": "CUSS.L", "EUR_MOM": "IEMO.L", "EUR_QUAL": "IEQU.L",
+       "USA_SMALL": "CUSS.L", "EUR_MOM": "IEFM.L", "EUR_QUAL": "IEQU.L",
        "EUR_VAL": "IEVL.L", "EUR_SMALL": "XXSC.L", "CONS_DISC": "IUCD.L",
        "CONS_STAP": "IUCS.L", "ENERGY": "IUES.L", "HEALTH": "IHCU.L",
        "INDUST": "IUIS.L", "INFOTECH": "IUIT.L", "MATERIALS": "IUMS.L"}
@@ -90,16 +92,38 @@ def msci(code, currency):
     return _retry(go)
 
 
+@lru_cache(maxsize=2)
+def exchange_calendar(name):
+    return xcals.get_calendar(name, start="1998-01-01", end=str(pd.Timestamp.today().year + 2) + "-12-31")
+
+
+def completed_months(d, sym, today=None):
+    """Keep actual final-session closes, never an earlier print or a partial month."""
+    today = pd.Timestamp.today() if today is None else pd.Timestamp(today)
+    d = d.dropna().copy()
+    d.index = pd.to_datetime(d.index).tz_localize(None).normalize()
+    groups = d.groupby(d.index.to_period("M"))
+    rows = {}
+    for month, prices in groups:
+        if month >= today.to_period("M"):
+            continue
+        if sym.endswith("=X"):
+            # FX has no single stock-exchange calendar. Only accept a weekday close.
+            last = pd.bdate_range(month.start_time, month.end_time)[-1]
+        else:
+            cal = exchange_calendar("XLON" if sym.endswith(".L") else "XNYS")
+            last = cal.sessions_in_range(month.start_time.normalize(), month.end_time.normalize())[-1]
+        if prices.index[-1] == last:
+            rows[month] = float(prices.iloc[-1])
+    return pd.Series(rows, dtype=float).sort_index()
+
+
 def yahoo_monthly(sym, adjusted, start="1998-11-01"):
     def go():
         d = yf.Ticker(sym).history(start=start, interval="1d", auto_adjust=adjusted)["Close"]
         if d.empty:
             return None
-        d.index = pd.to_datetime(d.index).tz_localize(None)
-        m = d.resample("ME").last().dropna()
-        m.index = m.index.to_period("M")
-        # the current month has not ended: its "month-end" is just today's close
-        return m[m.index < pd.Timestamp.today().to_period("M")]
+        return completed_months(d, sym)
     return _retry(go)
 
 
@@ -109,8 +133,8 @@ def currency_of(sym):
         return c or None
     try:
         return _retry(go, n=3, wait=2)
-    except Exception:
-        return "GBP"
+    except Exception as exc:
+        raise RuntimeError(f"currency unavailable for {sym}") from exc
 
 
 PANEL_CSV = DATA / "panel_local.csv"
@@ -175,14 +199,16 @@ def build_signal_panel():
     return complete, panel, failures
 
 
-def proxy_momentum(proxies, month):
-    """Momentum for one month from the ETF proxies of one leg, computed entirely
-    within the proxies' own price history so no series is ever spliced."""
+def proxy_panel(proxies):
+    """Keep a whole leg in its own price history, without index/proxy splicing."""
     cols = {}
     for slot, sym in proxies.items():
         cols[slot] = yahoo_monthly(sym, adjusted=False, start="2015-01-01")
-    px = pd.DataFrame(cols).dropna()
-    mom = (px / px.shift(LOOKBACK) - 1)
+    return pd.DataFrame(cols)
+
+
+def proxy_momentum(proxies, month):
+    mom = _momentum(proxy_panel(proxies))
     if month not in mom.index or mom.loc[month].isna().any():
         raise RuntimeError(f"proxy has no complete momentum for {month}")
     return mom.loc[month]
@@ -197,13 +223,15 @@ def proxy_sector_momentum(month):
 
 
 def _momentum(px):
+    # Eight calendar months, even when a source omits an intermediate month.
+    px = px.reindex(pd.period_range(px.index.min(), px.index.max(), freq="M"))
     m = (px.shift(SKIP) / px.shift(SKIP + LOOKBACK) - 1) if SKIP else (px / px.shift(LOOKBACK) - 1)
     # the first LOOKBACK months have no trailing window; an all-NA row is an
     # error for idxmax on newer pandas, so drop those rows rather than rank them
-    return m.dropna(how="all")
+    return m.replace([np.inf, -np.inf], np.nan).dropna(how="any")
 
 
-def compute_book(raw, spx):
+def compute_book(raw, spx, history=None):
     """Month-by-month holding, from month-end signals.
 
     Each basket is ranked on its own completeness. The two come from different
@@ -211,24 +239,64 @@ def compute_book(raw, spx):
     fail separately, so requiring all fifteen levels in a month would discard a
     good basket alongside a missing one.
     """
-    fmom = _momentum(raw[FACTOR_SLOTS].dropna(how="any"))
-    smom = _momentum(raw[SECTOR_SLOTS].dropna(how="any"))
+    fmom = _momentum(raw[FACTOR_SLOTS])
+    smom = _momentum(raw[SECTOR_SLOTS])
     fpick, spick = fmom.idxmax(axis=1), smom.idxmax(axis=1)
-    cash = (spx / spx.shift(CASH_LOOKBACK) - 1) < CASH_THRESHOLD
+    spx = spx.reindex(pd.period_range(spx.index.min(), spx.index.max(), freq="M"))
+    cash_mom = (spx / spx.shift(CASH_LOOKBACK) - 1).dropna()
+    cash = cash_mom < CASH_THRESHOLD
     sig = sorted(set(fpick.index) & set(spick.index))
     # A month's holding was set by the previous signal, so the month after the
     # last signal is already determined and belongs in the book. Without this the
     # page loses a month whenever a source is late, even though nothing about
     # what is held that month is in doubt.
-    months = sig + [sig[-1] + 1] if sig else []
     rows = {}
-    for i in range(1, len(months)):
-        prev, now = months[i - 1], months[i]
-        f, s = fpick.get(prev), spick.get(prev)
-        if not isinstance(f, str) or not isinstance(s, str):
-            continue
-        rows[now] = {"factor": f, "sector": s, "cash": bool(cash.get(prev, False))}
-    return pd.DataFrame(rows).T, fmom, smom, fpick, spick, cash
+    for month in sig:
+        rows[month + 1] = {"factor": fpick[month], "sector": spick[month],
+                           "cash": bool(cash.get(month, False)),
+                           "factor_source": "MSCI", "sector_source": "S&P index"}
+    # Published signals remain fixed when an index feed later returns or backfills.
+    for month, row in (history or {}).items():
+        rows[pd.Period(month, "M") + 1] = {k: row[k] for k in
+            ("factor", "sector", "cash", "factor_source", "sector_source")}
+    return pd.DataFrame(rows).T.sort_index(), fmom, smom, fpick, spick, cash
+
+
+def resolve_history(raw, spx, history, expected, panels=None):
+    """Fill recent missing signals before building returns from those holdings."""
+    _, fmom, smom, _, _, cash = compute_book(raw, spx)
+    history = dict(history)
+    last_primary = min(fmom.index.max(), smom.index.max())
+    pending = [m for m in pd.period_range(last_primary + 1, expected, freq="M")
+               if str(m) not in history]
+    needed = {leg for leg, mom in (("factor", fmom), ("sector", smom))
+              if any(m not in mom.index for m in pending)}
+    proxies = {}
+    for leg in needed:
+        panel = (panels or {}).get(leg)
+        if panel is None:
+            panel = proxy_panel(FACTOR_PROXY if leg == "factor" else SECTOR_PROXY)
+        proxies[leg] = _momentum(panel)
+    # Also archive each new complete primary signal, so later revisions cannot change it.
+    if str(expected) not in history and expected not in pending:
+        pending.append(expected)
+    for month in pending:
+        entry = {"provenance": "Computed at month end" if month == expected else "Reconstructed ETF fallback"}
+        for leg, primary, source in (("factor", fmom, "MSCI"), ("sector", smom, "S&P index")):
+            mom = primary if month in primary.index else proxies.get(leg)
+            if mom is None or month not in mom.index:
+                raise RuntimeError(f"no complete {leg} ranking for {month}")
+            table = mom.loc[month]
+            entry[leg] = str(table.idxmax())
+            entry[leg + "_source"] = source if month in primary.index else "ETF proxy"
+            entry[leg + "_table"] = {k: float(v) for k, v in table.items()}
+        if month not in cash.index:
+            raise RuntimeError(f"cash-rule price window unavailable for {month}")
+        entry["cash"] = bool(cash[month])
+        history[str(month)] = entry
+    if str(expected) not in history:
+        raise RuntimeError(f"no current signal for {expected}")
+    return history
 
 
 def gbp_panel(symbols):
@@ -237,20 +305,32 @@ def gbp_panel(symbols):
         fx[cur] = yahoo_monthly(pair, adjusted=False, start="2013-01-01")
     out = {}
     for key, sym in symbols.items():
-        m = yahoo_monthly(sym, adjusted=True, start="2013-01-01")
-        cur = currency_of(sym)
+        try:
+            m = yahoo_monthly(sym, adjusted=True, start="2013-01-01")
+            cur = currency_of(sym)
+        except Exception as exc:
+            print(f"  !! London line unavailable: {sym} ({exc}); using confirmed cache if present")
+            continue
         if cur == "GBp":
             m = m / 100.0
         elif cur in ("USD", "EUR"):
             m = (m * fx[cur].reindex(m.index)).dropna()
         out[key] = m
         print(f"  lse   {key:14s} {sym:8s} {cur}")
-    return pd.DataFrame(out), fx
+    fresh = pd.DataFrame(out)
+    cache_path = DATA / "fund_prices_gbp.csv"
+    if cache_path.exists():
+        cached = pd.read_csv(cache_path, index_col=0)
+        cached.index = pd.PeriodIndex(cached.index, freq="M")
+        fresh = fresh.combine_first(cached)
+    fresh = fresh.reindex(columns=list(symbols)).sort_index()
+    fresh.to_csv(cache_path)
+    return fresh, fx
 
 
 def build_track(book, funds, bench_rets):
     """Rule D: reset to 50/50 only when a leg changes; otherwise let it drift."""
-    r = funds.pct_change() * 100
+    r = funds.pct_change(fill_method=None) * 100
     wf, prev, rows = 0.5, None, {}
     for m in book.index:
         row = book.loc[m]
@@ -275,12 +355,28 @@ def build_track(book, funds, bench_rets):
     return out
 
 
+def append_track(recorded, fresh):
+    """Append consecutive complete months. Keep published history and gaps fixed."""
+    expected = recorded.index.max() + 1
+    additions = []
+    for month in fresh.index[fresh.index > recorded.index.max()]:
+        if month != expected:
+            break
+        additions.append(month)
+        expected += 1
+    return pd.concat([recorded, fresh.loc[additions]]).sort_index()
+
+
 def main():
     print("fetching signal panel...")
     _, raw, failures = build_signal_panel()
     spx = yahoo_monthly("^GSPC", adjusted=False)
     print("computing book...")
-    book, fmom, smom, fpick, spick, cash = compute_book(raw, spx)
+    expected = pd.Timestamp.today().to_period("M") - 1
+    history_path = DATA / "signal_history.json"
+    history = json.loads(history_path.read_text()) if history_path.exists() else {}
+    history = resolve_history(raw, spx, history, expected)
+    book, fmom, smom, fpick, spick, cash = compute_book(raw, spx, history)
     print("fetching London lines...")
     funds, fx = gbp_panel(LSE)
     bench = {}
@@ -288,8 +384,15 @@ def main():
         m = yahoo_monthly(sym, adjusted=True, start="2013-01-01")
         if cur == "USD":
             m = (m * fx["USD"].reindex(m.index)).dropna()
-        bench[label] = m.pct_change() * 100
+        bench[label] = m.pct_change(fill_method=None) * 100
     track = build_track(book, funds, pd.DataFrame(bench))
+    record_path = DATA / "track_record.csv"
+    if record_path.exists():
+        recorded = pd.read_csv(record_path, index_col=0)
+        recorded.index = pd.PeriodIndex(recorded.index, freq="M")
+        # Completed, published returns stay fixed. Only append newly priced months.
+        track = append_track(recorded, track)
+    track.to_csv(record_path)
 
     book.to_csv(DATA / "final_book.csv")
     out = track.rename(columns={"Lodestar": "MarketFighter (recovered, LSE)"})
@@ -303,64 +406,24 @@ def main():
     ann["vs All-World"] = ann[out.columns[0]] - ann["FTSE All-World"]
     ann.to_csv(DATA / "final_tradable_annual.csv")
 
-    last = fpick.index[-1]
-    expected = (pd.Timestamp.today().to_period("M") - 1)
-    factor_source, factor_row = "MSCI", None
-    if last < expected:
-        # MSCI is behind. The sector leg and the cash rule come from elsewhere and
-        # may well be current, so try to rescue the factor leg from the proxies
-        # rather than abandon the month.
-        print(f"  !! MSCI panel ends {last}, expected {expected}: trying ETF proxy")
-        try:
-            factor_row = proxy_factor_momentum(expected)
-            factor_source = "ETF proxy"
-            print(f"  proxy factor pick for {expected}: {factor_row.idxmax()}")
-        except Exception as e:
-            print(f"  !! proxy also unavailable: {e}")
-    sig_month = expected if factor_source == "ETF proxy" else last
-
-    sector_month = sig_month if sig_month in smom.index else smom.index[-1]
-    sector_source, sector_row = "S&P index", None
-    if sector_month < expected:
-        # Yahoo's GICS index series have stopped updating. The SPDR funds cover
-        # the same seven sectors, so rescue the leg rather than abandon the month.
-        print(f"  !! sector panel ends {sector_month}, expected {expected}: trying ETF proxy")
-        try:
-            sector_row = proxy_sector_momentum(expected)
-            sector_source, sector_month = "ETF proxy", expected
-            print(f"  proxy sector pick for {expected}: {sector_row.idxmax()}")
-        except Exception as e:
-            print(f"  !! sector proxy also unavailable: {e}")
-
-    stale = (sector_month < expected) or ((last < expected) and factor_source == "MSCI")
-    if stale:
-        print(f"  !! signal NOT fresh (factor {sig_month}, sector {sector_month}, expected {expected})")
-    factor_pick = str(factor_row.idxmax()) if factor_row is not None else str(fpick.loc[last])
-    sector_pick = (str(sector_row.idxmax()) if sector_row is not None
-                   else str(smom.loc[sector_month].idxmax()))
-    ftab = ({k: float(v) for k, v in factor_row.items()} if factor_row is not None
-            else {k: float(fmom.loc[last, k]) for k in FACTOR_SLOTS})
-    stab = ({k: float(v) for k, v in sector_row.items()} if sector_row is not None
-            else {k: float(smom.loc[sector_month, k]) for k in SECTOR_SLOTS})
-    # what is held going into this signal: the book row for the signal month was
-    # set by the month before it. Not the book's last row, which is this signal.
-    held = book.loc[sig_month] if sig_month in book.index else book.iloc[-1]
+    row = history[str(expected)]
+    held = book.loc[expected]
     signal = {
-        "signal_month": str(sig_month), "factor_source": factor_source,
-        "factor": factor_pick, "sector": sector_pick,
-        "cash": bool(cash.get(sig_month, cash.get(last, False))),
-        "factor_ticker": LSE[factor_pick], "sector_ticker": LSE[sector_pick],
-        "factor_table": ftab,
-        "sector_table": stab,
-        "sector_source": sector_source,
-        "sector_month": str(sector_month),
-        "previous": {"factor": str(held["factor"]), "sector": str(held["sector"])},
-        "stale": bool(stale), "expected_month": str(expected),
-        "source_failures": failures,
+        "signal_month": str(expected), "holding_month": str(expected + 1),
+        "factor_source": row["factor_source"], "sector_source": row["sector_source"],
+        "factor": row["factor"], "sector": row["sector"], "cash": row["cash"],
+        "factor_ticker": LSE[row["factor"]], "sector_ticker": LSE[row["sector"]],
+        "factor_table": row.get("factor_table", {}), "sector_table": row.get("sector_table", {}),
+        "sector_month": str(expected), "previous": {
+            "factor": str(held["factor"]), "sector": str(held["sector"]), "cash": bool(held["cash"])},
+        "stale": False, "expected_month": str(expected), "source_failures": failures,
+        "performance_month": str(track.index[-1]),
     }
+    # Persist the same source-labelled signal history used by the return book.
+    history_path.write_text(json.dumps(history, indent=2, allow_nan=False) + "\n")
     (DATA / "signal.json").write_text(json.dumps(signal, indent=2))
-    print(f"\nsignal at {signal['signal_month']}: {signal['factor']} ({signal['factor_ticker']}) [{factor_source}] + "
-          f"{signal['sector']} ({signal['sector_ticker']}) [{sector_source}]"
+    print(f"\nsignal at {signal['signal_month']}: {signal['factor']} ({signal['factor_ticker']}) [{row['factor_source']}] + "
+          f"{signal['sector']} ({signal['sector_ticker']}) [{row['sector_source']}]"
           f"{'  [CASH]' if signal['cash'] else ''}")
     print(f"track: {len(track)} months to {track.index[-1]}")
     return signal

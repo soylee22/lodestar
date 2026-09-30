@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Lodestar — factor and sector rotation</title>
-<meta name="description" content="Lodestar: a systematic factor and sector ETF rotation strategy. Backtested record, London-listed lines, sterling total return, December 2015 to June 2026.">
+<meta name="description" content="Lodestar: a systematic factor and sector ETF rotation strategy. Backtested record, London-listed lines, sterling total return, with monthly updates.">
 <meta name="color-scheme" content="light dark">
 <style>
 /* ─────────────────────────────────────────────────────────────────────────
@@ -853,7 +853,7 @@ html{scroll-behavior:smooth; scroll-padding-top:72px}
     </div>
     <div class="card-bd">
       <div class="scroll">
-        <div id="growthChart" tabindex="0" role="img" aria-label="Cumulative growth of one pound, Lodestar against three benchmarks, December 2015 to June 2026."></div>
+        <div id="growthChart" tabindex="0" role="img" aria-label="Cumulative growth of one pound, Lodestar against three benchmarks, with monthly updates."></div>
       </div>
     </div>
   </div>
@@ -1040,7 +1040,7 @@ html{scroll-behavior:smooth; scroll-padding-top:72px}
 <footer>
   <div class="wrap">
     <div>
-      <p><b>Lodestar</b> — a systematic factor and sector rotation rule, stated in full in the method section above and applied to London-listed UCITS lines in sterling. Every number on this page is computed from month-end index levels and fund prices. Nothing is estimated, smoothed or annotated after the fact.</p>
+      <p><b>Lodestar</b> — a systematic factor and sector rotation rule, stated in full in the method section above and applied to London-listed UCITS lines in sterling. Signals use month-end index levels, with ETF proxies when an index feed is unavailable. Returns use London fund prices in sterling. Published signals are retained when a source later changes.</p>
       <p style="margin-top:12px" id="footBasis"></p>
     </div>
     <div>
@@ -1349,8 +1349,15 @@ function glyph(key){
   });
 
   // current book tiles
-  $("#bookAsOf").textContent = "As at " + DATA.current.asofPretty + " close";
+  $("#bookAsOf").textContent = "Holding for " + DATA.current.holdingMonthPretty
+    + " · signal at " + DATA.current.asofPretty + " close";
   var tiles = $("#bookTiles");
+  if (DATA.current.cash){
+    var cashTile = el("div", {class:"tile"});
+    cashTile.appendChild(el("div", {class:"wt num"}, "100%"));
+    cashTile.appendChild(el("div", {class:"nm"}, "Cash"));
+    tiles.appendChild(cashTile);
+  }
   DATA.current.legs.forEach(function(leg, i){
     var t = el("div", {class:"tile", style:"--dot:var(" + (i === 0 ? "--s1" : "--s2") + ")"});
     t.appendChild(el("div", {class:"wt num"}, leg.weight + "%"));
@@ -1360,15 +1367,13 @@ function glyph(key){
     t.appendChild(el("div", {class:"isin"}, leg.isin));
     tiles.appendChild(t);
   });
-  $("#bookFoot").innerHTML =
-    "London lines shown. The same ISINs list on Xetra as "
-    + DATA.current.legs.map(function(l){ return l.xetra; }).join(" and ")
-    + ", and the equivalent US-listed funds are "
-    + DATA.current.legs.map(function(l){ return l.us; }).join(" and ")
-    + ". Unchanged since " + (function(){
-        var runs = DATA.lanes[1].runs, last = runs[runs.length - 1];
-        return last.from;
-      })() + " on the sector leg.";
+  var sources = "Factor: " + DATA.current.factorSource + ". Sector: " + DATA.current.sectorSource + ".";
+  $("#bookFoot").textContent = (DATA.current.cash ? "Both legs hold cash. " :
+    "London lines shown. Weights are the targets at a change of holding. ")
+    + sources + " Performance through " + DATA.meta.endPretty + "."
+    + (DATA.meta.performancePending ? " The next completed month's fund prices are not yet available." : "")
+    + (DATA.meta.proxyMonths.length ? " ETF fallback signals are included in the performance record and labelled below." : "");
+
 })();
 
 /* ══════════════════════════════════════════════════════════════════════
@@ -1416,8 +1421,8 @@ function glyph(key){
     [
       ["Signal computed", fmtDate(n.signal), "At the close. Ranks all fifteen indices on eight-month momentum."],
       ["Trade placed",    fmtDate(n.trade),  "First trading day of the month. Either leg only trades if its winner changed."],
-      ["Current book",    DATA.current.legs.map(function(l){ return l.lse; }).join("  +  ") + "   50/50",
-                          DATA.current.legs.map(function(l){ return l.name; }).join(" and ") + ", as at " + DATA.current.asofPretty + "."]
+      ["Current book",    (DATA.current.cash ? "Cash 100%" : DATA.current.legs.map(function(l){ return l.lse; }).join("  +  ") + "   target 50/50"),
+                          (DATA.current.cash ? "Both legs in cash" : DATA.current.legs.map(function(l){ return l.name; }).join(" and ")) + ", holding for " + DATA.current.holdingMonthPretty + "."]
     ].forEach(function(r){
       var row = el("div", {class:"row"});
       row.appendChild(el("div", {class:"k"}, r[0]));
@@ -2576,7 +2581,8 @@ function glyph(key){
       bookRows);
   }
 
-  $("#appMonthlyCount").textContent = M.months + " priced months";
+  $("#appMonthlyCount").textContent = M.months + " priced months"
+    + (M.proxyMonths.length ? " · ETF fallback holdings: " + M.proxyMonths.map(pm).join(", ") : "");
   build($("#tblMonthly"),
     ["Month","Lodestar","All-World","S&P 500","MSCI World","Excess","Holding"],
     DATA.months.map(function(m, i){
@@ -2634,7 +2640,7 @@ function glyph(key){
     + "lines in " + M.currency + ". Risk-free rate " + M.riskFree.toFixed(0) + "% for Sharpe and Sortino.";
   $("#footBuild").textContent =
     "Record " + M.startPretty + " – " + M.endPretty + " · " + M.months + " priced months in a "
-    + M.calendarMonths + "-month span · figures computed once, at build time, and embedded in the page.";
+    + M.calendarMonths + "-month span · last built " + DATA.meta.builtAt.slice(0, 16).replace("T", " ") + " UTC.";
 })();
 
 /* ── entrance motion ────────────────────────────────────────────────── */

@@ -58,13 +58,16 @@ def announce(subject: str, msg: str) -> bool:
     return ok
 
 
-def main() -> int:
+def main(build_only=False) -> int:
     signal = build.main()
     try:
         holdings.build(signal)
     except Exception as e:               # holdings are decorative, never fatal
         print(f"  !! holdings refresh failed ({type(e).__name__}); keeping previous")
     subprocess.run([sys.executable, str(HERE / "build_data.py"), str(HERE / "data")], check=True)
+    if build_only:
+        print("Page rebuilt. Alert state unchanged.")
+        return 0
 
     prev, stale = signal["previous"], signal.get("stale")
     fails = signal.get("source_failures") or []
@@ -86,10 +89,10 @@ def main() -> int:
                "This has never fired before in the record.")
     else:
         changed = []
-        if f != prev["factor"]:
+        if f != prev["factor"] or prev.get("cash"):
             changed.append(f"FACTOR: sell {NAMES.get(prev['factor'], prev['factor'])} → "
                            f"buy <b>{NAMES.get(f, f)}</b> (<code>{ft}</code>)")
-        if s != prev["sector"]:
+        if s != prev["sector"] or prev.get("cash"):
             changed.append(f"SECTOR: sell {NAMES.get(prev['sector'], prev['sector'])} → "
                            f"buy <b>{NAMES.get(s, s)}</b> (<code>{st}</code>)")
         head = "<b>Lodestar — NO TRADE</b>" if not changed else "<b>Lodestar — TRADE</b>"
@@ -133,7 +136,8 @@ def main() -> int:
         subject = f"Lodestar {month}: no trade, site updated"
     site = "https://soylee22.github.io/lodestar/"
     msg = msg.rstrip().removesuffix(site).rstrip()
-    msg += f"\n\nThe site has been rebuilt with {month} included:\n{site}"
+    msg += (f"\n\nPage built: holdings for {signal['holding_month']}, "
+            f"performance through {signal['performance_month']}.\n{site}")
     if not announce(subject, msg):
         print("(telegram not configured; message printed only)")
     record_alert(month, picks)
@@ -141,4 +145,4 @@ def main() -> int:
 
 
 if __name__ == "__main__":
-    raise SystemExit(main())
+    raise SystemExit(main(build_only="--build-only" in sys.argv))

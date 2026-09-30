@@ -24,6 +24,7 @@ import json
 import math
 import os
 import sys
+from datetime import datetime, timezone
 from pathlib import Path
 
 import numpy as np
@@ -248,6 +249,9 @@ def build_book(current: dict) -> dict | None:
             "mixTail": ({"n": len(tail), "w": r6(sum(m["w"] for m in tail))} if tail else None),
         })
 
+    if stale:
+        return None
+
     flat = [dict(h, leg=leg["leg"], legKey=leg["leg"].lower()) for leg in legs for h in leg["holdings"]]
     flat.sort(key=lambda h: -(h["bw"] or 0.0))
     named = flat[:TOP_NAMED]
@@ -280,6 +284,8 @@ def main() -> None:
     monthly = pd.read_csv(DATA_DIR / "final_tradable.csv", index_col=0)
     annual = pd.read_csv(DATA_DIR / "final_tradable_annual.csv", index_col=0)
     book = pd.read_csv(DATA_DIR / "final_book.csv", index_col=0)
+    current_month = str(book.index[-1])
+    current_row = book.iloc[-1]
 
     months = [str(i) for i in monthly.index]
     start, end = months[0], months[-1]
@@ -340,6 +346,8 @@ def main() -> None:
             "cash": cash,
             "ret": ret_by_month.get(str(period)),
             "priced": str(period) in observed,
+            "factorSource": row.get("factor_source", "MSCI"),
+            "sectorSource": row.get("sector_source", "S&P index"),
         })
 
     def runs(field):
@@ -416,10 +424,16 @@ def main() -> None:
             ytd = r6((np.prod([1 + c / 100 for c in present]) - 1) * 100)
         grid.append({"year": y, "cells": cells, "ytd": ytd})
 
-    last = holdings[-1]
+    last = {"factor": str(current_row["factor"]), "sector": str(current_row["sector"]),
+            "cash": bool(current_row["cash"])}
+    signal_month = str(pd.Period(current_month, "M") - 1)
     current = {
-        "asof": end,
-        "asofPretty": pretty(end),
+        "asof": signal_month,
+        "asofPretty": pretty(signal_month),
+        "holdingMonth": current_month,
+        "holdingMonthPretty": pretty(current_month),
+        "factorSource": current_row.get("factor_source", "MSCI"),
+        "sectorSource": current_row.get("sector_source", "S&P index"),
         "cash": last["cash"],
         "legs": [
             {"leg": "Factor", "code": last["factor"], "name": slot_names[last["factor"]],
@@ -432,6 +446,8 @@ def main() -> None:
              "weight": 50},
         ],
     }
+    if last["cash"]:
+        current["legs"] = []
 
     book = build_book(current)
 
@@ -449,6 +465,11 @@ def main() -> None:
             "riskFree": RISK_FREE * 100,
             "currency": "GBP",
             "basis": "Total return, net of index-level costs, gross of dealing costs and spread.",
+            "builtAt": datetime.now(timezone.utc).isoformat(),
+            "expectedEnd": signal_month,
+            "performancePending": end < signal_month,
+            "proxyMonths": [h["m"] for h in holdings if
+                            "ETF proxy" in (h["factorSource"], h["sectorSource"])],
         },
         "labels": LABELS,
         "order": ["strategy", "allworld", "sp500", "world"],
@@ -483,13 +504,13 @@ def main() -> None:
                 "style": c.split("_", 1)[1], "region": REGION[c.split("_", 1)[0]],
                 "isin": TRADABLE[c][0], "lse": TRADABLE[c][2], "xetra": TRADABLE[c][1],
                 "held": held_priced[c], "heldAll": tenure[c],
-                "live": c == last["factor"],
+                "live": not last["cash"] and c == last["factor"],
             } for c in factor_slots],
             "sectors": [{
                 "code": c, "name": SECTOR_NAMES[c],
                 "isin": TRADABLE[c][0], "lse": TRADABLE[c][2], "xetra": TRADABLE[c][1],
                 "held": held_priced[c], "heldAll": tenure[c],
-                "live": c == last["sector"],
+                "live": not last["cash"] and c == last["sector"],
             } for c in sector_slots],
         },
     }
@@ -516,8 +537,9 @@ def main() -> None:
     print(f"  monthly wins  {wins}/{len(months)} = {wins/len(months)*100:.1f}%")
     print(f"  beat years    {beat_years}/{len(years)}")
     print(f"  cash months   {sum(1 for h in holdings if h['cash'])}")
-    print(f"  current       {current['legs'][0]['name']} ({current['legs'][0]['lse']}) + "
-          f"{current['legs'][1]['name']} ({current['legs'][1]['lse']})")
+    print("  current       " + ("Cash" if current["cash"] else
+          " + ".join(f"{leg['name']} ({leg['lse']})" for leg in current["legs"]))
+          + f" for {current_month}, signal at {signal_month}")
     if book is None:
         print("  look-through  none (data/holdings.json missing or incomplete) — section dropped")
     else:

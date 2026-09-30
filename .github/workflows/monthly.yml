@@ -1,12 +1,20 @@
-name: Monthly signal
+name: Monthly signal and page refresh
 
 on:
   schedule:
-    # 06:00 UTC, 1st to 5th. The job is idempotent and only alerts once per
-    # signal month, so the extra days are retries: if a data source is down on
-    # the 1st, the following morning picks it up rather than losing the month.
-    - cron: '0 6 1-5 * *'
+    # Refresh daily so delayed month-end prices are picked up after the 5th too.
+    # Signals are archived. Alerts remain once per signal month.
+    - cron: '0 6 * * *'
   workflow_dispatch:
+    inputs:
+      send_alerts:
+        description: Send the monthly alert if it has not already been sent
+        type: boolean
+        default: false
+
+concurrency:
+  group: lodestar-refresh
+  cancel-in-progress: false
 
 permissions:
   contents: write
@@ -24,18 +32,27 @@ jobs:
 
       - run: pip install -r requirements.txt
 
+      - name: Check the signal and book regressions
+        run: python -m unittest discover -s tests
+
       - name: Recompute signal and rebuild the page
         env:
           TG_TOKEN: ${{ secrets.TG_TOKEN }}
           TG_CHAT: ${{ secrets.TG_CHAT }}
           GMAIL_APP_PASSWORD: ${{ secrets.GMAIL_APP_PASSWORD }}
-        run: python run_monthly.py
+          BUILD_ONLY: ${{ github.event_name == 'workflow_dispatch' && !inputs.send_alerts }}
+        run: |
+          if [ "$BUILD_ONLY" = "true" ]; then
+            python run_monthly.py --build-only
+          else
+            python run_monthly.py
+          fi
 
       - name: Commit refreshed data
         run: |
           git config user.name  "soylee22"
           git config user.email "leeslater1992@gmail.com"
-          git add data.js data/panel_local.csv data/last_alert.json data/holdings.json
+          git add data.js data/panel_local.csv data/last_alert.json data/holdings.json data/signal_history.json data/fund_prices_gbp.csv data/track_record.csv
           if git diff --staged --quiet; then
             echo "nothing changed"
           else

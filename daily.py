@@ -11,8 +11,7 @@ and evaluate it on today's prices, so the standing is never a surprise on the
     the real signal, unchanged.
   * the cash rule, likewise, on today's S&P 500 against its close nineteen
     month-ends back.
-  * what is held now comes from data/last_alert.json, which run_monthly.py
-    writes when it announces a signal.
+  * what is held now comes from the same archived month-end signal as the page.
 
 The factor leg uses the US-listed distributing factor ETFs rather than the MSCI
 indices, because MSCI publishes month-end levels only and there is no intra-month
@@ -154,6 +153,17 @@ def momentum(px: pd.DataFrame, base: pd.Period, missing: list) -> tuple[pd.Serie
 
 def held_now() -> tuple[str, str, str]:
     """(factor slot, sector slot, month the signal was computed at)."""
+    history_path = HERE / "data" / "signal_history.json"
+    if history_path.exists():
+        history = json.loads(history_path.read_text())
+        expected = str(pd.Timestamp(date.today()).to_period("M") - 1)
+        eligible = sorted(month for month in history if month <= expected)
+        if eligible:
+            month = eligible[-1]
+            row = history[month]
+            if row["cash"]:
+                return "CASH", "CASH", month
+            return row["factor"], row["sector"], month
     state = json.loads((HERE / "data" / "last_alert.json").read_text())
     picks = state.get("picks", "")
     if picks == "CASH":

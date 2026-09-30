@@ -1,0 +1,49 @@
+{
+  "2026-07": {
+    "factor": "USA_VAL",
+    "sector": "ENERGY",
+    "cash": false,
+    "factor_source": "ETF proxy",
+    "sector_source": "S&P index",
+    "provenance": "Published alert",
+    "sent": "2026-08-01",
+    "evidence_commit": "2c2348b"
+  },
+  "2026-08": {
+    "factor": "USA_VAL",
+    "sector": "ENERGY",
+    "cash": false,
+    "factor_source": "ETF proxy",
+    "sector_source": "ETF proxy",
+    "provenance": "Published alert",
+    "sent": "2026-09-01",
+    "evidence_commit": "487d03e"
+  },
+  "2026-09": {
+    "provenance": "Computed at month end",
+    "factor": "USA_VAL",
+    "factor_source": "ETF proxy",
+    "factor_table": {
+      "USA_MOM": 0.24014223726919126,
+      "USA_QUAL": 0.09791526283720464,
+      "USA_VAL": 0.3452915467672888,
+      "USA_SMALL": 0.07403591620689265,
+      "EUR_MOM": 0.03827189769115602,
+      "EUR_QUAL": 0.03906743512931521,
+      "EUR_VAL": 0.05901233060860345,
+      "EUR_SMALL": -0.022964020230906268
+    },
+    "sector": "INFOTECH",
+    "sector_source": "S&P index",
+    "sector_table": {
+      "CONS_DISC": -0.07854106700509456,
+      "CONS_STAP": -0.03155214745107404,
+      "ENERGY": 0.20160529585210307,
+      "HEALTH": 0.0894753411697371,
+      "INDUST": 0.009471096963086456,
+      "INFOTECH": 0.3005183162707932,
+      "MATERIALS": -0.010143282880825
+    },
+    "cash": false
+  }
+}
