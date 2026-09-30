@@ -22,6 +22,8 @@ permissions:
 jobs:
   signal:
     runs-on: ubuntu-latest
+    env:
+      TZ: Europe/London
     steps:
       - uses: actions/checkout@v4
 
@@ -56,6 +58,6 @@ jobs:
           if git diff --staged --quiet; then
             echo "nothing changed"
           else
-            git commit -m "signal: $(date -u +%Y-%m)"
+            git commit -m "refresh: $(date +%Y-%m-%d)"
             git push
           fi
