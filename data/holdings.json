@@ -13,8 +13,8 @@
           "sector": "Technology",
           "industry": "Semiconductors",
           "market_cap": 1202927960064.0,
-          "pe": 24.097511,
-          "forward_pe": 6.59541,
+          "pe": 14.32755,
+          "forward_pe": 5.320865,
           "revenue_growth": 3.457,
           "earnings_growth": 13.685,
           "profit_margin": 0.55906,
@@ -29,11 +29,11 @@
           "industry": "Communication Equipment",
           "market_cap": 424340619264.0,
           "pe": 32.32132,
-          "forward_pe": 19.150122,
+          "forward_pe": 19.14484,
           "revenue_growth": 0.176,
           "earnings_growth": 0.521,
           "profit_margin": 0.20951,
-          "dividend_yield": 1.57
+          "dividend_yield": 1.56
         },
         {
           "symbol": "GM",
@@ -44,11 +44,11 @@
           "industry": "Auto Manufacturers",
           "market_cap": 69642764288.0,
           "pe": 34.375,
-          "forward_pe": 5.1163707,
+          "forward_pe": 5.1202393,
           "revenue_growth": 0.019,
           "earnings_growth": -0.262,
           "profit_margin": 0.01051,
-          "dividend_yield": 0.89
+          "dividend_yield": 0.94
         },
         {
           "symbol": "VZ",
@@ -59,11 +59,11 @@
           "industry": "Telecom Services",
           "market_cap": 190579539968.0,
           "pe": 11.9453125,
-          "forward_pe": 8.660877,
+          "forward_pe": 8.686743,
           "revenue_growth": -0.007,
           "earnings_growth": -0.22,
           "profit_margin": 0.11643,
-          "dividend_yield": 6.15
+          "dividend_yield": 6.17
         },
         {
           "symbol": "T",
@@ -78,7 +78,7 @@
           "revenue_growth": 0.023,
           "earnings_growth": 0.062,
           "profit_margin": 0.16943,
-          "dividend_yield": 4.53
+          "dividend_yield": 4.55
         },
         {
           "symbol": "BAC",
@@ -93,7 +93,7 @@
           "revenue_growth": 0.168,
           "earnings_growth": 0.341,
           "profit_margin": 0.29524,
-          "dividend_yield": 2.33
+          "dividend_yield": 2.35
         },
         {
           "symbol": "F",
@@ -108,7 +108,7 @@
           "revenue_growth": -0.038,
           "earnings_growth": null,
           "profit_margin": -0.03935,
-          "dividend_yield": 4.88
+          "dividend_yield": 4.98
         },
         {
           "symbol": "CMCSA",
@@ -123,7 +123,7 @@
           "revenue_growth": -0.012,
           "earnings_growth": -0.668,
           "profit_margin": 0.08966,
-          "dividend_yield": 6.11
+          "dividend_yield": 6.07
         },
         {
           "symbol": "PFE",
@@ -138,7 +138,7 @@
           "revenue_growth": 0.026,
           "earnings_growth": null,
           "profit_margin": 0.06804,
-          "dividend_yield": 5.99
+          "dividend_yield": 6.03
         },
         {
           "symbol": "DIS",
@@ -149,11 +149,11 @@
           "industry": "Entertainment",
           "market_cap": 181129445376.0,
           "pe": 21.628866,
-          "forward_pe": 14.022002,
+          "forward_pe": 14.013704,
           "revenue_growth": 0.068,
           "earnings_growth": -0.483,
           "profit_margin": 0.086990006,
-          "dividend_yield": 1.42
+          "dividend_yield": 1.43
         }
       ],
       "yield_unit": "percent",
@@ -185,11 +185,11 @@
           "industry": "Consumer Electronics",
           "market_cap": 4860153954304.0,
           "pe": 38.14662,
-          "forward_pe": 34.7426,
+          "forward_pe": 34.751663,
           "revenue_growth": 0.164,
           "earnings_growth": 0.287,
           "profit_margin": 0.27618998,
-          "dividend_yield": 0.33
+          "dividend_yield": 0.32
         },
         {
           "symbol": "NVDA",
@@ -199,7 +199,7 @@
           "sector": "Technology",
           "industry": "Semiconductors",
           "market_cap": 5514691870720.0,
-          "pe": 28.872314,
+          "pe": 28.908861,
           "forward_pe": 14.562609,
           "revenue_growth": 1.059,
           "earnings_growth": 1.278,
@@ -214,12 +214,12 @@
           "sector": "Technology",
           "industry": "Software - Infrastructure",
           "market_cap": 3808562511872.0,
-          "pe": 28.542017,
-          "forward_pe": 21.692709,
+          "pe": 28.573816,
+          "forward_pe": 21.689096,
           "revenue_growth": 0.177,
           "earnings_growth": 0.317,
           "profit_margin": 0.40305,
-          "dividend_yield": 0.77
+          "dividend_yield": 0.76
         },
         {
           "symbol": "AVGO",
@@ -229,12 +229,12 @@
           "sector": "Technology",
           "industry": "Semiconductors",
           "market_cap": 1676451119104.0,
-          "pe": 44.73758,
-          "forward_pe": 18.119997,
+          "pe": 44.851852,
+          "forward_pe": 18.117605,
           "revenue_growth": 0.855,
           "earnings_growth": 2.153,
           "profit_margin": 0.42944,
-          "dividend_yield": 0.73
+          "dividend_yield": 0.74
         },
         {
           "symbol": "MU",
@@ -244,8 +244,8 @@
           "sector": "Technology",
           "industry": "Semiconductors",
           "market_cap": 1202927960064.0,
-          "pe": 24.097511,
-          "forward_pe": 6.59541,
+          "pe": 14.32755,
+          "forward_pe": 5.320865,
           "revenue_growth": 3.457,
           "earnings_growth": 13.685,
           "profit_margin": 0.55906,
@@ -259,8 +259,8 @@
           "sector": "Technology",
           "industry": "Semiconductors",
           "market_cap": 998682918912.0,
-          "pe": 162.27055,
-          "forward_pe": 39.270035,
+          "pe": 156.06122,
+          "forward_pe": 39.257435,
           "revenue_growth": 0.501,
           "earnings_growth": 1.595,
           "profit_margin": 0.15577,
@@ -290,11 +290,11 @@
           "industry": "Communication Equipment",
           "market_cap": 424340619264.0,
           "pe": 32.32132,
-          "forward_pe": 19.150122,
+          "forward_pe": 19.14484,
           "revenue_growth": 0.176,
           "earnings_growth": 0.521,
           "profit_margin": 0.20951,
-          "dividend_yield": 1.57
+          "dividend_yield": 1.56
         },
         {
           "symbol": "PLTR",
@@ -304,8 +304,8 @@
           "sector": "Technology",
           "industry": "Software - Infrastructure",
           "market_cap": 449492090880.0,
-          "pe": 159.87181,
-          "forward_pe": 80.521225,
+          "pe": 158.51695,
+          "forward_pe": 80.39422,
           "revenue_growth": 0.928,
           "earnings_growth": 2.154,
           "profit_margin": 0.49005002,
@@ -319,12 +319,12 @@
           "sector": "Technology",
           "industry": "Semiconductor Equipment & Materials",
           "market_cap": 411105427456.0,
-          "pe": 57.132175,
+          "pe": 56.15556,
           "forward_pe": 27.98321,
           "revenue_growth": 0.3,
           "earnings_growth": 0.348,
           "profit_margin": 0.31272,
-          "dividend_yield": 0.41
+          "dividend_yield": 0.4
         }
       ],
       "yield_unit": "percent",
