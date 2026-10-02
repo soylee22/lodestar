@@ -41,6 +41,7 @@ if not (DATA_DIR / "final_tradable.csv").is_file():
 
 sys.path.insert(0, str(TOOL_DIR))
 from universe import FACTOR_NAMES, SECTOR_NAMES, TRADABLE  # noqa: E402
+from pipeline.lookthrough import consolidate, company_domain
 
 RISK_FREE = 0.02  # annual, used for Sharpe and Sortino
 
@@ -67,6 +68,13 @@ REGION = {"USA": "US", "EUR": "EU"}
 # so a holding and a sector index that mean the same thing carry the same mark.
 SECTOR_META = {
     "technology":             ("Technology", "INFOTECH"),
+    "information_technology": ("Technology", "INFOTECH"),
+    "consumer_discretionary": ("Consumer Discretionary", "CONS_DISC"),
+    "consumer_staples": ("Consumer Staples", "CONS_STAP"),
+    "health_care": ("Health Care", "HEALTH"),
+    "materials": ("Materials", "MATERIALS"),
+    "financials": ("Financials", "FIN"),
+    "communication": ("Communication Services", "COMMS"),
     "energy":                 ("Energy", "ENERGY"),
     "healthcare":             ("Health Care", "HEALTH"),
     "consumer_cyclical":      ("Consumer Cyclical", "CONS_DISC"),
@@ -201,6 +209,8 @@ def build_book(current: dict) -> dict | None:
             sec_name, glyph = sector_meta(r.get("sector"))
             holdings.append({
                 "sym": str(r.get("symbol") or "").upper(),
+                "isin": r.get("isin"),
+                "domain": company_domain(r.get("website")),
                 # The fund's own holdings table names the company; the fundamentals
                 # feed sometimes disagrees with itself (ExxonMobil Holdings
                 # Corporation), so the fund is the authority on its own book.
@@ -254,19 +264,41 @@ def build_book(current: dict) -> dict | None:
 
     flat = [dict(h, leg=leg["leg"], legKey=leg["leg"].lower()) for leg in legs for h in leg["holdings"]]
     flat.sort(key=lambda h: -(h["bw"] or 0.0))
-    named = flat[:TOP_NAMED]
+    combined_legs = []
+    for leg in legs:
+        src = raw['legs'][leg['leg'].lower()]
+        rows = src.get('all_holdings')
+        positions = leg['holdings']
+        if rows:
+            positions = [{'sym': r['symbol'], 'name': r['name'], 'isin': r.get('isin'),
+                          'sector': sector_meta(r.get('sector'))[0],
+                          'domain': company_domain(r.get('website')),
+                          'w': r['weight'] * 100, 'bw': r['weight'] * leg['legWeight']}
+                         for r in rows]
+        combined_legs.append({**leg, 'holdings': positions})
+    consolidated = consolidate(combined_legs)
+    consolidated['fullDisclosure'] = all(raw['legs'][l['leg'].lower()].get('all_holdings') for l in legs)
+    consolidated['sources'] = [{'ticker': l['ticker'],
+                                'snapshotDate': raw['legs'][l['leg'].lower()].get('snapshot_date'),
+                                'url': raw['legs'][l['leg'].lower()].get('source_url')}
+                               for l in legs]
+    consolidated['basis'] = 'Target allocation weights. ' + ('Issuer equity holdings.' if consolidated['fullDisclosure'] else 'Partial disclosure.')
+    named = consolidated["holdings"][:TOP_NAMED]
 
     return {
         "asOf": raw.get("as_at"),
         "asOfPretty": pretty(raw["as_at"]) if raw.get("as_at") else None,
+        "fetchedAt": raw.get("fetched_at"),
+        "snapshotDate": raw.get("snapshot_date"),
         "stale": stale,
         "legs": legs,
-        "named": [{"sym": h["sym"], "name": h["name"], "leg": h["leg"], "legKey": h["legKey"],
-                   "w": h["w"], "bw": h["bw"]} for h in named],
+        "consolidated": consolidated,
+        "named": [{"sym": h["sym"], "name": h["name"], "bw": h["bw"]}
+                  for h in named],
         "namedBook": r6(sum((h["bw"] or 0.0) for h in named)),
         "namedCount": len(named),
-        "topBook": r6(flat[0]["bw"]) if flat else None,
-        "topSym": flat[0]["sym"] if flat else None,
+        "topBook": r6(named[0]["bw"]) if named else None,
+        "topSym": named[0]["sym"] if named else None,
     }
 
 
@@ -281,6 +313,8 @@ def ordinal(period: str) -> int:
 
 
 def main() -> None:
+    price_status_path = DATA_DIR / "price_status.json"
+    price_status = json.loads(price_status_path.read_text()) if price_status_path.exists() else None
     monthly = pd.read_csv(DATA_DIR / "final_tradable.csv", index_col=0)
     annual = pd.read_csv(DATA_DIR / "final_tradable_annual.csv", index_col=0)
     book = pd.read_csv(DATA_DIR / "final_book.csv", index_col=0)
@@ -298,8 +332,9 @@ def main() -> None:
     gaps = [m for m in calendar if m not in observed]
     t_index = [ordinal(m) - ordinal(start) for m in months]
 
-    book = book.loc[start:end]
-    if [str(i) for i in book.index] != calendar:
+    allocation_calendar = [str(m) for m in pd.period_range(start, current_month, freq="M")]
+    book = book.loc[start:current_month]
+    if [str(i) for i in book.index] != allocation_calendar:
         raise SystemExit(f"book/calendar mismatch: {len(book)} vs {len(calendar)}")
 
     cols = {"strategy": monthly.columns[STRATEGY_COL]}
@@ -414,7 +449,8 @@ def main() -> None:
     ]
 
     # Monthly returns heatmap: one row per calendar year, 12 columns.
-    grid, ylist = [], sorted({int(m[:4]) for m in months})
+    signal_month = str(pd.Period(current_month, "M") - 1)
+    grid, ylist = [], list(range(int(start[:4]), int(signal_month[:4]) + 1))
     lookup = {m: returns["strategy"][i] for i, m in enumerate(months)}
     for y in ylist:
         cells = [lookup.get(f"{y}-{mm:02d}") for mm in range(1, 13)]
@@ -478,6 +514,7 @@ def main() -> None:
         "t": t_index,
         "span": len(calendar) - 1,
         "calendar": calendar,
+        "allocationCalendar": allocation_calendar,
         "returns": returns,
         "stats": stats,
         "excess": {
@@ -490,10 +527,12 @@ def main() -> None:
             "avgMonthly": r6(float(excess_m.mean())),
         },
         "years": years,
-        "heatmap": {"years": grid, "monthLabels": MONTH_ABBR},
+        "heatmap": {"years": grid, "monthLabels": MONTH_ABBR,
+                    "pending": [str(m) for m in pd.period_range(end, signal_month, freq="M") if str(m) > end]},
         "holdings": holdings,
         "lanes": lanes,
         "current": current,
+        "priceStatus": price_status,
         "book": book,
         "universe": {
             "pricedMonths": len(months),

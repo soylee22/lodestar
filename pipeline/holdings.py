@@ -5,13 +5,15 @@ changes, so this is deliberately driven by data/signal.json rather than pinned t
 any particular pair.
 
 Everything is written into data/holdings.json and baked into the page at build
-time. Nothing is fetched at page load: the site makes no external requests.
+time. Company icons are optional website favicons with ticker fallbacks.
 """
 import json, time
+from datetime import datetime, timezone
 from pathlib import Path
 
 import pandas as pd
 import yfinance as yf
+from pipeline import issuer_holdings
 
 HERE = Path(__file__).resolve().parent
 DATA = HERE.parent / "data"
@@ -89,11 +91,25 @@ def build(signal=None):
         "factor": {"slot": signal["factor"], "ticker": signal["factor_ticker"]},
         "sector": {"slot": signal["sector"], "ticker": signal["sector_ticker"]},
     }
-    out = {"as_at": signal["signal_month"], "legs": {}}
+    out = {"as_at": signal["signal_month"],
+           "fetched_at": datetime.now(timezone.utc).isoformat(),
+           "snapshot_date": None, "source": "Yahoo Finance top-ten holdings", "legs": {}}
     for leg, meta in funds.items():
         t = meta["ticker"]
         print(f"  holdings {leg:7s} {t}")
-        h = fund_holdings(t)
+        issuer = None
+        try:
+            issuer = issuer_holdings.fetch(t, signal["signal_month"])
+        except Exception as exc:
+            print(f"  !! issuer holdings unavailable for {t}: {exc}; using top-ten disclosure")
+        if issuer:
+            sectors = {}
+            for row in issuer['holdings']:
+                key = row.get('sector') or 'Other'
+                sectors[key] = sectors.get(key, 0) + row['weight']
+            h = {'holdings': issuer['holdings'][:10], 'sector_weights': sectors}
+        else:
+            h = fund_holdings(t)
         if not h:
             print(f"  !! no holdings for {t}")
             out["legs"][leg] = {**meta, "holdings": [], "sector_weights": {}}
@@ -104,7 +120,8 @@ def build(signal=None):
             enriched.append({
                 **row,
                 "company": f.get("longName") or f.get("shortName") or row["name"],
-                "sector": f.get("sector"),
+                "sector": f.get("sector") or row.get("sector"),
+                "website": f.get("website"),
                 "industry": f.get("industry"),
                 "market_cap": f.get("marketCap"),
                 "pe": f.get("trailingPE"),
@@ -122,6 +139,15 @@ def build(signal=None):
         out["legs"][leg] = {**meta, "holdings": enriched, "yield_unit": yield_unit,
                             "sector_weights": h["sector_weights"],
                             "top10_weight": top_n}
+        if issuer:
+            # Existing fundamentals cards retain their own top-ten disclosure.
+            websites = {r['symbol']: r.get('website') for r in enriched}
+            for row in issuer['holdings']:
+                row['website'] = websites.get(row['symbol'])
+            out['legs'][leg].update(all_holdings=issuer['holdings'],
+                                    snapshot_date=issuer['snapshot_date'],
+                                    source_url=issuer['source_url'])
+            print(f"     issuer look-through: {len(issuer['holdings'])} equities at {issuer['snapshot_date']}")
     (DATA / "holdings.json").write_text(json.dumps(out, indent=2, default=str))
     print(f"\nwrote {DATA/'holdings.json'}")
     return out

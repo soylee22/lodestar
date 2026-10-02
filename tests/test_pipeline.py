@@ -60,6 +60,33 @@ class PipelineTests(unittest.TestCase):
         prices.iloc[-1] = 11.
         self.assertEqual(build.completed_months(prices, 'IUVL.L', '2026-10-01').loc['2026-09'], 11.)
 
+    def test_short_window_repairs_a_missing_final_close_with_same_basis(self):
+        from unittest.mock import MagicMock
+        expected = pd.Timestamp.today().to_period('M') - 1
+        cal = build.exchange_calendar('XLON')
+        last = cal.sessions_in_range(expected.start_time.normalize(), expected.end_time.normalize())[-1]
+        long = pd.DataFrame({'Close': [10., np.nan]}, index=[last - pd.Timedelta(days=1), last])
+        short = pd.DataFrame({'Close': [12.]}, index=[last])
+        ticker = MagicMock()
+        ticker.history.side_effect = [long, short]
+        with patch.object(build.yf, 'Ticker', return_value=ticker):
+            result = build.yahoo_monthly('IUVL.L', adjusted=True)
+        self.assertEqual(result.loc[expected], 12.)
+        self.assertEqual(ticker.history.call_count, 2)
+        self.assertTrue(all(call.kwargs['auto_adjust'] for call in ticker.history.call_args_list))
+
+    def test_short_window_with_no_final_close_keeps_month_unpriced(self):
+        from unittest.mock import MagicMock
+        expected = pd.Timestamp.today().to_period('M') - 1
+        cal = build.exchange_calendar('XLON')
+        last = cal.sessions_in_range(expected.start_time.normalize(), expected.end_time.normalize())[-1]
+        prices = pd.DataFrame({'Close': [np.nan]}, index=[last])
+        ticker = MagicMock()
+        ticker.history.return_value = prices
+        with patch.object(build.yf, 'Ticker', return_value=ticker):
+            result = build.yahoo_monthly('IUVL.L', adjusted=True)
+        self.assertNotIn(expected, result.index)
+
     def test_month_end_exchange_holiday_uses_last_session(self):
         prices = pd.Series([10.], index=pd.to_datetime(['2024-03-28']))
         self.assertEqual(build.completed_months(prices, 'IUVL.L', '2024-04-01').loc['2024-03'], 10.)

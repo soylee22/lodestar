@@ -720,6 +720,39 @@ footer b{color:var(--ink-2); font-weight:600}
 }
 html{scroll-behavior:smooth; scroll-padding-top:72px}
 @media print{ .rail,.seg,.toggle{display:none} body{background:#fff} }
+
+[hidden]{display:none!important}
+/* Combined company exposure. One accent marks the selected holding. */
+.consolidated{padding:28px 0 34px;border-top:1px solid var(--rule);margin-bottom:24px}
+.consolidated-hd{display:flex;align-items:baseline;justify-content:space-between;gap:20px;margin-bottom:24px}
+.consolidated-hd h3{font:400 clamp(24px,3vw,34px)/1.1 var(--serif);margin:0}
+.consolidated-hd span{font:11px var(--mono);color:var(--ink-2)}
+.combined-grid{display:grid;grid-template-columns:minmax(260px,.8fr) minmax(0,1.2fr);gap:56px;align-items:start}
+.exposure-ring{position:relative;width:min(100%,340px);margin:16px auto 24px;aspect-ratio:1}
+.exposure-ring svg{width:100%;height:100%;overflow:visible;transform:rotate(-90deg)}
+.exposure-ring circle{fill:none;stroke-width:19;cursor:pointer;transition:stroke .15s,stroke-width .15s}
+.exposure-ring circle.selected{stroke:#b8a2d6!important;stroke-width:22}
+.exposure-ring circle:focus-visible{outline:none;stroke-width:24}
+.ring-centre{position:absolute;inset:24%;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;pointer-events:none}
+.ring-centre strong{font:400 clamp(34px,4vw,49px)/1.1 var(--serif);letter-spacing:-.04em}
+.ring-centre span{font-size:12px;color:var(--ink-2);margin-top:8px}
+.ring-centre small{font:10px var(--mono);color:var(--muted);margin-top:9px;text-transform:uppercase;letter-spacing:.05em}
+.combined-summary{max-width:340px;margin:auto;font-size:12px;line-height:1.7;color:var(--ink-2)}
+.exposure-list{display:grid;gap:0}
+.exposure-row{display:grid;grid-template-columns:36px minmax(0,1fr) auto;align-items:center;gap:13px;width:100%;padding:13px 8px;border:0;border-bottom:1px solid var(--rule);background:transparent;color:var(--ink);text-align:left;cursor:pointer;font-family:var(--sans)}
+.exposure-row:hover,.exposure-row.selected{background:color-mix(in srgb,#b8a2d6 12%,transparent)}
+.company-icon{width:34px;height:34px;border-radius:50%;background:var(--surface-sunk);border:1px solid var(--rule);display:grid;place-items:center;position:relative;font:10px var(--mono);color:var(--ink-2)}
+.company-icon img{position:absolute;width:21px;height:21px;object-fit:contain;background:var(--surface-sunk)}
+.exposure-name{display:block;font-size:13px;font-weight:600}
+.exposure-detail{display:block;font-size:10.5px;color:var(--ink-2);margin-top:5px;line-height:1.5}
+.exposure-weight{font:500 19px var(--mono);letter-spacing:-.05em;white-space:nowrap}
+.exposure-shared{font:9px var(--mono);text-transform:uppercase;color:var(--ink-2);margin-left:8px;border-bottom:1px solid #b8a2d6}
+.exposure-more{justify-self:start;border:0;background:transparent;color:var(--ink-2);padding:16px 8px 0;font:11px var(--mono);cursor:pointer;text-decoration:underline;text-underline-offset:4px}
+.exposure-note{font-size:11px;color:var(--ink-2);line-height:1.65;margin:24px 0 0;max-width:85ch}
+@media(max-width:680px){.combined-grid{grid-template-columns:1fr;gap:24px}.consolidated-hd{align-items:start;flex-direction:column;gap:12px}.exposure-ring{width:280px}.exposure-weight{font-size:17px}}
+.hm .pending{display:grid;place-items:center;font:8px var(--mono);color:var(--ink-2);cursor:help}
+.ribbon .pending-tail{position:absolute;top:5px;height:14px;background:repeating-linear-gradient(45deg,transparent,transparent 3px,var(--axis) 3px,var(--axis) 4px);pointer-events:none;z-index:1}
+
 </style>
 </head>
 <body>
@@ -807,9 +840,17 @@ html{scroll-behavior:smooth; scroll-padding-top:72px}
     </div>
     <p class="lede" id="insideLede"></p>
   </div>
+  <div class="consolidated" id="consolidated" hidden>
+    <div class="consolidated-hd"><h3>Consolidated portfolio</h3><span id="combinedAsOf"></span></div>
+    <div class="combined-grid">
+      <div><div class="exposure-ring" id="exposureRing"><div class="ring-centre"><strong id="ringWeight"></strong><span id="ringName"></span><small id="ringSource"></small></div></div><p class="combined-summary" id="combinedSummary"></p></div>
+      <div class="exposure-list" id="exposureList" aria-label="Combined company weights"></div>
+    </div>
+    <p class="exposure-note" id="combinedNote"></p>
+  </div>
   <div class="card rise">
     <div class="card-hd">
-      <div class="ttl">The whole portfolio, in one bar</div>
+      <div class="ttl">Portfolio breakdown by fund</div>
       <div class="sub" style="margin-left:auto">Every block is one company, sized by its share of the book</div>
     </div>
     <div class="card-bd">
@@ -1026,7 +1067,7 @@ html{scroll-behavior:smooth; scroll-padding-top:72px}
     <div class="tblwrap"><table class="data" id="tblYears"></table></div>
   </details>
   <details class="app">
-    <summary>Statistics, all four series <span>Dec 2015 – Jun 2026</span></summary>
+    <summary>Statistics, all four series <span id="appStatsRange"></span></summary>
     <div class="tblwrap"><table class="data" id="tblStats"></table></div>
   </details>
   <details class="app" style="border-bottom:1px solid var(--rule)">
@@ -1052,7 +1093,7 @@ html{scroll-behavior:smooth; scroll-padding-top:72px}
 
 <div class="tip" id="tip" role="tooltip" aria-hidden="true"></div>
 
-<script src="data.js?v=2"></script>
+<script src="data.js?v=3"></script>
 <script>
 (function(){
 "use strict";
@@ -1504,27 +1545,85 @@ function glyph(key){
   $("#insideTitle").innerHTML =
     cap(word(B.namedCount)) + " companies, " + n1(B.namedBook) + "% of the&nbsp;book";
 
-  var clauses = B.legs.map(function(l){
-    var mine = B.named.filter(function(h){ return h.legKey === l.leg.toLowerCase(); });
-    if (!mine.length) return null;
-    return "<b>" + esc(joinList(mine.map(function(h){ return shortName(h.name); })))
-         + (mine.length > 1 ? " are " : " is ")
-         + joinList(mine.map(function(h){ return pct1(h.w); }))
-         + " of the " + l.leg.toLowerCase() + " fund</b>";
-  }).filter(Boolean);
+  $("#insideLede").textContent =
+    "The same company can sit in both funds. Combined at the target allocation weights, "
+    + joinList(B.named.map(function(h){ return shortName(h.name); }))
+    + " account for " + n1(B.namedBook) + "% of the portfolio.";
 
-  $("#insideLede").innerHTML =
-    "Two funds, split 50/50, is what the book looks like from outside. Inside it, "
-    + clauses.join("; ") + ". Weighted into the book, those " + word(B.namedCount)
-    + " companies are <b>" + n1(B.namedBook) + "% of everything held</b>. The top ten is "
-    + B.legs.map(function(l){ return pct1(l.top10) + " of the " + l.leg.toLowerCase() + " fund"; }).join(" and ")
-    + ".";
+  $("#concFoot").textContent =
+    "Each half shows one fund's top ten and the remaining holdings. This breakdown uses target allocation weights. "
+    + (B.consolidated && B.consolidated.fullDisclosure ? "Issuer holdings dated " + B.consolidated.sources[0].snapshotDate + "." : "The holdings feed was refreshed for the " + B.asOfPretty + " signal. Its underlying snapshot date is unavailable.");
 
-  $("#concFoot").innerHTML =
-    "The whole bar is the whole portfolio. Named blocks are the ten largest holdings of each fund; "
-    + "the pale block closing each half is everything else that fund owns. Holdings as at "
-    + esc(B.asOfPretty) + ", from the funds' own published books."
-    + (B.stale ? " These are the previous pair of funds; the legs have changed since." : "");
+  function pct2(x){return x == null ? "—" : nf(x,2) + "%";}
+  var C = B.consolidated;
+  if (C && C.holdings.length){
+    $("#consolidated").hidden = false;
+    $("#combinedAsOf").textContent = DATA.current.holdingMonthPretty + " allocation · 50/50 target";
+    $("#combinedSummary").textContent = C.holdings.length + " disclosed companies · "
+      + pct2(C.coverage) + " of the portfolio. " + C.sharedCount + " companies appear in both funds.";
+    var dated = (C.sources || []).filter(function(source){return source.snapshotDate;});
+    $("#combinedNote").textContent = "Each weight adds the company's share of each ETF multiplied by that ETF's target portfolio weight. "
+      + (C.fullDisclosure ? "The issuer's equity holdings are combined. Other holdings include cash and positions outside the equity disclosure. " : "Available holdings are combined. The top-ten fallback leaves undisclosed positions in Other holdings, which may include more exposure to the companies shown. ")
+      + "Weights use the 50/50 target mix. Market drift can change the actual split. "
+      + (dated.length ? dated.map(function(source){return source.ticker + " holdings dated " + source.snapshotDate;}).join(". ") + ". " : "Holdings refreshed for the " + B.asOfPretty + " signal. The feed does not supply its underlying snapshot date.");
+    dated.forEach(function(source){
+      if(source.url)$("#combinedNote").appendChild(el("a",{href:source.url,style:"margin-left:12px"},source.ticker + " source"));
+    });
+    var ring = $("#exposureRing"), list = $("#exposureList"), circles = [], buttons = [];
+    var svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+    svg.setAttribute("viewBox", "0 0 120 120");
+    svg.setAttribute("role", "group");
+    svg.setAttribute("aria-label", "Effective company holdings, with undisclosed positions retained in the total");
+    ring.insertBefore(svg, ring.firstChild);
+    var items = C.holdings.concat([{sym:"Other",name:"Other holdings",bw:C.other,contributions:[]}]);
+    var circumference = 2 * Math.PI * 48, offset = 0;
+    function select(i){
+      var h = items[i];
+      circles.forEach(function(c,j){ c.classList.toggle("selected",j === i); });
+      buttons.forEach(function(b,j){ b.classList.toggle("selected",j === i); b.setAttribute("aria-pressed",String(j === i)); });
+      $("#ringWeight").textContent = pct2(h.bw);
+      $("#ringName").textContent = shortName(h.name);
+      $("#ringSource").textContent = h.shared ? "Held in both funds" : h.contributions.length ? h.contributions[0].leg + " fund" : "Outside disclosure";
+    }
+    items.forEach(function(h,i){
+      var circle = document.createElementNS("http://www.w3.org/2000/svg","circle");
+      circle.setAttribute("cx","60"); circle.setAttribute("cy","60"); circle.setAttribute("r","48");
+      circle.setAttribute("stroke", "color-mix(in srgb, var(--ink) " + (i === items.length-1 ? 10 : 25 + (i % 5)*10) + "%, var(--surface))");
+      circle.setAttribute("stroke-dasharray", Math.max(0,h.bw*circumference/100 - .45) + " " + circumference);
+      circle.setAttribute("stroke-dashoffset",-offset); offset += h.bw*circumference/100;
+      circle.setAttribute("tabindex","0"); circle.setAttribute("role","button");
+      circle.setAttribute("aria-label",h.name + ", " + pct2(h.bw) + " of the portfolio");
+      circle.addEventListener("pointerenter",function(){select(i);});
+      circle.addEventListener("focus",function(){select(i);});
+      circle.addEventListener("click",function(){select(i);});
+      circle.addEventListener("keydown",function(e){if(e.key === "Enter" || e.key === " "){e.preventDefault();select(i);}});
+      svg.appendChild(circle); circles.push(circle);
+      var row = el("button",{class:"exposure-row",type:"button","aria-pressed":"false"});
+      var icon = el("span",{class:"company-icon","aria-hidden":"true"},h.sym === "Other" ? "+" : h.sym.slice(0,3));
+      if (h.domain){
+        var img = el("img",{src:"https://www.google.com/s2/favicons?domain=" + encodeURIComponent(h.domain) + "&sz=64",alt:"",loading:"lazy",referrerpolicy:"no-referrer"});
+        img.addEventListener("error",function(){img.remove();}); icon.appendChild(img);
+      }
+      row.appendChild(icon);
+      var text = el("span"), name = el("span",{class:"exposure-name"},shortName(h.name));
+      if(h.shared)name.appendChild(el("span",{class:"exposure-shared"},"Both ETFs"));
+      text.appendChild(name);
+      var detail = h.contributions.map(function(c){return c.ticker.replace(/\.L$/,"") + " " + pct2(c.fundWeight) + " × " + pct2(B.legs.filter(function(l){return l.leg === c.leg;})[0].legWeight) + " = " + pct2(c.bookWeight);}).join(" + ");
+      text.appendChild(el("span",{class:"exposure-detail"},detail || "Outside the disclosed equity positions"));
+      row.appendChild(text); row.appendChild(el("span",{class:"exposure-weight"},pct2(h.bw)));
+      row.addEventListener("click",function(){select(i);});
+      row.addEventListener("pointerenter",function(){select(i);});
+      row.addEventListener("focus",function(){select(i);});
+      if(i >= 8 && i < items.length-1)row.hidden = true;
+      list.appendChild(row); buttons.push(row);
+    });
+    if(C.holdings.length > 8){
+      var more = el("button",{class:"exposure-more",type:"button","aria-expanded":"false"},"Show all " + C.holdings.length + " companies");
+      more.addEventListener("click",function(){var open = more.getAttribute("aria-expanded") !== "true";buttons.forEach(function(b,i){if(i >= 8 && i < buttons.length-1)b.hidden = !open;});more.setAttribute("aria-expanded",String(open));more.textContent = open ? "Show fewer companies" : "Show all " + C.holdings.length + " companies";});
+      list.appendChild(more);
+    }
+    select(0);
+  }
 
   /* ── the concentration bar ──────────────────────────────────────────── */
   var root = $("#concBar");
@@ -2189,12 +2288,14 @@ function glyph(key){
   var root = $("#hmChart"), showVals = false, reg;
   var G = DATA.heatmap, GAPS = {};
   M.gaps.forEach(function(m){ GAPS[m] = 1; });
+  var PENDING = {}; (G.pending || []).forEach(function(m){ PENDING[m] = 1; });
 
   $("#hmLede").innerHTML =
     "Best month <b>" + sgn(ST.strategy.best) + "</b> (" + pm(ST.strategy.bestMonth)
     + "), worst <b>" + sgn(ST.strategy.worst) + "</b> (" + pm(ST.strategy.worstMonth)
     + "). " + ST.strategy.posMonths + " of " + M.months + " months were positive. "
-    + "Hatched cells have no priced record.";
+    + "Hatched cells have no priced record."
+    + ((G.pending || []).length ? " Returns through " + M.endPretty + ". " + G.pending.map(pm).join(", ") + " awaits verified month-end prices." : "");
 
   // scale legend — a binned diverging key, four steps per arm plus a neutral middle
   var key = $("#hmKey");
@@ -2240,7 +2341,8 @@ function glyph(key){
         if (v == null){
           // hatched only where the record should have a value and does not;
           // months outside the window are simply blank.
-          node.appendChild(el("div", GAPS[m] ? {class:"void", "aria-label":"no priced record"} : {}));
+          var pendingCell = PENDING[m] ? el("div",{class:"void pending",role:"img",title:pm(m) + ": awaiting verified month-end prices","aria-label":pm(m) + ": awaiting verified month-end prices"},"Pending") : el("div", GAPS[m] ? {class:"void", "aria-label":"no priced record"} : {});
+          node.appendChild(pendingCell);
           return;
         }
         var c = el("div", {class:"cell", role:"img",
@@ -2280,7 +2382,7 @@ function glyph(key){
    across that run. Identity comes from the row label, never from colour.
    ══════════════════════════════════════════════════════════════════════ */
 (function ribbon(){
-  var root = $("#ribChart"), CAL = DATA.calendar, NC = CAL.length;
+  var root = $("#ribChart"), CAL = DATA.allocationCalendar || DATA.calendar, NC = CAL.length;
 
   var switches = DATA.lanes.map(function(l){ return l.runs.length; });
   function tenureOf(code){
@@ -2288,12 +2390,10 @@ function glyph(key){
     DATA.lanes.forEach(function(l){ l.slots.forEach(function(s){ if (s.code === code) n = s.months; }); });
     return n + " months";
   }
-  $("#ribLede").innerHTML =
-    "Every month of the record, both legs. The factor leg changed <b>" + switches[0]
-    + " times</b> and the sector leg <b>" + switches[1] + " times</b> across " + NC
-    + " months, so the average holding lasts about " + (NC / ((switches[0] + switches[1]) / 2)).toFixed(1)
-    + " months. Long unbroken bars are months where nothing traded: "
-    + "Information Technology held the sector leg for " + tenureOf("INFOTECH") + " of them, more than any other index.";
+  $("#ribLede").textContent = "Allocation history through " + DATA.current.holdingMonthPretty
+    + ". Current allocation: " + (DATA.current.cash ? "cash" : DATA.current.legs.map(function(l){ return l.name; }).join(" + "))
+    + ". Returns are priced through " + M.endPretty
+    + ". Hatched bar ends show allocations without a completed return.";
 
   var key = $("#ribKey");
   key.appendChild(el("span", null, "Mean monthly return while held"));
@@ -2312,7 +2412,7 @@ function glyph(key){
       hd.appendChild(el("span", {class:"t"}, lane.title));
       hd.appendChild(el("span", {class:"s"}, lane.subtitle));
       hd.appendChild(el("span", {class:"s", style:"margin-left:auto"},
-        lane.runs.length + " changes  ·  months held"));
+        Math.max(0,lane.runs.length-1) + " changes  ·  months held"));
       node.appendChild(hd);
 
       lane.slots.forEach(function(slot){
@@ -2337,7 +2437,7 @@ function glyph(key){
               + '<div class="foot">' + slot.ticker + " · "
               + (run.avgRet == null
                   ? "no priced record"
-                  : "book averaged " + sgn(run.avgRet) + " a month")
+                  : "book averaged " + sgn(run.avgRet) + " across " + run.priced + " priced months")
               + '</div>';
             var r = b.getBoundingClientRect();
             showTip(html, ev.clientX != null ? ev.clientX : r.left + r.width / 2,
@@ -2348,6 +2448,13 @@ function glyph(key){
           b.addEventListener("pointerleave", hideTip);
           b.addEventListener("blur", function(){ stick(false); hideTip(); });
           track.appendChild(b);
+          var pendingStart = Math.max(run.start, CAL.indexOf(M.end) + 1);
+          if(pendingStart <= run.end){
+            var tail = el("div",{class:"pending-tail"});
+            tail.style.left = pendingStart / NC * 100 + "%";
+            tail.style.width = "calc(" + (run.end - pendingStart + 1) / NC * 100 + "% - 2px)";
+            track.appendChild(tail);
+          }
         });
         row.appendChild(track);
         row.appendChild(el("div", {class:"tenure"}, slot.months + " mo"));
@@ -2364,6 +2471,9 @@ function glyph(key){
       var t = el("i"); t.style.left = p + "%"; ticks.appendChild(t);
       var s = el("span", null, m.slice(0, 4)); s.style.left = p + "%"; ticks.appendChild(s);
     });
+    var latest = el("span", null, pm(CAL[NC-1]));
+    latest.style.right = "0"; latest.style.left = "auto"; latest.style.transform = "none";
+    ticks.appendChild(latest);
     ax.appendChild(ticks);
     ax.appendChild(el("div"));
     node.appendChild(ax);
@@ -2559,7 +2669,7 @@ function glyph(key){
 
   if (DATA.book && DATA.book.legs && DATA.book.legs.length === 2){
     $("#appBook").hidden = false;
-    $("#appBookAsOf").textContent = "As at " + DATA.book.asOfPretty;
+    $("#appBookAsOf").textContent = (DATA.book.consolidated.fullDisclosure ? "Issuer holdings dated " + DATA.book.consolidated.sources[0].snapshotDate : "Top-ten feed refreshed for " + DATA.book.asOfPretty + " signal. Snapshot date unavailable.");
     var bookRows = [];
     DATA.book.legs.forEach(function(l){
       l.holdings.forEach(function(h){
@@ -2581,6 +2691,7 @@ function glyph(key){
       bookRows);
   }
 
+  $("#appStatsRange").textContent = M.startPretty + " to " + M.endPretty;
   $("#appMonthlyCount").textContent = M.months + " priced months"
     + (M.proxyMonths.length ? " · ETF fallback holdings: " + M.proxyMonths.map(pm).join(", ") : "");
   build($("#tblMonthly"),

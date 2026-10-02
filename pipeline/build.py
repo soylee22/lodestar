@@ -123,7 +123,22 @@ def yahoo_monthly(sym, adjusted, start="1998-11-01"):
         d = yf.Ticker(sym).history(start=start, interval="1d", auto_adjust=adjusted)["Close"]
         if d.empty:
             return None
-        return completed_months(d, sym)
+        months = completed_months(d, sym)
+        expected = pd.Timestamp.today().to_period("M") - 1
+        if expected not in months.index:
+            # Yahoo's long-range response can omit the newest London close.
+            # Make a separate short-window request with the SAME adjustment
+            # convention. Never substitute raw closes for total-return prices.
+            recent_start = str((expected - 2).start_time.date())
+            try:
+                recent = yf.Ticker(sym).history(start=recent_start, interval="1d",
+                                              auto_adjust=adjusted)["Close"]
+                months = months.combine_first(completed_months(recent, sym))
+            except Exception as exc:
+                print(f"  !! final-session retry failed for {sym}: {type(exc).__name__}")
+        if expected not in months.index:
+            print(f"::warning::Missing verified {expected} final-session close: {sym}, adjusted={adjusted}")
+        return months
     return _retry(go)
 
 
@@ -379,11 +394,12 @@ def main():
     book, fmom, smom, fpick, spick, cash = compute_book(raw, spx, history)
     print("fetching London lines...")
     funds, fx = gbp_panel(LSE)
-    bench = {}
+    bench, bench_prices = {}, {}
     for label, (sym, cur) in BENCH.items():
         m = yahoo_monthly(sym, adjusted=True, start="2013-01-01")
         if cur == "USD":
             m = (m * fx["USD"].reindex(m.index)).dropna()
+        bench_prices[label] = m
         bench[label] = m.pct_change(fill_method=None) * 100
     track = build_track(book, funds, pd.DataFrame(bench))
     record_path = DATA / "track_record.csv"
@@ -393,6 +409,26 @@ def main():
         # Completed, published returns stay fixed. Only append newly priced months.
         track = append_track(recorded, track)
     track.to_csv(record_path)
+
+    held = book.loc[expected]
+    inputs = []
+    if not bool(held["cash"]):
+        for leg in ("factor", "sector"):
+            slot = held[leg]
+            for month in (expected - 1, expected):
+                value = funds.at[month, slot] if month in funds.index and slot in funds else np.nan
+                inputs.append({"ticker": LSE[slot], "month": str(month),
+                               "available": bool(pd.notna(value)), "basis": "GBP adjusted close"})
+    for label, prices in bench_prices.items():
+        for month in (expected - 1, expected):
+            inputs.append({"ticker": BENCH[label][0], "month": str(month),
+                           "available": bool(month in prices.index and pd.notna(prices.get(month))),
+                           "basis": "GBP adjusted close"})
+    price_status = {"expected": str(expected), "performanceThrough": str(track.index[-1]),
+                    "inputs": inputs, "missing": [r for r in inputs if not r["available"]]}
+    (DATA / "price_status.json").write_text(json.dumps(price_status, indent=2) + "\n")
+    if track.index[-1] < expected:
+        print(f"::warning::Performance incomplete: through {track.index[-1]}, expected {expected}")
 
     book.to_csv(DATA / "final_book.csv")
     out = track.rename(columns={"Lodestar": "MarketFighter (recovered, LSE)"})

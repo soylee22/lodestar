@@ -1,6 +1,17 @@
 name: Monthly signal and page refresh
 
 on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/monthly.yml'
+      - 'pipeline/**'
+      - 'tests/**'
+      - 'build_data.py'
+      - 'run_monthly.py'
+      - 'requirements.txt'
+      - 'universe.py'
+      - 'index.html'
   schedule:
     # Refresh daily so delayed month-end prices are picked up after the 5th too.
     # Signals are archived. Alerts remain once per signal month.
@@ -26,6 +37,8 @@ jobs:
       TZ: Europe/London
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: main
 
       - uses: actions/setup-python@v5
         with:
@@ -42,7 +55,7 @@ jobs:
           TG_TOKEN: ${{ secrets.TG_TOKEN }}
           TG_CHAT: ${{ secrets.TG_CHAT }}
           GMAIL_APP_PASSWORD: ${{ secrets.GMAIL_APP_PASSWORD }}
-          BUILD_ONLY: ${{ github.event_name == 'workflow_dispatch' && !inputs.send_alerts }}
+          BUILD_ONLY: ${{ github.event_name != 'schedule' && !inputs.send_alerts }}
         run: |
           if [ "$BUILD_ONLY" = "true" ]; then
             python run_monthly.py --build-only
@@ -54,7 +67,7 @@ jobs:
         run: |
           git config user.name  "soylee22"
           git config user.email "leeslater1992@gmail.com"
-          git add data.js data/panel_local.csv data/last_alert.json data/holdings.json data/signal_history.json data/fund_prices_gbp.csv data/track_record.csv
+          git add data.js data/panel_local.csv data/last_alert.json data/holdings.json data/signal_history.json data/fund_prices_gbp.csv data/track_record.csv data/price_status.json
           if git diff --staged --quiet; then
             echo "nothing changed"
           else
