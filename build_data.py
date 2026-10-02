@@ -42,6 +42,7 @@ if not (DATA_DIR / "final_tradable.csv").is_file():
 sys.path.insert(0, str(TOOL_DIR))
 from universe import FACTOR_NAMES, SECTOR_NAMES, TRADABLE  # noqa: E402
 from pipeline.lookthrough import consolidate, company_domain
+from pipeline.logos import company_key, load_registry
 
 RISK_FREE = 0.02  # annual, used for Sharpe and Sortino
 
@@ -176,7 +177,7 @@ def sector_meta(raw) -> tuple:
 
 
 def build_book(current: dict) -> dict | None:
-    """Look-through into the two funds actually held: top ten and fundamentals.
+    """Look-through into the two model funds at target allocation weights.
 
     Fund weights are shares of that fund; book weights are the same figure scaled by
     the leg's 50%, so every number on the page is directly comparable. Written by the
@@ -189,6 +190,8 @@ def build_book(current: dict) -> dict | None:
         raw = json.loads(path.read_text(encoding="utf-8"))
     except (ValueError, OSError):
         return None
+    if raw.get('as_at') != current['asof']:
+        return None
 
     live = {leg["leg"].lower(): leg for leg in current["legs"]}
     legs, stale = [], False
@@ -200,6 +203,11 @@ def build_book(current: dict) -> dict | None:
             return None                       # a half-drawn book is worse than none
         held = live[key]
         if src.get("slot") and src["slot"] != held["code"]:
+            stale = True
+        if src.get('ticker') and src['ticker'] != held['lse']:
+            stale = True
+        snapshot = src.get('snapshot_date')
+        if snapshot and snapshot[:7] != current['asof']:
             stale = True
         leg_w = float(held["weight"])         # 50, the leg's share of the book
 
@@ -248,6 +256,11 @@ def build_book(current: dict) -> dict | None:
             "code": held["code"],
             "name": held["name"],
             "ticker": str(src.get("ticker") or held["lse"]),
+            "source": src.get('source') or ('iShares dated equity holdings' if src.get('all_holdings') else 'Yahoo Finance top-ten holdings'),
+            "snapshotDate": snapshot,
+            "sourceUrl": src.get('source_url'),
+            "fundamentalsSource": src.get('fundamentals_source', 'Yahoo Finance'),
+            "fundamentalsFetchedAt": src.get('fundamentals_fetched_at') or raw.get('fetched_at'),
             "isin": held["isin"],
             "legWeight": r6(leg_w),
             "top10": r6(top10),                       # % of the fund
@@ -275,8 +288,18 @@ def build_book(current: dict) -> dict | None:
                           'domain': company_domain(r.get('website')),
                           'w': r['weight'] * 100, 'bw': r['weight'] * leg['legWeight']}
                          for r in rows]
-        combined_legs.append({**leg, 'holdings': positions})
+        combined_legs.append({**leg, 'holdings': positions,
+                              'netDisclosureWeight': src.get('net_disclosed_weight'),
+                              'disclosureRoundingTolerance': src.get('disclosure_rounding_tolerance')})
     consolidated = consolidate(combined_legs)
+    logo_file = DATA_DIR / 'company_logos.json'
+    logo_registry = load_registry(logo_file)
+    for company in consolidated['holdings']:
+        company['logo'] = next((logo_registry[symbol]['path']
+                                for symbol in company['symbols']
+                                if symbol in logo_registry
+                                and logo_registry[symbol]['companyKey'] == company_key(company['name'])
+                                and (HERE / logo_registry[symbol]['path']).is_file()), None)
     consolidated['fullDisclosure'] = all(raw['legs'][l['leg'].lower()].get('all_holdings') for l in legs)
     consolidated['sources'] = [{'ticker': l['ticker'],
                                 'snapshotDate': raw['legs'][l['leg'].lower()].get('snapshot_date'),

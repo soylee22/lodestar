@@ -12,13 +12,19 @@ ROOT = Path(__file__).resolve().parents[1]
 
 
 class PageTests(unittest.TestCase):
-    def compile_page(self, cash=False, holdings=None):
+    def compile_page(self, cash=False, holdings=None, company_logos=None):
         with tempfile.TemporaryDirectory() as folder:
             root = Path(folder)
             data = root / 'data'
             data.mkdir()
             if holdings:
                 (data / 'holdings.json').write_text(json.dumps(holdings))
+            if company_logos:
+                (data / 'company_logos.json').write_text(json.dumps(company_logos))
+                for entry in company_logos.values():
+                    path = root / entry['path']
+                    path.parent.mkdir(parents=True, exist_ok=True)
+                    path.write_bytes(b'checked separately as an image')
             for name in ['build_data.py', 'universe.py']:
                 shutil.copy(ROOT / name, root / name)
             shutil.copytree(ROOT / 'pipeline', root / 'pipeline')
@@ -79,6 +85,33 @@ class PageTests(unittest.TestCase):
         self.assertEqual(combined['holdings'][1]['bw'], 15.)
         self.assertEqual(combined['other'], 65.)
         self.assertEqual(page['book']['legs'][0]['holdings'][0]['bw'], 4.)
+
+    def test_same_fund_with_old_month_or_wrong_identity_is_not_shown(self):
+        for fault in ['month', 'date', 'ticker']:
+            raw = {'as_at': '2026-02', 'legs': {}}
+            for key, slot, ticker in [('factor', 'USA_VAL', 'IUVL.L'), ('sector', 'INFOTECH', 'IUIT.L')]:
+                raw['legs'][key] = {'slot': slot, 'ticker': ticker,
+                    'snapshot_date': '2026-02-27',
+                    'holdings': [{'symbol': 'MU', 'name': 'Micron', 'weight': .2}]}
+            if fault == 'month':
+                raw['as_at'] = '2026-01'
+            elif fault == 'date':
+                raw['legs']['factor']['snapshot_date'] = '2026-01-30'
+            else:
+                raw['legs']['factor']['ticker'] = 'WRONG.L'
+            with self.subTest(fault=fault):
+                self.assertIsNone(self.compile_page(holdings=raw)['book'])
+
+    def test_logo_matches_the_company_identity_instead_of_only_its_ticker(self):
+        raw = {'as_at': '2026-02', 'legs': {}}
+        for key, slot in [('factor', 'USA_VAL'), ('sector', 'INFOTECH')]:
+            raw['legs'][key] = {'slot': slot, 'holdings': [
+                {'symbol': 'MU', 'name': 'Micron', 'weight': .2}]}
+        for name, expected in [('MICRON', 'assets/company-logos/MU.png'), ('ANOTHER COMPANY', None)]:
+            registry = {'MU': {'companyKey': name, 'path': 'assets/company-logos/MU.png'}}
+            with self.subTest(name=name):
+                page = self.compile_page(holdings=raw, company_logos=registry)
+                self.assertEqual(page['book']['consolidated']['holdings'][0]['logo'], expected)
 
 
 if __name__ == '__main__':

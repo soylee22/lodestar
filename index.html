@@ -737,12 +737,13 @@ html{scroll-behavior:smooth; scroll-padding-top:72px}
 .ring-centre strong{font:400 clamp(34px,4vw,49px)/1.1 var(--serif);letter-spacing:-.04em}
 .ring-centre span{font-size:12px;color:var(--ink-2);margin-top:8px}
 .ring-centre small{font:10px var(--mono);color:var(--muted);margin-top:9px;text-transform:uppercase;letter-spacing:.05em}
+.ring-logo{width:38px;height:38px;object-fit:contain;background:#fff;border-radius:8px;padding:4px;margin-bottom:8px}
 .combined-summary{max-width:340px;margin:auto;font-size:12px;line-height:1.7;color:var(--ink-2)}
 .exposure-list{display:grid;gap:0}
 .exposure-row{display:grid;grid-template-columns:36px minmax(0,1fr) auto;align-items:center;gap:13px;width:100%;padding:13px 8px;border:0;border-bottom:1px solid var(--rule);background:transparent;color:var(--ink);text-align:left;cursor:pointer;font-family:var(--sans)}
 .exposure-row:hover,.exposure-row.selected{background:color-mix(in srgb,#b8a2d6 12%,transparent)}
 .company-icon{width:34px;height:34px;border-radius:50%;background:var(--surface-sunk);border:1px solid var(--rule);display:grid;place-items:center;position:relative;font:10px var(--mono);color:var(--ink-2)}
-.company-icon img{position:absolute;width:21px;height:21px;object-fit:contain;background:var(--surface-sunk)}
+.company-icon img{position:absolute;width:26px;height:26px;object-fit:contain;background:#fff;border-radius:50%;padding:3px}
 .exposure-name{display:block;font-size:13px;font-weight:600}
 .exposure-detail{display:block;font-size:10.5px;color:var(--ink-2);margin-top:5px;line-height:1.5}
 .exposure-weight{font:500 19px var(--mono);letter-spacing:-.05em;white-space:nowrap}
@@ -804,7 +805,7 @@ html{scroll-behavior:smooth; scroll-padding-top:72px}
     <aside class="herocol rise">
       <div class="panel" aria-labelledby="bookTitle">
         <div class="panel-hd">
-          <div class="t" id="bookTitle">The book, right now</div>
+          <div class="t" id="bookTitle">Current target allocation</div>
           <div class="s" id="bookAsOf"></div>
         </div>
         <div class="tiles" id="bookTiles"></div>
@@ -843,15 +844,15 @@ html{scroll-behavior:smooth; scroll-padding-top:72px}
   <div class="consolidated" id="consolidated" hidden>
     <div class="consolidated-hd"><h3>Consolidated portfolio</h3><span id="combinedAsOf"></span></div>
     <div class="combined-grid">
-      <div><div class="exposure-ring" id="exposureRing"><div class="ring-centre"><strong id="ringWeight"></strong><span id="ringName"></span><small id="ringSource"></small></div></div><p class="combined-summary" id="combinedSummary"></p></div>
+      <div><div class="exposure-ring" id="exposureRing"><div class="ring-centre"><img class="ring-logo" id="ringLogo" alt="" hidden><strong id="ringWeight"></strong><span id="ringName"></span><small id="ringSource"></small></div></div><p class="combined-summary" id="combinedSummary"></p></div>
       <div class="exposure-list" id="exposureList" aria-label="Combined company weights"></div>
     </div>
     <p class="exposure-note" id="combinedNote"></p>
   </div>
   <div class="card rise">
     <div class="card-hd">
-      <div class="ttl">Portfolio breakdown by fund</div>
-      <div class="sub" style="margin-left:auto">Every block is one company, sized by its share of the book</div>
+      <div class="ttl">Each fund's contribution to the portfolio</div>
+      <div class="sub" style="margin-left:auto">Block percentages are shares of the whole portfolio</div>
     </div>
     <div class="card-bd">
       <div class="scroll">
@@ -1508,9 +1509,9 @@ function glyph(key){
    have to learn it again. Weight within a fund is a separate meter on a
    scale shared by both columns, so the two are directly comparable.
 
-   No company logo is fetched or drawn. Each holding wears a monogram: its
-   ticker in the page's mono, over the sector glyph already used by the
-   universe list, in one container shape.
+   The consolidated view uses cached company logos where verified. Its
+   selected company also appears in the ring centre. Ticker text remains
+   available when an image is missing. Fund detail rows retain monograms.
    ══════════════════════════════════════════════════════════════════════ */
 (function insideTheBook(){
   var B = DATA.book;
@@ -1551,8 +1552,9 @@ function glyph(key){
     + " account for " + n1(B.namedBook) + "% of the portfolio.";
 
   $("#concFoot").textContent =
-    "Each half shows one fund's top ten and the remaining holdings. This breakdown uses target allocation weights. "
-    + (B.consolidated && B.consolidated.fullDisclosure ? "Issuer holdings dated " + B.consolidated.sources[0].snapshotDate + "." : "The holdings feed was refreshed for the " + B.asOfPretty + " signal. Its underlying snapshot date is unavailable.");
+    "Each half shows one fund's top ten and everything outside that top ten. Percentages are of the whole portfolio, using the target allocation. "
+    + "A 20% holding in a fund allocated 50% contributes 10% of the portfolio. The rows below show percentages of each fund. "
+    + B.legs.map(function(l){return l.ticker + ": " + l.source + (l.snapshotDate ? ", dated " + l.snapshotDate : ", snapshot date unavailable");}).join(". ") + ".";
 
   function pct2(x){return x == null ? "—" : nf(x,2) + "%";}
   var C = B.consolidated;
@@ -1565,6 +1567,7 @@ function glyph(key){
     $("#combinedNote").textContent = "Each weight adds the company's share of each ETF multiplied by that ETF's target portfolio weight. "
       + (C.fullDisclosure ? "The issuer's equity holdings are combined. Other holdings include cash and positions outside the equity disclosure. " : "Available holdings are combined. The top-ten fallback leaves undisclosed positions in Other holdings, which may include more exposure to the companies shown. ")
       + "Weights use the 50/50 target mix. Market drift can change the actual split. "
+      + (C.other < 0 ? "Net non-equity positions are negative. Ring segments show shares of gross equity exposure. All percentage labels remain shares of net portfolio value. " : "")
       + (dated.length ? dated.map(function(source){return source.ticker + " holdings dated " + source.snapshotDate;}).join(". ") + ". " : "Holdings refreshed for the " + B.asOfPretty + " signal. The feed does not supply its underlying snapshot date.");
     dated.forEach(function(source){
       if(source.url)$("#combinedNote").appendChild(el("a",{href:source.url,style:"margin-left:12px"},source.ticker + " source"));
@@ -1575,7 +1578,8 @@ function glyph(key){
     svg.setAttribute("role", "group");
     svg.setAttribute("aria-label", "Effective company holdings, with undisclosed positions retained in the total");
     ring.insertBefore(svg, ring.firstChild);
-    var items = C.holdings.concat([{sym:"Other",name:"Other holdings",bw:C.other,contributions:[]}]);
+    var items = C.holdings.concat([{sym:"Other",name:C.other < 0 ? "Net cash and other positions" : "Other holdings",bw:C.other,contributions:[]}]);
+    var ringTotal = Math.max(100, C.coverage);
     var circumference = 2 * Math.PI * 48, offset = 0;
     function select(i){
       var h = items[i];
@@ -1583,14 +1587,21 @@ function glyph(key){
       buttons.forEach(function(b,j){ b.classList.toggle("selected",j === i); b.setAttribute("aria-pressed",String(j === i)); });
       $("#ringWeight").textContent = pct2(h.bw);
       $("#ringName").textContent = shortName(h.name);
+      var logo = $("#ringLogo");
+      logo.hidden = !h.logo;
+      if (h.logo){
+        logo.setAttribute("src",h.logo);
+        logo.onerror = function(){logo.hidden = true;};
+      }
       $("#ringSource").textContent = h.shared ? "Held in both funds" : h.contributions.length ? h.contributions[0].leg + " fund" : "Outside disclosure";
     }
     items.forEach(function(h,i){
       var circle = document.createElementNS("http://www.w3.org/2000/svg","circle");
       circle.setAttribute("cx","60"); circle.setAttribute("cy","60"); circle.setAttribute("r","48");
       circle.setAttribute("stroke", "color-mix(in srgb, var(--ink) " + (i === items.length-1 ? 10 : 25 + (i % 5)*10) + "%, var(--surface))");
-      circle.setAttribute("stroke-dasharray", Math.max(0,h.bw*circumference/100 - .45) + " " + circumference);
-      circle.setAttribute("stroke-dashoffset",-offset); offset += h.bw*circumference/100;
+      var arcWeight = Math.max(0,h.bw) / ringTotal;
+      circle.setAttribute("stroke-dasharray", Math.max(0,arcWeight*circumference - .45) + " " + circumference);
+      circle.setAttribute("stroke-dashoffset",-offset); offset += arcWeight*circumference;
       circle.setAttribute("tabindex","0"); circle.setAttribute("role","button");
       circle.setAttribute("aria-label",h.name + ", " + pct2(h.bw) + " of the portfolio");
       circle.addEventListener("pointerenter",function(){select(i);});
@@ -1600,8 +1611,8 @@ function glyph(key){
       svg.appendChild(circle); circles.push(circle);
       var row = el("button",{class:"exposure-row",type:"button","aria-pressed":"false"});
       var icon = el("span",{class:"company-icon","aria-hidden":"true"},h.sym === "Other" ? "+" : h.sym.slice(0,3));
-      if (h.domain){
-        var img = el("img",{src:"https://www.google.com/s2/favicons?domain=" + encodeURIComponent(h.domain) + "&sz=64",alt:"",loading:"lazy",referrerpolicy:"no-referrer"});
+      if (h.logo || h.domain){
+        var img = el("img",{src:h.logo || "https://www.google.com/s2/favicons?domain=" + encodeURIComponent(h.domain) + "&sz=64",alt:"",loading:"lazy",referrerpolicy:"no-referrer"});
         img.addEventListener("error",function(){img.remove();}); icon.appendChild(img);
       }
       row.appendChild(icon);
@@ -1609,7 +1620,7 @@ function glyph(key){
       if(h.shared)name.appendChild(el("span",{class:"exposure-shared"},"Both ETFs"));
       text.appendChild(name);
       var detail = h.contributions.map(function(c){return c.ticker.replace(/\.L$/,"") + " " + pct2(c.fundWeight) + " × " + pct2(B.legs.filter(function(l){return l.leg === c.leg;})[0].legWeight) + " = " + pct2(c.bookWeight);}).join(" + ");
-      text.appendChild(el("span",{class:"exposure-detail"},detail || "Outside the disclosed equity positions"));
+      text.appendChild(el("span",{class:"exposure-detail"},detail || (C.other < 0 ? "Net non-equity positions and disclosure rounding" : "Outside the disclosed equity positions")));
       row.appendChild(text); row.appendChild(el("span",{class:"exposure-weight"},pct2(h.bw)));
       row.addEventListener("click",function(){select(i);});
       row.addEventListener("pointerenter",function(){select(i);});
@@ -1718,8 +1729,8 @@ function glyph(key){
         + '<div class="r"><i class="sw" style="width:9px;height:9px;border-radius:2px;background:'
         + 'var(--rule-2)"></i><span class="nm">Outside the top ten</span>'
         + '<span class="vl">' + pct1(l.restBook) + '</span></div>'
-        + '<div class="foot">' + pct1(100 - l.top10) + " of the fund, spread across holdings the fund "
-        + "does not publish in its top ten.</div>");
+        + '<div class="foot">' + pct1(100 - l.top10) + " of the fund, including holdings outside this top-ten chart and cash. "
+        + "The combined company view above uses all available disclosed equities.</div>");
       track.appendChild(r);
     });
     node.appendChild(track);
@@ -1837,7 +1848,10 @@ function glyph(key){
     var note = el("div", {class:"colnote"});
     note.innerHTML = "Top ten is <b>" + pct1(l.top10) + " of the fund</b>, " + pct1(l.top10Book)
       + " of the whole book. Bars are share of the fund, on one scale across both columns. "
-      + "Open any row for its fundamentals.";
+      + esc(l.source) + (l.snapshotDate ? ", dated " + esc(l.snapshotDate) : ", snapshot date unavailable") + ". "
+      + "Company figures come from " + esc(l.fundamentalsSource)
+      + (l.fundamentalsFetchedAt ? ", retrieved " + esc(l.fundamentalsFetchedAt.slice(0,10)) : "")
+      + ". Their reporting periods vary. Open any row for these figures.";
     col.appendChild(note);
 
     l.holdings.forEach(function(h){ col.appendChild(holdingRow(l, i, h)); });
@@ -2669,7 +2683,7 @@ function glyph(key){
 
   if (DATA.book && DATA.book.legs && DATA.book.legs.length === 2){
     $("#appBook").hidden = false;
-    $("#appBookAsOf").textContent = (DATA.book.consolidated.fullDisclosure ? "Issuer holdings dated " + DATA.book.consolidated.sources[0].snapshotDate : "Top-ten feed refreshed for " + DATA.book.asOfPretty + " signal. Snapshot date unavailable.");
+    $("#appBookAsOf").textContent = DATA.book.legs.map(function(l){return l.ticker + ": " + l.source + (l.snapshotDate ? ", dated " + l.snapshotDate : ", snapshot date unavailable") + ". Company figures: " + l.fundamentalsSource + (l.fundamentalsFetchedAt ? ", retrieved " + l.fundamentalsFetchedAt.slice(0,10) : "") + ".";}).join(" ");
     var bookRows = [];
     DATA.book.legs.forEach(function(l){
       l.holdings.forEach(function(h){

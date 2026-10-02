@@ -1,0 +1,1184 @@
+{
+  "AAPL": {
+    "companyKey": "APPLE",
+    "path": "assets/company-logos/AAPL.png",
+    "sha256": "41483c742e810831c12663ef2040d306f81440e15126f34b623dd08a09bbb63e",
+    "source": "https://images.financialmodelingprep.com/symbol/AAPL.png"
+  },
+  "ACGL": {
+    "companyKey": "ARCH CAPITAL GROUP",
+    "path": "assets/company-logos/ACGL.png",
+    "sha256": "a376983c9f68a100684e7a765c9ab6bef62681ba2e2f2fd4548b1cda32c25045",
+    "source": "https://images.financialmodelingprep.com/symbol/ACGL.png"
+  },
+  "ACN": {
+    "companyKey": "ACCENTURE PLC",
+    "path": "assets/company-logos/ACN.png",
+    "sha256": "df0fc64a51e778c4e31cde91f12ba54d138e2686e337e7a93a83b0a22e5f7eca",
+    "source": "https://images.financialmodelingprep.com/symbol/ACN.png"
+  },
+  "ADBE": {
+    "companyKey": "ADOBE INC",
+    "path": "assets/company-logos/ADBE.png",
+    "sha256": "e48f89d4e1ebee9f4679a05dec4386adc62549f10bb89aa8886ff3a2629309a3",
+    "source": "https://images.financialmodelingprep.com/symbol/ADBE.png"
+  },
+  "ADI": {
+    "companyKey": "ANALOG DEVICES",
+    "path": "assets/company-logos/ADI.png",
+    "sha256": "45fbe60477ea2a4d84cedf33221b44f4ed4822b781bce664228d84bc4830303f",
+    "source": "https://images.financialmodelingprep.com/symbol/ADI.png"
+  },
+  "ADM": {
+    "companyKey": "ARCHER DANIELS MIDLAND",
+    "path": "assets/company-logos/ADM.png",
+    "sha256": "e01dbed3cbfa90792f3075a06e79cdd820f4cc81348ce955d620babbf2923afe",
+    "source": "https://images.financialmodelingprep.com/symbol/ADM.png"
+  },
+  "ADSK": {
+    "companyKey": "AUTODESK",
+    "path": "assets/company-logos/ADSK.png",
+    "sha256": "4f1f84da79c8e2c9a1aa57f9997302b242b60e2eff872ba4e978ee904e7f0106",
+    "source": "https://images.financialmodelingprep.com/symbol/ADSK.png"
+  },
+  "AIG": {
+    "companyKey": "AMERICAN INTERNATIONAL GROUP",
+    "path": "assets/company-logos/AIG.png",
+    "sha256": "ebc21dd866deff2946aee83256db02bb4493fdd66b4f188578fdeeb1c0f11d6e",
+    "source": "https://images.financialmodelingprep.com/symbol/AIG.png"
+  },
+  "AKAM": {
+    "companyKey": "AKAMAI TECHNOLOGIES INC",
+    "path": "assets/company-logos/AKAM.png",
+    "sha256": "4638befd1f8e3acb8ed1244d19e918c0fd9746273faace85178127a238cb0671",
+    "source": "https://images.financialmodelingprep.com/symbol/AKAM.png"
+  },
+  "AMAT": {
+    "companyKey": "APPLIED MATERIAL INC",
+    "path": "assets/company-logos/AMAT.png",
+    "sha256": "7627d2610c4d9e8442c2c06969ebdf1b15169199fc3f836a95cc36021efab0ab",
+    "source": "https://images.financialmodelingprep.com/symbol/AMAT.png"
+  },
+  "AMCR": {
+    "companyKey": "AMCOR PLC",
+    "path": "assets/company-logos/AMCR.png",
+    "sha256": "2c978f7f69cce283b5142e5abc2f193b6dbceccc06bc8638833b445438b82a04",
+    "source": "https://images.financialmodelingprep.com/symbol/AMCR.png"
+  },
+  "AMD": {
+    "companyKey": "ADVANCED MICRO DEVICES",
+    "path": "assets/company-logos/AMD.png",
+    "sha256": "2c94246f0c6dd24e4136d603400d486def9be17696db53d7841533011b3a99c9",
+    "source": "https://images.financialmodelingprep.com/symbol/AMD.png"
+  },
+  "ANET": {
+    "companyKey": "ARISTA NETWORKS",
+    "path": "assets/company-logos/ANET.png",
+    "sha256": "8d92bfcf7390edba1ab178f3c090d2a5f36020e29a36cb532ae3bcf8020ba09f",
+    "source": "https://images.financialmodelingprep.com/symbol/ANET.png"
+  },
+  "APH": {
+    "companyKey": "AMPHENOL CORP",
+    "path": "assets/company-logos/APH.png",
+    "sha256": "4ddf287046f016368072e5c136eee256aa5737fb439696b00150e28bb26a0722",
+    "source": "https://images.financialmodelingprep.com/symbol/APH.png"
+  },
+  "AVGO": {
+    "companyKey": "BROADCOM INC",
+    "path": "assets/company-logos/AVGO.png",
+    "sha256": "0afd68b45dbefb8ad9e75bc9cda3898a3d75ab026dde215cfe9def48d4fb4a41",
+    "source": "https://images.financialmodelingprep.com/symbol/AVGO.png"
+  },
+  "BAC": {
+    "companyKey": "BANK OF AMERICA",
+    "path": "assets/company-logos/BAC.png",
+    "sha256": "b3b40cd5048cab28bd39df62fb7f4da0c13547cff272cbfc6951dc1c1f591643",
+    "source": "https://images.financialmodelingprep.com/symbol/BAC.png"
+  },
+  "BBY": {
+    "companyKey": "BEST BUY",
+    "path": "assets/company-logos/BBY.png",
+    "sha256": "ec54a6505ebf2dcea01d64e7d035dedb19de63035b3766bc864cefe295260d9e",
+    "source": "https://images.financialmodelingprep.com/symbol/BBY.png"
+  },
+  "BDX": {
+    "companyKey": "BECTON DICKINSON",
+    "path": "assets/company-logos/BDX.png",
+    "sha256": "b5e431a818fde088f9146f5482323635e3897f1e1b546654cdb7bdb4c4b3f440",
+    "source": "https://images.financialmodelingprep.com/symbol/BDX.png"
+  },
+  "BG": {
+    "companyKey": "BUNGE GLOBAL SA",
+    "path": "assets/company-logos/BG.png",
+    "sha256": "012ddff10561f5a413d8d9a95de63489df275135ba1600cc8a3a9c4c39d4ba78",
+    "source": "https://images.financialmodelingprep.com/symbol/BG.png"
+  },
+  "BIIB": {
+    "companyKey": "BIOGEN",
+    "path": "assets/company-logos/BIIB.png",
+    "sha256": "707722b4e6956623a8f7e82a3c707ce868e04678cd9ea50aab2a9ae983821a84",
+    "source": "https://images.financialmodelingprep.com/symbol/BIIB.png"
+  },
+  "BMY": {
+    "companyKey": "BRISTOL MYERS SQUIBB",
+    "path": "assets/company-logos/BMY.png",
+    "sha256": "d4581abf90dd21a6261bb3d14fffe7bfa6be09e5942cb4870431e6a89b5974e2",
+    "source": "https://images.financialmodelingprep.com/symbol/BMY.png"
+  },
+  "C": {
+    "companyKey": "CITIGROUP",
+    "path": "assets/company-logos/C.png",
+    "sha256": "60de9540d5421b99daacce2a0b51670a00ac3785bdc27ca5d3247f38b8b7438d",
+    "source": "https://images.financialmodelingprep.com/symbol/C.png"
+  },
+  "CCL": {
+    "companyKey": "CARNIVAL CORP LTD",
+    "path": "assets/company-logos/CCL.png",
+    "sha256": "c0d8f9e6ef14ce2b528a62bdf220196499fb7fe7835affdb4ff1b6df51caa920",
+    "source": "https://images.financialmodelingprep.com/symbol/CCL.png"
+  },
+  "CDE": {
+    "companyKey": "COEUR MINING",
+    "path": "assets/company-logos/CDE.png",
+    "sha256": "b404949e7b4347447f9ff2e5c8c8f16b52f74cb78c3fb3de7c5bc0eeaf46dd8f",
+    "source": "https://images.financialmodelingprep.com/symbol/CDE.png"
+  },
+  "CDNS": {
+    "companyKey": "CADENCE DESIGN SYSTEMS",
+    "path": "assets/company-logos/CDNS.png",
+    "sha256": "b2230e5e41081c6e30343181ef138ecb43402a5697c1369fa5d3cabd9d757a5e",
+    "source": "https://images.financialmodelingprep.com/symbol/CDNS.png"
+  },
+  "CDW": {
+    "companyKey": "CDW",
+    "path": "assets/company-logos/CDW.png",
+    "sha256": "fbb257dc8251fbe5be85af2a6cc09d54637bc78d6f121d40817593ec911a26a9",
+    "source": "https://images.financialmodelingprep.com/symbol/CDW.png"
+  },
+  "CF": {
+    "companyKey": "CF INDUSTRIES HOLDINGS INC",
+    "path": "assets/company-logos/CF.png",
+    "sha256": "2ae017fc33ec9d60080c6a24c9b47bee04c40bdc023965f2db64950efefc48be",
+    "source": "https://images.financialmodelingprep.com/symbol/CF.png"
+  },
+  "CFG": {
+    "companyKey": "CITIZENS FINANCIAL GROUP INC",
+    "path": "assets/company-logos/CFG.png",
+    "sha256": "5324036a54ed994a8852cd106950fc910bbf009110460203624adb28c03540ab",
+    "source": "https://images.financialmodelingprep.com/symbol/CFG.png"
+  },
+  "CHTR": {
+    "companyKey": "CHARTER COMMUNICATIONS",
+    "path": "assets/company-logos/CHTR.png",
+    "sha256": "c5304c680e7fd7e5bc10cb5b95316433737644c8ec4eabf6f7d3e4d590b81a7c",
+    "source": "https://images.financialmodelingprep.com/symbol/CHTR.png"
+  },
+  "CI": {
+    "companyKey": "CIGNA",
+    "path": "assets/company-logos/CI.png",
+    "sha256": "03401d337ab4b65529a0c1f4ea2b638a1603ebee389b933b19006f06439442ba",
+    "source": "https://images.financialmodelingprep.com/symbol/CI.png"
+  },
+  "CIEN": {
+    "companyKey": "CIENA",
+    "path": "assets/company-logos/CIEN.png",
+    "sha256": "85278cc5df3ffbacd9581b3b10d9bca4407d9087098dfe7e96d284989de02f4c",
+    "source": "https://images.financialmodelingprep.com/symbol/CIEN.png"
+  },
+  "CMCSA": {
+    "companyKey": "COMCAST",
+    "path": "assets/company-logos/CMCSA.png",
+    "sha256": "8a3fe995dc7283150ef29e9c8732a7726c8dc77967eae5a204f75ee2ac30965c",
+    "source": "https://images.financialmodelingprep.com/symbol/CMCSA.png"
+  },
+  "CNC": {
+    "companyKey": "CENTENE CORP",
+    "path": "assets/company-logos/CNC.png",
+    "sha256": "c88a3955965ca3eda8fb019370375a60a53e040fe6028a207f29f22c9c53672b",
+    "source": "https://images.financialmodelingprep.com/symbol/CNC.png"
+  },
+  "COF": {
+    "companyKey": "CAPITAL ONE FINANCIAL CORP",
+    "path": "assets/company-logos/COF.png",
+    "sha256": "11f4d4fe74ed66a287ce7c602f0341639096acd716224de4894da5b421cbeeaf",
+    "source": "https://images.financialmodelingprep.com/symbol/COF.png"
+  },
+  "COHR": {
+    "companyKey": "COHERENT",
+    "path": "assets/company-logos/COHR.png",
+    "sha256": "0adede12326356e4799f7afac3cadb9d04313e4e982b2d6de4524d3cc1b923bc",
+    "source": "https://images.financialmodelingprep.com/symbol/COHR.png"
+  },
+  "COO": {
+    "companyKey": "COOPER",
+    "path": "assets/company-logos/COO.png",
+    "sha256": "59fb4aa4267a033fbd69ba5738bb538264a8ae6ba6e2e71082f7bb481f4c6fd0",
+    "source": "https://images.financialmodelingprep.com/symbol/COO.png"
+  },
+  "CRBG": {
+    "companyKey": "COREBRIDGE FINANCIAL INC",
+    "path": "assets/company-logos/CRBG.png",
+    "sha256": "91da88401d7146c30b8c16cc633d4010bb40b6d05eee7534f85c692b1b7ba2d8",
+    "source": "https://images.financialmodelingprep.com/symbol/CRBG.png"
+  },
+  "CRM": {
+    "companyKey": "SALESFORCE",
+    "path": "assets/company-logos/CRM.png",
+    "sha256": "abd0c3efe9b4cd4541fbc642b1cf7575898361ca1d89d03b857d7bc0fd2fede5",
+    "source": "https://images.financialmodelingprep.com/symbol/CRM.png"
+  },
+  "CRWD": {
+    "companyKey": "CROWDSTRIKE HOLDINGS",
+    "path": "assets/company-logos/CRWD.png",
+    "sha256": "dc8d79793af5573e8c89256d46de5fb467ef4bd1b52158f06ae99d251e1b7adf",
+    "source": "https://images.financialmodelingprep.com/symbol/CRWD.png"
+  },
+  "CSCO": {
+    "companyKey": "CISCO SYSTEMS INC",
+    "path": "assets/company-logos/CSCO.png",
+    "sha256": "b07274fdd0c9d14d8f0d4ad952888ff2ea47b5315fe95e1b0b35317e9697989c",
+    "source": "https://images.financialmodelingprep.com/symbol/CSCO.png"
+  },
+  "CSX": {
+    "companyKey": "CSX",
+    "path": "assets/company-logos/CSX.png",
+    "sha256": "70f23b1f8b669275bc85f67fdd7def0ae6c1e9650d91e88b501d5c39979dbf9c",
+    "source": "https://images.financialmodelingprep.com/symbol/CSX.png"
+  },
+  "CTSH": {
+    "companyKey": "COGNIZANT TECHNOLOGY SOLUTIONS CLA",
+    "path": "assets/company-logos/CTSH.png",
+    "sha256": "b47b01afb33e2f62f61a1f5a0451683815778ee1de23c190266398ad5c4f9e55",
+    "source": "https://images.financialmodelingprep.com/symbol/CTSH.png"
+  },
+  "CVS": {
+    "companyKey": "CVS HEALTH",
+    "path": "assets/company-logos/CVS.png",
+    "sha256": "ef6eb8c879ca663b43c712f49a6563c1e191b0c5169f250b0057c0e40f254baa",
+    "source": "https://images.financialmodelingprep.com/symbol/CVS.png"
+  },
+  "D": {
+    "companyKey": "DOMINION ENERGY",
+    "path": "assets/company-logos/D.png",
+    "sha256": "c7a5add30ae60ac527eb7172d165ea43bdbb0f5c456ea18ca056b6d3f9e8158d",
+    "source": "https://images.financialmodelingprep.com/symbol/D.png"
+  },
+  "DAL": {
+    "companyKey": "DELTA AIR LINES",
+    "path": "assets/company-logos/DAL.png",
+    "sha256": "7206af3c06e7261965b6af8a72fa4eab1a66e93243e3accdbe54c5d5362b2d11",
+    "source": "https://images.financialmodelingprep.com/symbol/DAL.png"
+  },
+  "DD": {
+    "companyKey": "DUPONT DE NEMOURS",
+    "path": "assets/company-logos/DD.png",
+    "sha256": "023ac425e208fd5c8d7f06a5a6d07dc5ef95edc2e4851f3e57b9973be368baae",
+    "source": "https://images.financialmodelingprep.com/symbol/DD.png"
+  },
+  "DDOG": {
+    "companyKey": "DATADOG INC",
+    "path": "assets/company-logos/DDOG.png",
+    "sha256": "8569335c137bb1023217c3769e02df3f647628f23d52c907b13050248f5a0d92",
+    "source": "https://images.financialmodelingprep.com/symbol/DDOG.png"
+  },
+  "DECK": {
+    "companyKey": "DECKERS OUTDOOR",
+    "path": "assets/company-logos/DECK.png",
+    "sha256": "de5ff4728a238b987e349cc079ad64ee7b20df892e54237ebad991de7e2b2570",
+    "source": "https://images.financialmodelingprep.com/symbol/DECK.png"
+  },
+  "DELL": {
+    "companyKey": "DELL TECHNOLOGIES INC",
+    "path": "assets/company-logos/DELL.png",
+    "sha256": "9a38d44b95a2362c04a9d2b7db2d48dc3af086f5fd027240151c6257290c6f2a",
+    "source": "https://images.financialmodelingprep.com/symbol/DELL.png"
+  },
+  "DHI": {
+    "companyKey": "D R HORTON",
+    "path": "assets/company-logos/DHI.png",
+    "sha256": "146f02810bbdd20b37d795543da9db87721f038ad3218da678399c1e3def2511",
+    "source": "https://images.financialmodelingprep.com/symbol/DHI.png"
+  },
+  "DIS": {
+    "companyKey": "WALT DISNEY",
+    "path": "assets/company-logos/DIS.png",
+    "sha256": "a03f60cf9c7961578f75b24583227ffd175454ad17e5fecf9d0d31041761a559",
+    "source": "https://images.financialmodelingprep.com/symbol/DIS.png"
+  },
+  "DLTR": {
+    "companyKey": "DOLLAR TREE INC",
+    "path": "assets/company-logos/DLTR.png",
+    "sha256": "6baab1f57b0c698fe1f318565af54d166cfe368c05ff2faf7177512721ffc958",
+    "source": "https://images.financialmodelingprep.com/symbol/DLTR.png"
+  },
+  "DVN": {
+    "companyKey": "DEVON ENERGY",
+    "path": "assets/company-logos/DVN.png",
+    "sha256": "92c12c4d4e7b65112a97f5423ec1c998f01ffb3c4a85ed1fdd5a9797f1f4a75c",
+    "source": "https://images.financialmodelingprep.com/symbol/DVN.png"
+  },
+  "ED": {
+    "companyKey": "CONSOLIDATED EDISON",
+    "path": "assets/company-logos/ED.png",
+    "sha256": "032007f9520d373e043620a87ccdb80d8994ede67d7707725b8adc3f2613cdc9",
+    "source": "https://images.financialmodelingprep.com/symbol/ED.png"
+  },
+  "EG": {
+    "companyKey": "EVEREST GROUP",
+    "path": "assets/company-logos/EG.png",
+    "sha256": "37503f6b5979aff30fc29eac7c35116e87946004f23a7735e6cf6a935185414b",
+    "source": "https://images.financialmodelingprep.com/symbol/EG.png"
+  },
+  "EIX": {
+    "companyKey": "EDISON INTERNATIONAL",
+    "path": "assets/company-logos/EIX.png",
+    "sha256": "aaf8e76a80c073719c2ea5f8f82b4dfe6ab46fcaf80939e353c5aa1234cc1586",
+    "source": "https://images.financialmodelingprep.com/symbol/EIX.png"
+  },
+  "ELV": {
+    "companyKey": "ELEVANCE HEALTH INC",
+    "path": "assets/company-logos/ELV.png",
+    "sha256": "46a2735c425c6f175bf8a178da8151984303523c4e369634c3d50f6c920f2c7a",
+    "source": "https://images.financialmodelingprep.com/symbol/ELV.png"
+  },
+  "EOG": {
+    "companyKey": "EOG RESOURCES",
+    "path": "assets/company-logos/EOG.png",
+    "sha256": "a6f35225a5f75a5d47c5cfad73855602711be8eb127f86280188231bb17d65e9",
+    "source": "https://images.financialmodelingprep.com/symbol/EOG.png"
+  },
+  "EQT": {
+    "companyKey": "EQT",
+    "path": "assets/company-logos/EQT.png",
+    "sha256": "72aada70e5e0ab63d74af0520cb781fece0e92b6979a2d4eadfc994b74ba5bc4",
+    "source": "https://images.financialmodelingprep.com/symbol/EQT.png"
+  },
+  "ES": {
+    "companyKey": "EVERSOURCE ENERGY",
+    "path": "assets/company-logos/ES.png",
+    "sha256": "a1023bb892504d817cd73fd49808d7b9238a9be7175f292eb80a922cf2c3736e",
+    "source": "https://images.financialmodelingprep.com/symbol/ES.png"
+  },
+  "ESS": {
+    "companyKey": "ESSEX PROPERTY TRUST REIT",
+    "path": "assets/company-logos/ESS.png",
+    "sha256": "cdfd0e76f624fd042f0887cca0f08a10838f2b5f6b3c83d707cb992af40d6535",
+    "source": "https://images.financialmodelingprep.com/symbol/ESS.png"
+  },
+  "EVRG": {
+    "companyKey": "EVERGY",
+    "path": "assets/company-logos/EVRG.png",
+    "sha256": "d02360d34b852a1b8fa82d9114c1d9750fcad492c074cb579d662c76dbce9c04",
+    "source": "https://images.financialmodelingprep.com/symbol/EVRG.png"
+  },
+  "EXC": {
+    "companyKey": "EXELON CORP",
+    "path": "assets/company-logos/EXC.png",
+    "sha256": "c16ba267cb935ee342cf46552541bf40c5009df6e9d35d6843264e8faa6396ed",
+    "source": "https://images.financialmodelingprep.com/symbol/EXC.png"
+  },
+  "EXE": {
+    "companyKey": "EXPAND ENERGY",
+    "path": "assets/company-logos/EXE.png",
+    "sha256": "ce6c83030bd38c8b9f943a4d96b5971d741592e18bba1003ef09807a75b9136d",
+    "source": "https://images.financialmodelingprep.com/symbol/EXE.png"
+  },
+  "EXPE": {
+    "companyKey": "EXPEDIA GROUP",
+    "path": "assets/company-logos/EXPE.png",
+    "sha256": "e9c19aba301740fd3be19eb111766ebce2d35cde6c77bc01e106f15cc98ed9e7",
+    "source": "https://images.financialmodelingprep.com/symbol/EXPE.png"
+  },
+  "F": {
+    "companyKey": "FORD MOTOR CO",
+    "path": "assets/company-logos/F.png",
+    "sha256": "e2980349794323b1b5b96ca9356e303cf40b7e491aafbe584330170dac409667",
+    "source": "https://images.financialmodelingprep.com/symbol/F.png"
+  },
+  "FANG": {
+    "companyKey": "DIAMONDBACK ENERGY",
+    "path": "assets/company-logos/FANG.png",
+    "sha256": "c0dce715218415729fd3c6b1590839367224bd2c91740f707045447ecde2f363",
+    "source": "https://images.financialmodelingprep.com/symbol/FANG.png"
+  },
+  "FCNCA": {
+    "companyKey": "FIRST CITIZENS BANCSHARES",
+    "path": "assets/company-logos/FCNCA.png",
+    "sha256": "085e29cb4d321934b49d5941ca4a527052f2dbadc1726198d5bfedeb1826d140",
+    "source": "https://images.financialmodelingprep.com/symbol/FCNCA.png"
+  },
+  "FDX": {
+    "companyKey": "FEDEX CORP",
+    "path": "assets/company-logos/FDX.png",
+    "sha256": "356ae2e0eb7de7671827a0d4e901caba359ba6a5094d5db9cde04cc576295a46",
+    "source": "https://images.financialmodelingprep.com/symbol/FDX.png"
+  },
+  "FDXF": {
+    "companyKey": "FEDEX FREIGHT HOLDING COMPANY INC",
+    "path": "assets/company-logos/FDXF.png",
+    "sha256": "8d9f9554502bf9ad4505215f4151acf82b62b4a9eeda5b3c5961d0f4064be3fb",
+    "source": "https://images.financialmodelingprep.com/symbol/FDXF.png"
+  },
+  "FFIV": {
+    "companyKey": "F5",
+    "path": "assets/company-logos/FFIV.png",
+    "sha256": "e15350a0186b4320346fe4b7e7dc57703c6de554e4632ab8090b1265652972a7",
+    "source": "https://images.financialmodelingprep.com/symbol/FFIV.png"
+  },
+  "FICO": {
+    "companyKey": "FAIR ISAAC",
+    "path": "assets/company-logos/FICO.png",
+    "sha256": "c96a66d9f3547e7d1452f6aaa300dba1a8e63a09814297051a9a92da4cbbf0b7",
+    "source": "https://images.financialmodelingprep.com/symbol/FICO.png"
+  },
+  "FIS": {
+    "companyKey": "FIDELITY NATIONAL INFORMATION SERV",
+    "path": "assets/company-logos/FIS.png",
+    "sha256": "b4a66bdc547cc8c5ee952164e09424b03b7c8c4c6063d8107e8c43a14968c42b",
+    "source": "https://images.financialmodelingprep.com/symbol/FIS.png"
+  },
+  "FISV": {
+    "companyKey": "FISERV INC",
+    "path": "assets/company-logos/FISV.png",
+    "sha256": "26a3dbd78c5f824fa135dcac4f8bdbbe0133ef6ec0f44b997a6155747db289c9",
+    "source": "https://images.financialmodelingprep.com/symbol/FISV.png"
+  },
+  "FITB": {
+    "companyKey": "FIFTH THIRD BANCORP",
+    "path": "assets/company-logos/FITB.png",
+    "sha256": "4a85b72031185f4e32c5093bfbfa5b8bb89716d689129bfbe31592d374f4416e",
+    "source": "https://images.financialmodelingprep.com/symbol/FITB.png"
+  },
+  "FLEX": {
+    "companyKey": "FLEX LTD",
+    "path": "assets/company-logos/FLEX.png",
+    "sha256": "4115b919d1fcd1acf1864b01f7bdbe411eaf7408241f8a7eb2bdd1d1d1885df6",
+    "source": "https://images.financialmodelingprep.com/symbol/FLEX.png"
+  },
+  "FNF": {
+    "companyKey": "FIDELITY NATIONAL FINANCIAL INC",
+    "path": "assets/company-logos/FNF.png",
+    "sha256": "db96314cd72fa71d11e2d340c97722c2bec914130aeff24322bf82129087a898",
+    "source": "https://images.financialmodelingprep.com/symbol/FNF.png"
+  },
+  "FOX": {
+    "companyKey": "FOX",
+    "path": "assets/company-logos/FOX.png",
+    "sha256": "f6a6821ef52414c293bccdffea5749aaf25c7db18e4d230d87dde9f268392ff6",
+    "source": "https://images.financialmodelingprep.com/symbol/FOX.png"
+  },
+  "FOXA": {
+    "companyKey": "FOX",
+    "path": "assets/company-logos/FOXA.png",
+    "sha256": "54685eaa97c877af25ab830e40c6158d91a5372cad31aeca7cfd9f4472963a1e",
+    "source": "https://images.financialmodelingprep.com/symbol/FOXA.png"
+  },
+  "FSLR": {
+    "companyKey": "FIRST SOLAR",
+    "path": "assets/company-logos/FSLR.png",
+    "sha256": "f694e8a9c4a0e5563bb07e05d4ab5fe74800879fd30cd200bbb4ae31bdb4471e",
+    "source": "https://images.financialmodelingprep.com/symbol/FSLR.png"
+  },
+  "FTNT": {
+    "companyKey": "FORTINET",
+    "path": "assets/company-logos/FTNT.png",
+    "sha256": "81d2a48932a394ef7589bb3ce34376faab23f16f1a5e79a64f54685ba47e9b6e",
+    "source": "https://images.financialmodelingprep.com/symbol/FTNT.png"
+  },
+  "FTV": {
+    "companyKey": "FORTIVE",
+    "path": "assets/company-logos/FTV.png",
+    "sha256": "06bee9269b394194134e0aa432027565098a6e2c7b53285b8f7698d903a57d05",
+    "source": "https://images.financialmodelingprep.com/symbol/FTV.png"
+  },
+  "GDDY": {
+    "companyKey": "GODADDY",
+    "path": "assets/company-logos/GDDY.png",
+    "sha256": "20c4351a62303c1c588108fda4fd75e761b4a5a29b18a92fe24355b441b8e8b1",
+    "source": "https://images.financialmodelingprep.com/symbol/GDDY.png"
+  },
+  "GEN": {
+    "companyKey": "GEN DIGITAL",
+    "path": "assets/company-logos/GEN.png",
+    "sha256": "a03fe2c6c0506a88e40aa37eb670d6b598556abb85885c99b0ea38d15ea1a2d6",
+    "source": "https://images.financialmodelingprep.com/symbol/GEN.png"
+  },
+  "GIS": {
+    "companyKey": "GENERAL MILLS INC",
+    "path": "assets/company-logos/GIS.png",
+    "sha256": "8bcfd1842bc36a98b34dbff8ecd9f20ff89fbfc01df3779cdea29f8b7a24b267",
+    "source": "https://images.financialmodelingprep.com/symbol/GIS.png"
+  },
+  "GLW": {
+    "companyKey": "CORNING",
+    "path": "assets/company-logos/GLW.png",
+    "sha256": "ab9770d02598a7f3619ac6d8a7a6b3762ead1bd51ebb3f21a146f9bd1d7c50a9",
+    "source": "https://images.financialmodelingprep.com/symbol/GLW.png"
+  },
+  "GM": {
+    "companyKey": "GENERAL MOTORS",
+    "path": "assets/company-logos/GM.png",
+    "sha256": "7679d292046aec78c7fd1b301e4bdb4ac3d1a77e479bfbd8af21ef3f4b593ec4",
+    "source": "https://images.financialmodelingprep.com/symbol/GM.png"
+  },
+  "GPN": {
+    "companyKey": "GLOBAL PAYMENTS INC",
+    "path": "assets/company-logos/GPN.png",
+    "sha256": "424050c4a3b4b7acca06b50c6e7437df9873a73eb662e3c04c22a501c9088260",
+    "source": "https://images.financialmodelingprep.com/symbol/GPN.png"
+  },
+  "HBAN": {
+    "companyKey": "HUNTINGTON BANCSHARES INC",
+    "path": "assets/company-logos/HBAN.png",
+    "sha256": "4303a56868a7ee9b48e9299fa6806479893bd77f382f80b7863e01a72448d450",
+    "source": "https://images.financialmodelingprep.com/symbol/HBAN.png"
+  },
+  "HIG": {
+    "companyKey": "HARTFORD INSURANCE GROUP",
+    "path": "assets/company-logos/HIG.png",
+    "sha256": "ff860f588a86030c7a11c539246d9cef3aa832bd745742a656b905192a0a9888",
+    "source": "https://images.financialmodelingprep.com/symbol/HIG.png"
+  },
+  "HPE": {
+    "companyKey": "HEWLETT PACKARD ENTERPRISE",
+    "path": "assets/company-logos/HPE.png",
+    "sha256": "fd27c19464f594a4c8f41fff59bf0e361d0b26894b8533ae2fabf73d1d0e4796",
+    "source": "https://images.financialmodelingprep.com/symbol/HPE.png"
+  },
+  "HPQ": {
+    "companyKey": "HP INC",
+    "path": "assets/company-logos/HPQ.png",
+    "sha256": "9331cc519a2fb8ac9c3e5e263eef543d6c20ce7faa38bc6acef586d68ceb835d",
+    "source": "https://images.financialmodelingprep.com/symbol/HPQ.png"
+  },
+  "HUM": {
+    "companyKey": "HUMANA",
+    "path": "assets/company-logos/HUM.png",
+    "sha256": "1a82db9d8de5a6aaddee5b97884b989445dc491498f71893714f49d128821c72",
+    "source": "https://images.financialmodelingprep.com/symbol/HUM.png"
+  },
+  "IBM": {
+    "companyKey": "INTERNATIONAL BUSINESS MACHINES",
+    "path": "assets/company-logos/IBM.png",
+    "sha256": "0c00f631f778b9945b7599e1b0174f0346bdd622bc5979bac50c8b996c8cf88d",
+    "source": "https://images.financialmodelingprep.com/symbol/IBM.png"
+  },
+  "IFF": {
+    "companyKey": "INTERNATIONAL FLAVORS & FRAGRANCES",
+    "path": "assets/company-logos/IFF.png",
+    "sha256": "d0e581911e41853663ca8b576762f8e8fe64ebdedcde48e00ad8679bf91b36e3",
+    "source": "https://images.financialmodelingprep.com/symbol/IFF.png"
+  },
+  "INTC": {
+    "companyKey": "INTEL CORPORATION",
+    "path": "assets/company-logos/INTC.png",
+    "sha256": "fed34e20fa27940daa8aabdf3da83d87b4ec1bc73956f5fd773d9acb72d12d7d",
+    "source": "https://images.financialmodelingprep.com/symbol/INTC.png"
+  },
+  "INTU": {
+    "companyKey": "INTUIT",
+    "path": "assets/company-logos/INTU.png",
+    "sha256": "85e6d34e5ed78eabfc79f2508ba5214eff8221bf76579bd0d0e6581b4766fb9c",
+    "source": "https://images.financialmodelingprep.com/symbol/INTU.png"
+  },
+  "IP": {
+    "companyKey": "INTERNATIONAL PAPER",
+    "path": "assets/company-logos/IP.png",
+    "sha256": "46cc6840209a60731b4f6b5be6a35b80cb995b564f18c93472bb8b3f6b264292",
+    "source": "https://images.financialmodelingprep.com/symbol/IP.png"
+  },
+  "IT": {
+    "companyKey": "GARTNER",
+    "path": "assets/company-logos/IT.png",
+    "sha256": "e873c60a4bda27d0f7260cf90590e4c6b7fe78ceefe89dbd20ba559332d03b8a",
+    "source": "https://images.financialmodelingprep.com/symbol/IT.png"
+  },
+  "JBHT": {
+    "companyKey": "JB HUNT TRANSPORT SERVICES",
+    "path": "assets/company-logos/JBHT.png",
+    "sha256": "b1a862df74a3241434324e0f49cb9d5219e88e0231b044dde7f520a5bb32fc4f",
+    "source": "https://images.financialmodelingprep.com/symbol/JBHT.png"
+  },
+  "JBL": {
+    "companyKey": "JABIL",
+    "path": "assets/company-logos/JBL.png",
+    "sha256": "6ae9b0f43ff743dcf10cc6f0093ac082c70115cb89b222a7d53a6695cd95b838",
+    "source": "https://images.financialmodelingprep.com/symbol/JBL.png"
+  },
+  "KDP": {
+    "companyKey": "KEURIG DR PEPPER INC",
+    "path": "assets/company-logos/KDP.png",
+    "sha256": "bd356b9daa17e59f6ab4e30b3b9f91bc9338a63056d8a3eb30a739139c17bfdd",
+    "source": "https://images.financialmodelingprep.com/symbol/KDP.png"
+  },
+  "KEY": {
+    "companyKey": "KEYCORP",
+    "path": "assets/company-logos/KEY.png",
+    "sha256": "ddb50c47d3153bdc8591e33a847bbe1fd72cc173fe54a8e467e4b9549ec725c5",
+    "source": "https://images.financialmodelingprep.com/symbol/KEY.png"
+  },
+  "KEYS": {
+    "companyKey": "KEYSIGHT TECHNOLOGIES",
+    "path": "assets/company-logos/KEYS.png",
+    "sha256": "b818caa486e4265afc84eef0a38e01419066d455fb6ffc5250aec2fcf9832074",
+    "source": "https://images.financialmodelingprep.com/symbol/KEYS.png"
+  },
+  "KHC": {
+    "companyKey": "KRAFT HEINZ",
+    "path": "assets/company-logos/KHC.png",
+    "sha256": "3453b4391fa8e74656cc32a645483a387858970a5c84a1fb266745cc9ca08456",
+    "source": "https://images.financialmodelingprep.com/symbol/KHC.png"
+  },
+  "KLAC": {
+    "companyKey": "KLA",
+    "path": "assets/company-logos/KLAC.png",
+    "sha256": "3a7e834aad08546a969d17854d2045ff8a8e40d52002d527933ff6b2370bed0b",
+    "source": "https://images.financialmodelingprep.com/symbol/KLAC.png"
+  },
+  "KR": {
+    "companyKey": "KROGER",
+    "path": "assets/company-logos/KR.png",
+    "sha256": "e56ed4c23486b828f41e1df4e077743f382194657e5f2c23afbdfa99c8975a76",
+    "source": "https://images.financialmodelingprep.com/symbol/KR.png"
+  },
+  "L": {
+    "companyKey": "LOEWS",
+    "path": "assets/company-logos/L.png",
+    "sha256": "9695fa6cbc5bdfc7d34acc7e0ae785da98481e47298575d626c5f871061054f2",
+    "source": "https://images.financialmodelingprep.com/symbol/L.png"
+  },
+  "LDOS": {
+    "companyKey": "LEIDOS HOLDINGS",
+    "path": "assets/company-logos/LDOS.png",
+    "sha256": "8e278d209124ea7ba7189eb1cd3efba9acde5e65496e0bbbb4bcba52f9f3ba43",
+    "source": "https://images.financialmodelingprep.com/symbol/LDOS.png"
+  },
+  "LEN": {
+    "companyKey": "LENNAR A",
+    "path": "assets/company-logos/LEN.png",
+    "sha256": "032aa71d3e0b986b75cdc7c219a3ef288ddcdaed34b1b5552d958edc5bb01e0a",
+    "source": "https://images.financialmodelingprep.com/symbol/LEN.png"
+  },
+  "LH": {
+    "companyKey": "LABCORP HOLDINGS",
+    "path": "assets/company-logos/LH.png",
+    "sha256": "2a87f87dcf169c88d2f6eb5627c89b1d17b68af1e7c060c39bf0e8aa3fa3fb3b",
+    "source": "https://images.financialmodelingprep.com/symbol/LH.png"
+  },
+  "LHX": {
+    "companyKey": "L3HARRIS TECHNOLOGIES",
+    "path": "assets/company-logos/LHX.png",
+    "sha256": "5710bcd40fd21afbe5b6454c0fc25e6a235a722d51e7433a07363fcfb71a0b24",
+    "source": "https://images.financialmodelingprep.com/symbol/LHX.png"
+  },
+  "LITE": {
+    "companyKey": "LUMENTUM HOLDINGS",
+    "path": "assets/company-logos/LITE.png",
+    "sha256": "58499df1eecc687d19cf9f74ef8f49e560acdfc70a21645e36f813f657451bd0",
+    "source": "https://images.financialmodelingprep.com/symbol/LITE.png"
+  },
+  "LRCX": {
+    "companyKey": "LAM RESEARCH",
+    "path": "assets/company-logos/LRCX.png",
+    "sha256": "08d7dfb395a5bba7f75ac10f6aa58808e43f6c3ff04530576d2f76436020ba75",
+    "source": "https://images.financialmodelingprep.com/symbol/LRCX.png"
+  },
+  "LYB": {
+    "companyKey": "LYONDELLBASELL INDUSTRIES",
+    "path": "assets/company-logos/LYB.png",
+    "sha256": "076a3dcfadf84d9225270c65cef63dff01794d3c43845b6f63957ff0a0e517a0",
+    "source": "https://images.financialmodelingprep.com/symbol/LYB.png"
+  },
+  "MAA": {
+    "companyKey": "MID AMERICA APARTMENT COMMUNITIES",
+    "path": "assets/company-logos/MAA.png",
+    "sha256": "d0ce509072836d47fafddb04739847b0029a93d8132ce3670795e1f2e2c5c122",
+    "source": "https://images.financialmodelingprep.com/symbol/MAA.png"
+  },
+  "MCHP": {
+    "companyKey": "MICROCHIP TECHNOLOGY INC",
+    "path": "assets/company-logos/MCHP.png",
+    "sha256": "31e870ba691b34f044306c43b2c7588e4dbd2644a7094ba7bfd7298943ec8975",
+    "source": "https://images.financialmodelingprep.com/symbol/MCHP.png"
+  },
+  "MET": {
+    "companyKey": "METLIFE",
+    "path": "assets/company-logos/MET.png",
+    "sha256": "1b23cfc1133d63c7633286a7fed42b445d7a43469da7268c1549981731d076b7",
+    "source": "https://images.financialmodelingprep.com/symbol/MET.png"
+  },
+  "MPWR": {
+    "companyKey": "MONOLITHIC POWER SYSTEMS INC",
+    "path": "assets/company-logos/MPWR.png",
+    "sha256": "009c8b551c4fbe49365874be760429b0ee3208717e7346c2dcc9174feda9108d",
+    "source": "https://images.financialmodelingprep.com/symbol/MPWR.png"
+  },
+  "MRVL": {
+    "companyKey": "MARVELL TECHNOLOGY",
+    "path": "assets/company-logos/MRVL.png",
+    "sha256": "c6f5463cceacf32245f2d6488edd22c20567a72fd209aecfe9a5ea4b53edc26d",
+    "source": "https://images.financialmodelingprep.com/symbol/MRVL.png"
+  },
+  "MSFT": {
+    "companyKey": "MICROSOFT",
+    "path": "assets/company-logos/MSFT.png",
+    "sha256": "5464732326598baca91f5aaa9b19ca9b8ced1655465a41a54f3424485be5e33a",
+    "source": "https://images.financialmodelingprep.com/symbol/MSFT.png"
+  },
+  "MSI": {
+    "companyKey": "MOTOROLA SOLUTIONS INC",
+    "path": "assets/company-logos/MSI.png",
+    "sha256": "ac93401cd8edc3027bf0ebbc5c3dcf341e5d7e8b2b1dd8ff93118c668b165408",
+    "source": "https://images.financialmodelingprep.com/symbol/MSI.png"
+  },
+  "MSTR": {
+    "companyKey": "STRATEGY INC",
+    "path": "assets/company-logos/MSTR.png",
+    "sha256": "0737730840238e228ec100e74d965fe2a3e025ec621ec5f9e0f0a04486ab22e2",
+    "source": "https://images.financialmodelingprep.com/symbol/MSTR.png"
+  },
+  "MTB": {
+    "companyKey": "M&T BANK",
+    "path": "assets/company-logos/MTB.png",
+    "sha256": "f03d393018fe38db07db9d6553e356e53100dc83568a05a5535bfabefbc1d052",
+    "source": "https://images.financialmodelingprep.com/symbol/MTB.png"
+  },
+  "MU": {
+    "companyKey": "MICRON TECHNOLOGY",
+    "path": "assets/company-logos/MU.png",
+    "sha256": "c4c6752eef5eeef3392c61484b4e971eb95c4a3876fe5ce416a68d7ab9d43985",
+    "source": "https://images.financialmodelingprep.com/symbol/MU.png"
+  },
+  "NEM": {
+    "companyKey": "NEWMONT",
+    "path": "assets/company-logos/NEM.png",
+    "sha256": "36c9cfd897bd60edf20796e7d71caf1ab30ebaf187e3b3466889b9c77f8e487c",
+    "source": "https://images.financialmodelingprep.com/symbol/NEM.png"
+  },
+  "NLY": {
+    "companyKey": "ANNALY CAPITAL MANAGEMENT REIT",
+    "path": "assets/company-logos/NLY.png",
+    "sha256": "9f7eb9f4f7384e82b2c48efca6cf9fe7a414cf36668f7583a264bd693c3b5c1b",
+    "source": "https://images.financialmodelingprep.com/symbol/NLY.png"
+  },
+  "NOW": {
+    "companyKey": "SERVICENOW",
+    "path": "assets/company-logos/NOW.png",
+    "sha256": "37685add2efcbb11e9e9102e781ba89e562a920a664cc45a4c48c65385c1e2b4",
+    "source": "https://images.financialmodelingprep.com/symbol/NOW.png"
+  },
+  "NTAP": {
+    "companyKey": "NETAPP INC",
+    "path": "assets/company-logos/NTAP.png",
+    "sha256": "b94f3783499803c6dc0449b7a45197b942c9ae6816e00132e5e82979c65ae29b",
+    "source": "https://images.financialmodelingprep.com/symbol/NTAP.png"
+  },
+  "NUE": {
+    "companyKey": "NUCOR",
+    "path": "assets/company-logos/NUE.png",
+    "sha256": "9d0f3ef49c50136955d453c8f026c2a0f55c7a4de9c927ba16622fe604f64818",
+    "source": "https://images.financialmodelingprep.com/symbol/NUE.png"
+  },
+  "NVDA": {
+    "companyKey": "NVIDIA",
+    "path": "assets/company-logos/NVDA.png",
+    "sha256": "65adfc123c82dd816d8bebeaded5d0bdd72a4a799d1c0e23d310eaf6e2c457e6",
+    "source": "https://images.financialmodelingprep.com/symbol/NVDA.png"
+  },
+  "NXPI": {
+    "companyKey": "NXP SEMICONDUCTORS NV",
+    "path": "assets/company-logos/NXPI.png",
+    "sha256": "6dd35f7d693ee561e1d77377cf0ebe89412f356e8b07724ca3d3967d7005b407",
+    "source": "https://images.financialmodelingprep.com/symbol/NXPI.png"
+  },
+  "O": {
+    "companyKey": "REALTY INCOME REIT",
+    "path": "assets/company-logos/O.png",
+    "sha256": "b6732cfe5a1b0fa0c0be2bcdf22b389a18eed60c95ed8d95cd79af966a031998",
+    "source": "https://images.financialmodelingprep.com/symbol/O.png"
+  },
+  "OKTA": {
+    "companyKey": "OKTA",
+    "path": "assets/company-logos/OKTA.png",
+    "sha256": "07c6234ca14f09c761ebd6dab183dcc426bd0906d03c67e86da5f2ef276aed67",
+    "source": "https://images.financialmodelingprep.com/symbol/OKTA.png"
+  },
+  "OMC": {
+    "companyKey": "OMNICOM GROUP INC",
+    "path": "assets/company-logos/OMC.png",
+    "sha256": "b6af96d3e128debff5b8d6964290a08b807f57cbddd866ceeae413b631fc2801",
+    "source": "https://images.financialmodelingprep.com/symbol/OMC.png"
+  },
+  "ON": {
+    "companyKey": "ON SEMICONDUCTOR CORP",
+    "path": "assets/company-logos/ON.png",
+    "sha256": "f8ec3c1ce23b9afa76fb1d47dfdf344f70cf5d8ceace745a946cb93403b14026",
+    "source": "https://images.financialmodelingprep.com/symbol/ON.png"
+  },
+  "ORCL": {
+    "companyKey": "ORACLE",
+    "path": "assets/company-logos/ORCL.png",
+    "sha256": "79bb1cdf0dc02acc962bff80867e4d4ce6d6a035cff1180270a71472fece99f0",
+    "source": "https://images.financialmodelingprep.com/symbol/ORCL.png"
+  },
+  "OXY": {
+    "companyKey": "OCCIDENTAL PETROLEUM CORP",
+    "path": "assets/company-logos/OXY.png",
+    "sha256": "b536922f329c03968850ca8897ca9bc5b0bcd4e9e0e92c94b43f466d0aaa4c7c",
+    "source": "https://images.financialmodelingprep.com/symbol/OXY.png"
+  },
+  "P": {
+    "companyKey": "EVERPURE INC",
+    "path": "assets/company-logos/P.png",
+    "sha256": "e74f009797c55a7479c39d2e222a466435dc4c6818ac9c9f909d5e670b8bdfd7",
+    "source": "https://images.financialmodelingprep.com/symbol/P.png"
+  },
+  "PANW": {
+    "companyKey": "PALO ALTO NETWORKS",
+    "path": "assets/company-logos/PANW.png",
+    "sha256": "cef4b0f5b4260c13862ada016f5298570e20346e9d58f1778669709feb049f7f",
+    "source": "https://images.financialmodelingprep.com/symbol/PANW.png"
+  },
+  "PCAR": {
+    "companyKey": "PACCAR INC",
+    "path": "assets/company-logos/PCAR.png",
+    "sha256": "353b747b862a6f717df06f6591458d991e9bceddba4c1ac46fe2a2c99b8a2f7f",
+    "source": "https://images.financialmodelingprep.com/symbol/PCAR.png"
+  },
+  "PCG": {
+    "companyKey": "PG&E CORP",
+    "path": "assets/company-logos/PCG.png",
+    "sha256": "10d65deaf80028a8495e564489963fb5a203d9354f46cc219a7e62cdd3ee1232",
+    "source": "https://images.financialmodelingprep.com/symbol/PCG.png"
+  },
+  "PFE": {
+    "companyKey": "PFIZER",
+    "path": "assets/company-logos/PFE.png",
+    "sha256": "9cddfdf72e5d9eb617674bd5dd0c958b651a9bc03ba2c9208b45c2dc4be55ccd",
+    "source": "https://images.financialmodelingprep.com/symbol/PFE.png"
+  },
+  "PFG": {
+    "companyKey": "PRINCIPAL FINANCIAL GROUP INC",
+    "path": "assets/company-logos/PFG.png",
+    "sha256": "a20acc20f184c69a4f90fc3e380f1dec63857f54f5429d0ae2ae937ec496c5bd",
+    "source": "https://images.financialmodelingprep.com/symbol/PFG.png"
+  },
+  "PHM": {
+    "companyKey": "PULTEGROUP",
+    "path": "assets/company-logos/PHM.png",
+    "sha256": "78718488c95930b1c744b99915b08743a8c93b5c7fa69e14e4a8829510097b61",
+    "source": "https://images.financialmodelingprep.com/symbol/PHM.png"
+  },
+  "PLTR": {
+    "companyKey": "PALANTIR TECHNOLOGIES",
+    "path": "assets/company-logos/PLTR.png",
+    "sha256": "b33a15c8379a89328ea6a77282bbef4c65a3c419d69695278d82071fb398e236",
+    "source": "https://images.financialmodelingprep.com/symbol/PLTR.png"
+  },
+  "PNC": {
+    "companyKey": "PNC FINANCIAL SERVICES GROUP",
+    "path": "assets/company-logos/PNC.png",
+    "sha256": "d4e4bfeb9b2a7e0bda8642fc5705a64d2b994d37b6f4ffe801f993a4e85204f4",
+    "source": "https://images.financialmodelingprep.com/symbol/PNC.png"
+  },
+  "PNFP": {
+    "companyKey": "PINNACLE FINANCIAL PARTNERS",
+    "path": "assets/company-logos/PNFP.png",
+    "sha256": "02b0b21beb944f19c5c4033621c8a27322e87a35c56bbef1581efee7f749ad82",
+    "source": "https://images.financialmodelingprep.com/symbol/PNFP.png"
+  },
+  "PRU": {
+    "companyKey": "PRUDENTIAL FINANCIAL INC",
+    "path": "assets/company-logos/PRU.png",
+    "sha256": "34aac28ad7969edb6e3512e85db0de997861d5560239efc09f766660efd97757",
+    "source": "https://images.financialmodelingprep.com/symbol/PRU.png"
+  },
+  "PSA": {
+    "companyKey": "PUBLIC STORAGE REIT",
+    "path": "assets/company-logos/PSA.png",
+    "sha256": "2c392cafec9abfe118cfd090fa1cf5c49985661fe1669f31e7d34a839dc1c384",
+    "source": "https://images.financialmodelingprep.com/symbol/PSA.png"
+  },
+  "PTC": {
+    "companyKey": "PTC",
+    "path": "assets/company-logos/PTC.png",
+    "sha256": "bd2a3d8ca5f6d9a62139bdaf8ae5dfcc45c8c63a36bc30338f2b491956411c80",
+    "source": "https://images.financialmodelingprep.com/symbol/PTC.png"
+  },
+  "Q": {
+    "companyKey": "QNITY ELECTRONICS",
+    "path": "assets/company-logos/Q.png",
+    "sha256": "49e2923c1406c13c7aa7e464ab3f7e19379ea754ae525de0e0ba39bdc2da5ffb",
+    "source": "https://images.financialmodelingprep.com/symbol/Q.png"
+  },
+  "QCOM": {
+    "companyKey": "QUALCOMM",
+    "path": "assets/company-logos/QCOM.png",
+    "sha256": "3b097b1488401cb2848e4cda192043098f14e37504a5e5f661516bb2e789d2a2",
+    "source": "https://images.financialmodelingprep.com/symbol/QCOM.png"
+  },
+  "RF": {
+    "companyKey": "REGIONS FINANCIAL",
+    "path": "assets/company-logos/RF.png",
+    "sha256": "95b8f4b13350ad68b45ced7160e753d2c8a77377d448349e01cfb8665bfb699b",
+    "source": "https://images.financialmodelingprep.com/symbol/RF.png"
+  },
+  "ROP": {
+    "companyKey": "ROPER TECHNOLOGIES",
+    "path": "assets/company-logos/ROP.png",
+    "sha256": "cef5ff6cc48a07234cdd3ba92302d553b42c0042e39ddb8e0d1e55a8fbed364f",
+    "source": "https://images.financialmodelingprep.com/symbol/ROP.png"
+  },
+  "RPRX": {
+    "companyKey": "ROYALTY PHARMA PLC",
+    "path": "assets/company-logos/RPRX.png",
+    "sha256": "f35ce15459a400930c4809eae16caf63f2a94ed056f10067af843e9393bca7aa",
+    "source": "https://images.financialmodelingprep.com/symbol/RPRX.png"
+  },
+  "SMCI": {
+    "companyKey": "SUPER MICRO COMPUTER INC",
+    "path": "assets/company-logos/SMCI.png",
+    "sha256": "8193770c6837c36dc6064388122b2d80e626a699f7637362445904a390c537bd",
+    "source": "https://images.financialmodelingprep.com/symbol/SMCI.png"
+  },
+  "SNA": {
+    "companyKey": "SNAP ON INC",
+    "path": "assets/company-logos/SNA.png",
+    "sha256": "841f846ddfc355cdabc4c41174bd46b822ce73dcc0254ac0abfe4046be90a0c5",
+    "source": "https://images.financialmodelingprep.com/symbol/SNA.png"
+  },
+  "SNDK": {
+    "companyKey": "SANDISK",
+    "path": "assets/company-logos/SNDK.png",
+    "sha256": "726daaa07485d4b0c475adcab4c4fc0645c3c68136951c783c05afce3a5de8e8",
+    "source": "https://images.financialmodelingprep.com/symbol/SNDK.png"
+  },
+  "SNPS": {
+    "companyKey": "SYNOPSYS",
+    "path": "assets/company-logos/SNPS.png",
+    "sha256": "d92fdc0fca590b64836c12cb365f6b31be5a58c407b9a95e19e6dbf468638971",
+    "source": "https://images.financialmodelingprep.com/symbol/SNPS.png"
+  },
+  "SPG": {
+    "companyKey": "SIMON PROPERTY GROUP REIT INC",
+    "path": "assets/company-logos/SPG.png",
+    "sha256": "13570e6761f09fc89c3efb09b9388eca39eac2b0650bf29c3ea8ad21f1f14b1e",
+    "source": "https://images.financialmodelingprep.com/symbol/SPG.png"
+  },
+  "SSNC": {
+    "companyKey": "SS AND C TECHNOLOGIES HOLDINGS",
+    "path": "assets/company-logos/SSNC.png",
+    "sha256": "48f722814e14b609e7d0272b7c5a304344498a9840d0353a4a99e98809a87057",
+    "source": "https://images.financialmodelingprep.com/symbol/SSNC.png"
+  },
+  "STT": {
+    "companyKey": "STATE STREET",
+    "path": "assets/company-logos/STT.png",
+    "sha256": "5e0189276d0a70ab2068461bebd80f06a2e7d2f445d260bd62c8da5def5fe81d",
+    "source": "https://images.financialmodelingprep.com/symbol/STT.png"
+  },
+  "STX": {
+    "companyKey": "SEAGATE TECHNOLOGY HOLDINGS PLC",
+    "path": "assets/company-logos/STX.png",
+    "sha256": "f798196a79d29a49ca12dbbd5bbc6ab3a43b5d505a7e8f40833216d23c34d8fc",
+    "source": "https://images.financialmodelingprep.com/symbol/STX.png"
+  },
+  "SW": {
+    "companyKey": "SMURFIT WESTROCK PLC",
+    "path": "assets/company-logos/SW.png",
+    "sha256": "c3d1e0ee361d08626a2a83c67d9d37b0231e0cc442ea07d921612aac55174e02",
+    "source": "https://images.financialmodelingprep.com/symbol/SW.png"
+  },
+  "SWKS": {
+    "companyKey": "SKYWORKS SOLUTIONS",
+    "path": "assets/company-logos/SWKS.png",
+    "sha256": "de571b162e8801fdaab4ba3082f4eab448a7de49159d4b9e75950bfe21e81e82",
+    "source": "https://images.financialmodelingprep.com/symbol/SWKS.png"
+  },
+  "SYF": {
+    "companyKey": "SYNCHRONY FINANCIAL",
+    "path": "assets/company-logos/SYF.png",
+    "sha256": "57b0b07c2445c365667a4582b29d155b452e3709bf32ae2cc7a507d4b4f3416d",
+    "source": "https://images.financialmodelingprep.com/symbol/SYF.png"
+  },
+  "T": {
+    "companyKey": "AT&T",
+    "path": "assets/company-logos/T.png",
+    "sha256": "b7c37fd6ed3e65097a28e2accedba8971cc17d681acb859f98c3e003bf57586c",
+    "source": "https://images.financialmodelingprep.com/symbol/T.png"
+  },
+  "TDY": {
+    "companyKey": "TELEDYNE TECHNOLOGIES INC",
+    "path": "assets/company-logos/TDY.png",
+    "sha256": "1397dbf940fbbee4974b64fb2b04dcad5e9811aa569be61b4930a0b1a3f9425b",
+    "source": "https://images.financialmodelingprep.com/symbol/TDY.png"
+  },
+  "TEL": {
+    "companyKey": "TE CONNECTIVITY PLC",
+    "path": "assets/company-logos/TEL.png",
+    "sha256": "403e37917499fcf814b616de55aa076c9292d6e625aeda807ffe3493c4f26aa2",
+    "source": "https://images.financialmodelingprep.com/symbol/TEL.png"
+  },
+  "TER": {
+    "companyKey": "TERADYNE",
+    "path": "assets/company-logos/TER.png",
+    "sha256": "6636543fecd77eeb74b15d240fad6df01be55c4a90744ba9dd2ffa6a9f65bc2d",
+    "source": "https://images.financialmodelingprep.com/symbol/TER.png"
+  },
+  "TFC": {
+    "companyKey": "TRUIST FINANCIAL",
+    "path": "assets/company-logos/TFC.png",
+    "sha256": "a150212a46a7b7f86dea93a7030a8dccd7a0be6de17b0953a8bb59593bfd06c0",
+    "source": "https://images.financialmodelingprep.com/symbol/TFC.png"
+  },
+  "TGT": {
+    "companyKey": "TARGET CORP",
+    "path": "assets/company-logos/TGT.png",
+    "sha256": "7afd965a29503897889befe24cea6a944da98fa587604bc1e4ec4a711b96856e",
+    "source": "https://images.financialmodelingprep.com/symbol/TGT.png"
+  },
+  "TRMB": {
+    "companyKey": "TRIMBLE INC",
+    "path": "assets/company-logos/TRMB.png",
+    "sha256": "d6d1722ae8c7e2ba77d4aba9ab8f74e8196d3ed9d0d651341e75eba4cdbcfd7c",
+    "source": "https://images.financialmodelingprep.com/symbol/TRMB.png"
+  },
+  "TRU": {
+    "companyKey": "TRANSUNION",
+    "path": "assets/company-logos/TRU.png",
+    "sha256": "abb603dbb201a22f2efb276ffc32f68cbcc0e3b5b6db4e2f5738948d1d67b384",
+    "source": "https://images.financialmodelingprep.com/symbol/TRU.png"
+  },
+  "TSN": {
+    "companyKey": "TYSON FOODS INC",
+    "path": "assets/company-logos/TSN.png",
+    "sha256": "a300deb05930a0a5e54154925dccf4eb5b395044110b32d96901710df9e4a6f0",
+    "source": "https://images.financialmodelingprep.com/symbol/TSN.png"
+  },
+  "TWLO": {
+    "companyKey": "TWILIO",
+    "path": "assets/company-logos/TWLO.png",
+    "sha256": "1534476a1c58805b54f67aff5b75902b196b31462bd61a07d7912aa7511d0079",
+    "source": "https://images.financialmodelingprep.com/symbol/TWLO.png"
+  },
+  "TXN": {
+    "companyKey": "TEXAS INSTRUMENT INC",
+    "path": "assets/company-logos/TXN.png",
+    "sha256": "78d856c2f203fc930393c0ba17702e1fab70067c129666fe29bb85a6df0d1664",
+    "source": "https://images.financialmodelingprep.com/symbol/TXN.png"
+  },
+  "TXT": {
+    "companyKey": "TEXTRON INC",
+    "path": "assets/company-logos/TXT.png",
+    "sha256": "4ef7f753c09bba516f2f27e146a27857a12cea38264d682af1d72ffd78e01e00",
+    "source": "https://images.financialmodelingprep.com/symbol/TXT.png"
+  },
+  "TYL": {
+    "companyKey": "TYLER TECHNOLOGIES",
+    "path": "assets/company-logos/TYL.png",
+    "sha256": "6cb5f60261fa600771cd79cbd7b7674a6721ea36cdc2278f9279814d2b155eb1",
+    "source": "https://images.financialmodelingprep.com/symbol/TYL.png"
+  },
+  "UAL": {
+    "companyKey": "UNITED AIRLINES HOLDINGS",
+    "path": "assets/company-logos/UAL.png",
+    "sha256": "4a585d773caf6ae8238ab3fd9e156e4d73f8be0aedfe7ba966809a077986f55e",
+    "source": "https://images.financialmodelingprep.com/symbol/UAL.png"
+  },
+  "UPS": {
+    "companyKey": "UNITED PARCEL SERVICE INC",
+    "path": "assets/company-logos/UPS.png",
+    "sha256": "ade2ddb7bdbb62e4b886a0647a6deb5f02a9e75f833f7211bb23630d673aab96",
+    "source": "https://images.financialmodelingprep.com/symbol/UPS.png"
+  },
+  "URI": {
+    "companyKey": "UNITED RENTALS",
+    "path": "assets/company-logos/URI.png",
+    "sha256": "3a008faf08dbf91443891c016d7498c85fa1537cf8686cb6a814b15abc1f21a8",
+    "source": "https://images.financialmodelingprep.com/symbol/URI.png"
+  },
+  "USB": {
+    "companyKey": "US BANCORP",
+    "path": "assets/company-logos/USB.png",
+    "sha256": "127b39501f64e0c04990c9ee790d2d194da7832f58599285ac01e41df52d8219",
+    "source": "https://images.financialmodelingprep.com/symbol/USB.png"
+  },
+  "UTHR": {
+    "companyKey": "UNITED THERAPEUTICS",
+    "path": "assets/company-logos/UTHR.png",
+    "sha256": "a6e299c4f86b9ec6afad0b77d313af4e3b61be612fd0683f3760fac7206e539b",
+    "source": "https://images.financialmodelingprep.com/symbol/UTHR.png"
+  },
+  "VICI": {
+    "companyKey": "VICI PPTYS INC",
+    "path": "assets/company-logos/VICI.png",
+    "sha256": "2a94fbd1f173472996581d81e5a559f537b854ed01445f23524500563a9b9738",
+    "source": "https://images.financialmodelingprep.com/symbol/VICI.png"
+  },
+  "VLO": {
+    "companyKey": "VALERO ENERGY CORP",
+    "path": "assets/company-logos/VLO.png",
+    "sha256": "b9e82de44ee9f754c58de7eca1b754491699c53cbca35d66da76ab7ef4f46e51",
+    "source": "https://images.financialmodelingprep.com/symbol/VLO.png"
+  },
+  "VRSN": {
+    "companyKey": "VERISIGN",
+    "path": "assets/company-logos/VRSN.png",
+    "sha256": "33cd18a9302fdd64c3d99cd3cb74627ee640190dfec903f5c74cdeeb4486f331",
+    "source": "https://images.financialmodelingprep.com/symbol/VRSN.png"
+  },
+  "VZ": {
+    "companyKey": "VERIZON COMMUNICATIONS INC",
+    "path": "assets/company-logos/VZ.png",
+    "sha256": "3196b474886685471a0d9cc0a21810a31dbcff03f84b5a63d1f650c64e3eb853",
+    "source": "https://images.financialmodelingprep.com/symbol/VZ.png"
+  },
+  "WAB": {
+    "companyKey": "WESTINGHOUSE AIR BRAKE TECHNOLOGIE",
+    "path": "assets/company-logos/WAB.png",
+    "sha256": "ec61fdd2605c3959c267d247b5fb62ec38a0180dbf6c2b676be475143fb335c7",
+    "source": "https://images.financialmodelingprep.com/symbol/WAB.png"
+  },
+  "WDAY": {
+    "companyKey": "WORKDAY",
+    "path": "assets/company-logos/WDAY.png",
+    "sha256": "b3cf03d91a39dc1b383a117db5f627cfe8015442b5d5ca8f0621358583c1c604",
+    "source": "https://images.financialmodelingprep.com/symbol/WDAY.png"
+  },
+  "WDC": {
+    "companyKey": "WESTERN DIGITAL CORP",
+    "path": "assets/company-logos/WDC.png",
+    "sha256": "5f4f3ebb663487c089d15f1719fe3addfa436e1453807103143ee36fffad2535",
+    "source": "https://images.financialmodelingprep.com/symbol/WDC.png"
+  },
+  "WFC": {
+    "companyKey": "WELLS FARGO",
+    "path": "assets/company-logos/WFC.png",
+    "sha256": "70ccd6de2af9f050d8eced14a890411f7515c23e85d5c39f8c487694f776f447",
+    "source": "https://images.financialmodelingprep.com/symbol/WFC.png"
+  },
+  "WPC": {
+    "companyKey": "W. P. CAREY REIT",
+    "path": "assets/company-logos/WPC.png",
+    "sha256": "09ba2aeae52e6c1c045f1324c81bac65de7f0a10f9774d5675cccea81597af28",
+    "source": "https://images.financialmodelingprep.com/symbol/WPC.png"
+  },
+  "ZBH": {
+    "companyKey": "ZIMMER BIOMET HOLDINGS",
+    "path": "assets/company-logos/ZBH.png",
+    "sha256": "22e4c035c841217417df4ffe21782bd9c9ef9e7fa6f2125d14fbe040392527b6",
+    "source": "https://images.financialmodelingprep.com/symbol/ZBH.png"
+  },
+  "ZBRA": {
+    "companyKey": "ZEBRA TECHNOLOGIES CORP",
+    "path": "assets/company-logos/ZBRA.png",
+    "sha256": "39cea9faf3ecb7e5297c2b78c6a1ef835836c783de7c916bcf6067dc21743341",
+    "source": "https://images.financialmodelingprep.com/symbol/ZBRA.png"
+  },
+  "ZM": {
+    "companyKey": "ZOOM COMMUNICATIONS",
+    "path": "assets/company-logos/ZM.png",
+    "sha256": "d848b56ba6e11c1397adc0f0a67112b4e8a472f24d72c8a1e41bb58e26ccf988",
+    "source": "https://images.financialmodelingprep.com/symbol/ZM.png"
+  }
+}

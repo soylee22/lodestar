@@ -53,7 +53,14 @@ def consolidate(legs):
                 'fundWeight': row['w'], 'bookWeight': weight})
     rows = sorted(companies.values(), key=lambda row: (-row['bw'], row['sym']))
     covered = sum(row['bw'] for row in rows)
-    if covered > 100.0001:
+    balanced_disclosures = all(
+        leg.get('netDisclosureWeight') is not None
+        and leg.get('disclosureRoundingTolerance') is not None
+        and math.isfinite(leg['netDisclosureWeight'])
+        and 0 <= leg['disclosureRoundingTolerance'] < .02
+        and abs(leg['netDisclosureWeight'] - 1) <= leg['disclosureRoundingTolerance']
+        for leg in legs)
+    if covered > 100.0001 and not balanced_disclosures:
         raise ValueError('Disclosed holdings exceed the portfolio')
     for row in rows:
         row['bw'] = round(row['bw'], 6)
@@ -67,6 +74,6 @@ def consolidate(legs):
         row['contributions'] = list(funds.values())
         row['shared'] = len({c['leg'] for c in row['contributions']}) > 1
     return {'holdings': rows, 'coverage': round(covered, 6),
-            'other': round(max(0, 100 - covered), 6),
+            'other': round(100 - covered, 6),
             'sharedCount': sum(row['shared'] for row in rows),
             'basis': 'Target allocation weights. Top-ten disclosure only.'}

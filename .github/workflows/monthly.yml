@@ -67,7 +67,7 @@ jobs:
         run: |
           git config user.name  "soylee22"
           git config user.email "leeslater1992@gmail.com"
-          git add data.js data/panel_local.csv data/last_alert.json data/holdings.json data/signal_history.json data/fund_prices_gbp.csv data/track_record.csv data/price_status.json
+          git add data.js data/panel_local.csv data/last_alert.json data/holdings.json data/signal_history.json data/fund_prices_gbp.csv data/track_record.csv data/price_status.json data/company_logos.json assets/company-logos
           if git diff --staged --quiet; then
             echo "nothing changed"
           else

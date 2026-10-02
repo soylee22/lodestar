@@ -23,6 +23,15 @@ class LookthroughTests(unittest.TestCase):
         self.assertEqual(c['holdings'][0]['bw'], 7.)
         self.assertEqual(c['other'], 93.)
 
+    def test_validated_negative_cash_stays_signed_in_the_net_total(self):
+        a, b = leg('Factor', [('AAA', 100.65)]), leg('Sector', [('BBB', 99.88)])
+        for fund in (a, b):
+            fund.update(netDisclosureWeight=1.0006, disclosureRoundingTolerance=.008)
+        result = consolidate([a, b])
+        self.assertAlmostEqual(result['coverage'], 100.265)
+        self.assertAlmostEqual(result['other'], -.265)
+        self.assertAlmostEqual(result['coverage'] + result['other'], 100)
+
     def test_invalid_weight_refuses_to_draw_a_misleading_chart(self):
         for w in [-1, float('inf'), float('nan'), 250]:
             with self.subTest(w=w), self.assertRaises(ValueError):

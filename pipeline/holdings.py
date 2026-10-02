@@ -7,20 +7,20 @@ any particular pair.
 Everything is written into data/holdings.json and baked into the page at build
 time. Company icons are optional website favicons with ticker fallbacks.
 """
-import json, time
+import json, time, math
 from datetime import datetime, timezone
 from pathlib import Path
 
 import pandas as pd
 import yfinance as yf
-from pipeline import issuer_holdings
+from pipeline import issuer_holdings, logos
 
 HERE = Path(__file__).resolve().parent
 DATA = HERE.parent / "data"
 
 FIELDS = ["shortName", "longName", "sector", "industry", "marketCap", "trailingPE",
           "forwardPE", "revenueGrowth", "earningsGrowth", "profitMargins",
-          "dividendYield", "country", "website"]
+          "dividendYield", "dividendRate", "currentPrice", "regularMarketPrice", "country", "website"]
 
 
 def _retry(fn, n=3, wait=2):
@@ -43,9 +43,14 @@ def fund_holdings(ticker, top=10):
             return None
         rows = []
         for sym, r in th.head(top).iterrows():
+            weight = float(r.get('Holding Percent'))
+            if not str(sym).strip() or not math.isfinite(weight) or not 0 <= weight <= 1:
+                raise ValueError('Invalid Yahoo fund holding weight')
             rows.append({"symbol": str(sym),
                          "name": str(r.get("Name") or sym),
-                         "weight": float(r.get("Holding Percent") or 0.0)})
+                         "weight": weight})
+        if sum(row['weight'] for row in rows) > 1.000001:
+            raise ValueError('Yahoo fund holding coverage exceeds 100%')
         return {"holdings": rows,
                 "sector_weights": {k: float(v) for k, v in (fd.sector_weightings or {}).items() if v}}
     return _retry(go)
@@ -64,25 +69,30 @@ def fundamentals(symbol):
     return _retry(go) or {}
 
 
-def normalise_yields(rows):
-    """yfinance reports dividendYield in PERCENT (Verizon 6.1 = 6.10%), unlike
-    every other rate here, and it has flipped between percent and fraction
-    across versions. Decide the unit from the SET, never per value: Micron
-    genuinely yields 0.06%, so a per-row threshold would inflate it a
-    hundredfold. If most payers look like fractions, scale the whole set.
-    """
-    vals = [r["dividend_yield"] for r in rows
-            if r.get("dividend_yield") not in (None, 0)]
-    if not vals:
-        return rows, "percent"
-    vals = sorted(float(v) for v in vals)
-    median = vals[len(vals) // 2]
-    if median < 0.25:                      # a 0.25% median payer is implausible
-        for r in rows:
-            if r.get("dividend_yield") is not None:
-                r["dividend_yield"] = float(r["dividend_yield"]) * 100
-        return rows, "percent (converted from fractions)"
-    return rows, "percent"
+def dividend_yield_percent(info):
+    """Use annual dividend rate / quote price, without guessing a feed's unit."""
+    try:
+        rate = float(info['dividendRate'])
+        price = float(info.get('currentPrice') or info.get('regularMarketPrice'))
+    except (KeyError, TypeError, ValueError):
+        return None
+    if not math.isfinite(rate) or not math.isfinite(price) or rate < 0 or price <= 0:
+        return None
+    return rate / price * 100
+
+
+def annotate_sources(out):
+    """Separate dated holdings from company figures retrieved from Yahoo."""
+    for leg in out['legs'].values():
+        issuer = bool(leg.get('all_holdings'))
+        leg['source'] = 'iShares dated equity holdings' if issuer else 'Yahoo Finance top-ten holdings'
+        leg['fundamentals_source'] = 'Yahoo Finance'
+        leg['fundamentals_fetched_at'] = out.get('fetched_at')
+    sources = {leg['source'] for leg in out['legs'].values()}
+    dates = {leg.get('snapshot_date') for leg in out['legs'].values()}
+    out['source'] = next(iter(sources)) if len(sources) == 1 else 'Mixed holdings sources. See each leg.'
+    out['snapshot_date'] = next(iter(dates)) if len(dates) == 1 else None
+    return out
 
 
 def build(signal=None):
@@ -120,7 +130,7 @@ def build(signal=None):
             enriched.append({
                 **row,
                 "company": f.get("longName") or f.get("shortName") or row["name"],
-                "sector": f.get("sector") or row.get("sector"),
+                "sector": row.get("sector") or f.get("sector"),
                 "website": f.get("website"),
                 "industry": f.get("industry"),
                 "market_cap": f.get("marketCap"),
@@ -129,12 +139,11 @@ def build(signal=None):
                 "revenue_growth": f.get("revenueGrowth"),
                 "earnings_growth": f.get("earningsGrowth"),
                 "profit_margin": f.get("profitMargins"),
-                "dividend_yield": f.get("dividendYield"),
+                "dividend_yield": dividend_yield_percent(f),
             })
             print(f"     {row['symbol']:6s} {row['weight']*100:5.2f}%  "
                   f"PE {f.get('trailingPE')}")
-        enriched, yield_unit = normalise_yields(enriched)
-        print(f"     dividend yield unit: {yield_unit}")
+        yield_unit = 'percent. Annual dividend rate / quote price'
         top_n = sum(r["weight"] for r in enriched)
         out["legs"][leg] = {**meta, "holdings": enriched, "yield_unit": yield_unit,
                             "sector_weights": h["sector_weights"],
@@ -146,8 +155,18 @@ def build(signal=None):
                 row['website'] = websites.get(row['symbol'])
             out['legs'][leg].update(all_holdings=issuer['holdings'],
                                     snapshot_date=issuer['snapshot_date'],
-                                    source_url=issuer['source_url'])
+                                    source_url=issuer['source_url'],
+                                    net_disclosed_weight=issuer['net_disclosed_weight'],
+                                    disclosure_rounding_tolerance=issuer['disclosure_rounding_tolerance'])
             print(f"     issuer look-through: {len(issuer['holdings'])} equities at {issuer['snapshot_date']}")
+    annotate_sources(out)
+    try:
+        positions = [row for key, leg in out['legs'].items()
+                     if key == 'sector' or leg['slot'].startswith('USA_')
+                     for row in leg.get('all_holdings') or leg.get('holdings') or []]
+        logos.refresh(positions)
+    except Exception as exc:
+        print(f'  !! optional logos unavailable: {exc}')
     (DATA / "holdings.json").write_text(json.dumps(out, indent=2, default=str))
     print(f"\nwrote {DATA/'holdings.json'}")
     return out

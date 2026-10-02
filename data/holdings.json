@@ -1,8 +1,8 @@
 {
   "as_at": "2026-09",
   "fetched_at": "2026-10-02T12:02:21.512663+00:00",
-  "snapshot_date": null,
-  "source": "Yahoo Finance top-ten holdings",
+  "snapshot_date": "2026-09-30",
+  "source": "iShares dated equity holdings",
   "legs": {
     "factor": {
       "slot": "USA_VAL",
@@ -1365,7 +1365,12 @@
         }
       ],
       "snapshot_date": "2026-09-30",
-      "source_url": "https://www.ishares.com/varnish-api/uk-retail01-product-data/product-data/api/v1/get-fund-document?appType=PRODUCT_PAGE&appSubType=ISHARES&targetSite=ishares-uk&locale=en_GB&portfolioId=285207&userType=individual&asOfDate=20260930&component=holdings"
+      "source_url": "https://www.ishares.com/varnish-api/uk-retail01-product-data/product-data/api/v1/get-fund-document?appType=PRODUCT_PAGE&appSubType=ISHARES&targetSite=ishares-uk&locale=en_GB&portfolioId=285207&userType=individual&asOfDate=20260930&component=holdings",
+      "source": "iShares dated equity holdings",
+      "fundamentals_source": "Yahoo Finance",
+      "fundamentals_fetched_at": "2026-10-02T12:02:21.512663+00:00",
+      "net_disclosed_weight": 1.0004,
+      "disclosure_rounding_tolerance": 0.007651000000000001
     },
     "sector": {
       "slot": "INFOTECH",
@@ -2142,7 +2147,12 @@
         }
       ],
       "snapshot_date": "2026-09-30",
-      "source_url": "https://www.ishares.com/varnish-api/uk-retail01-product-data/product-data/api/v1/get-fund-document?appType=PRODUCT_PAGE&appSubType=ISHARES&targetSite=ishares-uk&locale=en_GB&portfolioId=280510&userType=individual&asOfDate=20260930&component=holdings"
+      "source_url": "https://www.ishares.com/varnish-api/uk-retail01-product-data/product-data/api/v1/get-fund-document?appType=PRODUCT_PAGE&appSubType=ISHARES&targetSite=ishares-uk&locale=en_GB&portfolioId=280510&userType=individual&asOfDate=20260930&component=holdings",
+      "source": "iShares dated equity holdings",
+      "fundamentals_source": "Yahoo Finance",
+      "fundamentals_fetched_at": "2026-10-02T12:02:21.512663+00:00",
+      "net_disclosed_weight": 1.0004,
+      "disclosure_rounding_tolerance": 0.004001
     }
   }
 }
