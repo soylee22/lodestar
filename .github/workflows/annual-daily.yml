@@ -1,0 +1,62 @@
+name: The Annual daily email
+on:
+  schedule:
+    - cron: '0 7 * * 1-5'
+  workflow_dispatch:
+    inputs:
+      send_email:
+        description: Send the daily email unless already delivered today
+        type: boolean
+        default: true
+permissions:
+  contents: read
+concurrency:
+  group: annual-daily-email
+  cancel-in-progress: false
+jobs:
+  daily:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      TZ: Europe/London
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          repository: soylee22/the-annual
+          ref: main
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+      - run: pip install -r requirements.txt
+      - run: python -m pytest tests -q
+      - name: London delivery date
+        id: day
+        run: echo "date=$(TZ=Europe/London date +%F)" >> "$GITHUB_OUTPUT"
+      - uses: actions/cache/restore@v4
+        id: receipt
+        with:
+          path: .daily-mail
+          key: annual-daily-mail-v1-${{ steps.day.outputs.date }}
+      - name: Refresh portfolio and provisional contenders
+        if: steps.receipt.outputs.cache-hit != 'true' || inputs.send_email == false
+        run: python scripts/refresh.py --leaders
+      - name: Compose preview
+        run: python scripts/daily.py
+      - name: Send one daily email
+        if: github.event_name == 'schedule' || inputs.send_email
+        env:
+          GMAIL_APP_PASSWORD: ${{ secrets.GMAIL_APP_PASSWORD }}
+        run: python scripts/daily.py --send
+      - uses: actions/cache/save@v4
+        if: (github.event_name == 'schedule' || inputs.send_email) && steps.receipt.outputs.cache-hit != 'true'
+        with:
+          path: .daily-mail
+          key: annual-daily-mail-v1-${{ steps.day.outputs.date }}
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: annual-daily-preview
+          path: daily-preview/
+          if-no-files-found: ignore
