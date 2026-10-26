@@ -1,6 +1,6 @@
 {
   "as_at": "2026-09",
-  "fetched_at": "2026-10-25T10:55:21.653846+00:00",
+  "fetched_at": "2026-10-26T12:26:04.730017+00:00",
   "snapshot_date": "2026-09-30",
   "source": "iShares dated equity holdings",
   "legs": {
@@ -1370,7 +1370,7 @@
       "disclosure_rounding_tolerance": 0.007651000000000001,
       "source": "iShares dated equity holdings",
       "fundamentals_source": "Yahoo Finance",
-      "fundamentals_fetched_at": "2026-10-25T10:55:21.653846+00:00"
+      "fundamentals_fetched_at": "2026-10-26T12:26:04.730017+00:00"
     },
     "sector": {
       "slot": "INFOTECH",
@@ -1404,7 +1404,7 @@
           "industry": "Consumer Electronics",
           "market_cap": 5074761285632.0,
           "pe": 39.87672,
-          "forward_pe": 36.332245,
+          "forward_pe": 36.365494,
           "revenue_growth": 0.164,
           "earnings_growth": 0.287,
           "profit_margin": 0.27618998,
@@ -1421,7 +1421,7 @@
           "industry": "Software - Infrastructure",
           "market_cap": 3894773022720.0,
           "pe": 29.220612,
-          "forward_pe": 22.128946,
+          "forward_pe": 22.140827,
           "revenue_growth": 0.177,
           "earnings_growth": 0.317,
           "profit_margin": 0.40305,
@@ -1437,7 +1437,7 @@
           "website": "https://www.broadcom.com",
           "industry": "Semiconductors",
           "market_cap": 1535581224960.0,
-          "pe": 42.94793,
+          "pe": 41.08301,
           "forward_pe": 16.554564,
           "revenue_growth": 0.855,
           "earnings_growth": 2.153,
@@ -1489,7 +1489,7 @@
           "industry": "Semiconductors",
           "market_cap": 459679694848.0,
           "pe": null,
-          "forward_pe": 41.1682,
+          "forward_pe": 40.8833,
           "revenue_growth": 0.254,
           "earnings_growth": null,
           "profit_margin": -0.19794,
@@ -1505,8 +1505,8 @@
           "website": "https://www.palantir.com",
           "industry": "Software - Infrastructure",
           "market_cap": 472801738752.0,
-          "pe": 174.11505,
-          "forward_pe": 83.70559,
+          "pe": 169.61208,
+          "forward_pe": 83.52153,
           "revenue_growth": 0.928,
           "earnings_growth": 2.154,
           "profit_margin": 0.49005002,
@@ -2152,7 +2152,7 @@
       "disclosure_rounding_tolerance": 0.004001,
       "source": "iShares dated equity holdings",
       "fundamentals_source": "Yahoo Finance",
-      "fundamentals_fetched_at": "2026-10-25T10:55:21.653846+00:00"
+      "fundamentals_fetched_at": "2026-10-26T12:26:04.730017+00:00"
     }
   }
 }
