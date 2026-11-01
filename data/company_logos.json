@@ -558,7 +558,7 @@
     "source": "https://images.financialmodelingprep.com/symbol/HUM.png"
   },
   "IBM": {
-    "companyKey": "INTERNATIONAL BUSINESS MACHINES",
+    "companyKey": "INTERNATIONAL BUSINESS MACHINES CO",
     "path": "assets/company-logos/IBM.png",
     "sha256": "0c00f631f778b9945b7599e1b0174f0346bdd622bc5979bac50c8b996c8cf88d",
     "source": "https://images.financialmodelingprep.com/symbol/IBM.png"
@@ -1008,7 +1008,7 @@
     "source": "https://images.financialmodelingprep.com/symbol/T.png"
   },
   "TDY": {
-    "companyKey": "TELEDYNE TECHNOLOGIES INC",
+    "companyKey": "TELEDYNE TECHNOLOGIES",
     "path": "assets/company-logos/TDY.png",
     "sha256": "1397dbf940fbbee4974b64fb2b04dcad5e9811aa569be61b4930a0b1a3f9425b",
     "source": "https://images.financialmodelingprep.com/symbol/TDY.png"
@@ -1062,7 +1062,7 @@
     "source": "https://images.financialmodelingprep.com/symbol/TWLO.png"
   },
   "TXN": {
-    "companyKey": "TEXAS INSTRUMENT INC",
+    "companyKey": "TEXAS INSTRUMENT",
     "path": "assets/company-logos/TXN.png",
     "sha256": "78d856c2f203fc930393c0ba17702e1fab70067c129666fe29bb85a6df0d1664",
     "source": "https://images.financialmodelingprep.com/symbol/TXN.png"

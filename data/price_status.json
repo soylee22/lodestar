@@ -1,34 +1,28 @@
 {
-  "expected": "2026-09",
-  "performanceThrough": "2026-09",
+  "expected": "2026-10",
+  "performanceThrough": "2026-10",
   "inputs": [
     {
       "ticker": "IUVL.L",
-      "month": "2026-08",
+      "month": "2026-09",
       "available": true,
       "basis": "GBP adjusted close"
     },
     {
       "ticker": "IUVL.L",
+      "month": "2026-10",
+      "available": true,
+      "basis": "GBP adjusted close"
+    },
+    {
+      "ticker": "IUIT.L",
       "month": "2026-09",
       "available": true,
       "basis": "GBP adjusted close"
     },
     {
-      "ticker": "IUES.L",
-      "month": "2026-08",
-      "available": true,
-      "basis": "GBP adjusted close"
-    },
-    {
-      "ticker": "IUES.L",
-      "month": "2026-09",
-      "available": true,
-      "basis": "GBP adjusted close"
-    },
-    {
-      "ticker": "VWRL.L",
-      "month": "2026-08",
+      "ticker": "IUIT.L",
+      "month": "2026-10",
       "available": true,
       "basis": "GBP adjusted close"
     },
@@ -39,8 +33,8 @@
       "basis": "GBP adjusted close"
     },
     {
-      "ticker": "VUSA.L",
-      "month": "2026-08",
+      "ticker": "VWRL.L",
+      "month": "2026-10",
       "available": true,
       "basis": "GBP adjusted close"
     },
@@ -51,14 +45,20 @@
       "basis": "GBP adjusted close"
     },
     {
-      "ticker": "IWDA.L",
-      "month": "2026-08",
+      "ticker": "VUSA.L",
+      "month": "2026-10",
       "available": true,
       "basis": "GBP adjusted close"
     },
     {
       "ticker": "IWDA.L",
       "month": "2026-09",
+      "available": true,
+      "basis": "GBP adjusted close"
+    },
+    {
+      "ticker": "IWDA.L",
+      "month": "2026-10",
       "available": true,
       "basis": "GBP adjusted close"
     }

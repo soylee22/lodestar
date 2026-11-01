@@ -45,5 +45,32 @@
       "MATERIALS": -0.010143282880825
     },
     "cash": false
+  },
+  "2026-10": {
+    "provenance": "Computed at month end",
+    "factor": "USA_VAL",
+    "factor_source": "ETF proxy",
+    "factor_table": {
+      "USA_MOM": 0.12310246111304113,
+      "USA_QUAL": 0.08605879542266126,
+      "USA_VAL": 0.28914389578081656,
+      "USA_SMALL": 0.07771040653663852,
+      "EUR_MOM": -0.03320053178516402,
+      "EUR_QUAL": 0.014489861956166639,
+      "EUR_VAL": -0.015179858255755074,
+      "EUR_SMALL": -0.03436946704348054
+    },
+    "sector": "INFOTECH",
+    "sector_source": "S&P index",
+    "sector_table": {
+      "CONS_DISC": 0.012438036544946796,
+      "CONS_STAP": -0.00030904569257905745,
+      "ENERGY": 0.2589171216644619,
+      "HEALTH": 0.1561068613820038,
+      "INDUST": -0.05396667187523052,
+      "INFOTECH": 0.26205070746153103,
+      "MATERIALS": -0.02625462885387797
+    },
+    "cash": false
   }
 }

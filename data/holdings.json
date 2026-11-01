@@ -1,7 +1,7 @@
 {
-  "as_at": "2026-09",
-  "fetched_at": "2026-10-31T11:50:06.156546+00:00",
-  "snapshot_date": "2026-09-30",
+  "as_at": "2026-10",
+  "fetched_at": "2026-11-01T12:49:38.814424+00:00",
+  "snapshot_date": "2026-10-30",
   "source": "iShares dated equity holdings",
   "legs": {
     "factor": {
@@ -11,7 +11,7 @@
         {
           "symbol": "MU",
           "name": "MICRON TECHNOLOGY",
-          "weight": 0.23809999999999998,
+          "weight": 0.20170000000000002,
           "isin": null,
           "sector": "Information Technology",
           "company": "Micron Technology, Inc.",
@@ -28,7 +28,7 @@
         {
           "symbol": "CSCO",
           "name": "CISCO SYSTEMS INC",
-          "weight": 0.04190000000000001,
+          "weight": 0.0415,
           "isin": null,
           "sector": "Information Technology",
           "company": "Cisco Systems, Inc.",
@@ -45,7 +45,7 @@
         {
           "symbol": "GM",
           "name": "GENERAL MOTORS",
-          "weight": 0.0335,
+          "weight": 0.0388,
           "isin": null,
           "sector": "Consumer Discretionary",
           "company": "General Motors Company",
@@ -62,7 +62,7 @@
         {
           "symbol": "VZ",
           "name": "VERIZON COMMUNICATIONS INC",
-          "weight": 0.0282,
+          "weight": 0.0281,
           "isin": null,
           "sector": "Communication",
           "company": "Verizon Communications Inc.",
@@ -79,7 +79,7 @@
         {
           "symbol": "T",
           "name": "AT&T",
-          "weight": 0.0259,
+          "weight": 0.0232,
           "isin": null,
           "sector": "Communication",
           "company": "AT&T Inc.",
@@ -94,9 +94,26 @@
           "dividend_yield": 5.184493227463802
         },
         {
+          "symbol": "PFE",
+          "name": "PFIZER",
+          "weight": 0.019299999999999998,
+          "isin": null,
+          "sector": "Health Care",
+          "company": "Pfizer Inc.",
+          "website": "https://www.pfizer.com",
+          "industry": "Drug Manufacturers - General",
+          "market_cap": 173954039808.0,
+          "pe": 40.157894,
+          "forward_pe": 10.572186,
+          "revenue_growth": 0.026,
+          "earnings_growth": null,
+          "profit_margin": 0.06804,
+          "dividend_yield": 5.6356487549148095
+        },
+        {
           "symbol": "HPE",
           "name": "HEWLETT PACKARD ENTERPRISE",
-          "weight": 0.0203,
+          "weight": 0.0178,
           "isin": null,
           "sector": "Information Technology",
           "company": "Hewlett Packard Enterprise Company",
@@ -113,7 +130,7 @@
         {
           "symbol": "BAC",
           "name": "BANK OF AMERICA",
-          "weight": 0.018799999999999997,
+          "weight": 0.0177,
           "isin": null,
           "sector": "Financials",
           "company": "Bank of America Corporation",
@@ -121,84 +138,67 @@
           "industry": "Banks - Diversified",
           "market_cap": 345079447552.0,
           "pe": 11.93556,
-          "forward_pe": 9.627008,
+          "forward_pe": 9.64407,
           "revenue_growth": 0.071,
           "earnings_growth": -0.143,
           "profit_margin": 0.28064,
           "dividend_yield": 2.5594881023795244
         },
         {
-          "symbol": "DELL",
-          "name": "DELL TECHNOLOGIES INC CLASS C",
-          "weight": 0.0183,
+          "symbol": "F",
+          "name": "FORD MOTOR CO",
+          "weight": 0.0176,
           "isin": null,
-          "sector": "Information Technology",
-          "company": "Dell Technologies Inc.",
-          "website": "https://www.dell.com",
-          "industry": "Computer Hardware",
-          "market_cap": 269775339520.0,
-          "pe": 24.668602,
-          "forward_pe": 14.020323,
-          "revenue_growth": 0.577,
-          "earnings_growth": 2.729,
-          "profit_margin": 0.07525,
-          "dividend_yield": 0.5939193966533113
+          "sector": "Consumer Discretionary",
+          "company": "Ford Motor Company",
+          "website": "https://www.ford.com",
+          "industry": "Auto Manufacturers",
+          "market_cap": 48916914176.0,
+          "pe": null,
+          "forward_pe": 6.4183846,
+          "revenue_growth": -0.02,
+          "earnings_growth": -0.167,
+          "profit_margin": -0.041690003,
+          "dividend_yield": 4.8979591836734695
         },
         {
-          "symbol": "PFE",
-          "name": "PFIZER",
-          "weight": 0.0177,
+          "symbol": "DIS",
+          "name": "WALT DISNEY",
+          "weight": 0.0175,
           "isin": null,
-          "sector": "Health Care",
-          "company": "Pfizer Inc.",
-          "website": "https://www.pfizer.com",
-          "industry": "Drug Manufacturers - General",
-          "market_cap": 173954039808.0,
-          "pe": 40.157894,
-          "forward_pe": 10.582194,
-          "revenue_growth": 0.026,
-          "earnings_growth": null,
-          "profit_margin": 0.06804,
-          "dividend_yield": 5.6356487549148095
-        },
-        {
-          "symbol": "QCOM",
-          "name": "QUALCOMM",
-          "weight": 0.0172,
-          "isin": null,
-          "sector": "Information Technology",
-          "company": "QUALCOMM Incorporated",
-          "website": "https://www.qualcomm.com",
-          "industry": "Semiconductors",
-          "market_cap": 175969255424.0,
-          "pe": 19.072916,
-          "forward_pe": 16.1775,
-          "revenue_growth": -0.04,
-          "earnings_growth": -0.23,
-          "profit_margin": 0.21013,
-          "dividend_yield": 2.2331452151222773
+          "sector": "Communication",
+          "company": "The Walt Disney Company",
+          "website": "https://thewaltdisneycompany.com",
+          "industry": "Entertainment",
+          "market_cap": 191558647808.0,
+          "pe": 22.874228,
+          "forward_pe": 14.795531,
+          "revenue_growth": 0.068,
+          "earnings_growth": -0.483,
+          "profit_margin": 0.086990006,
+          "dividend_yield": 1.3520822065981613
         }
       ],
       "yield_unit": "percent. Annual dividend rate / quote price",
       "sector_weights": {
-        "Information Technology": 0.4346999999999999,
-        "Consumer Discretionary": 0.08470000000000001,
-        "Communication": 0.0926,
-        "Financials": 0.10640000000000001,
-        "Health Care": 0.07990000000000001,
-        "Industrials": 0.0754,
-        "Consumer Staples": 0.043,
-        "Energy": 0.0325,
-        "Materials": 0.017099999999999997,
-        "Real Estate": 0.014000000000000002,
-        "Utilities": 0.0164
+        "Information Technology": 0.39479999999999993,
+        "Consumer Discretionary": 0.09440000000000003,
+        "Communication": 0.09300000000000001,
+        "Health Care": 0.0874,
+        "Financials": 0.11,
+        "Industrials": 0.08320000000000001,
+        "Consumer Staples": 0.045799999999999993,
+        "Energy": 0.0373,
+        "Materials": 0.0178,
+        "Real Estate": 0.015300000000000001,
+        "Utilities": 0.0185
       },
-      "top10_weight": 0.4599,
+      "top10_weight": 0.4232,
       "all_holdings": [
         {
           "symbol": "MU",
           "name": "MICRON TECHNOLOGY",
-          "weight": 0.23809999999999998,
+          "weight": 0.20170000000000002,
           "isin": null,
           "sector": "Information Technology",
           "website": "https://www.micron.com"
@@ -206,7 +206,7 @@
         {
           "symbol": "CSCO",
           "name": "CISCO SYSTEMS INC",
-          "weight": 0.04190000000000001,
+          "weight": 0.0415,
           "isin": null,
           "sector": "Information Technology",
           "website": "https://www.cisco.com"
@@ -214,7 +214,7 @@
         {
           "symbol": "GM",
           "name": "GENERAL MOTORS",
-          "weight": 0.0335,
+          "weight": 0.0388,
           "isin": null,
           "sector": "Consumer Discretionary",
           "website": "https://www.gm.com"
@@ -222,7 +222,7 @@
         {
           "symbol": "VZ",
           "name": "VERIZON COMMUNICATIONS INC",
-          "weight": 0.0282,
+          "weight": 0.0281,
           "isin": null,
           "sector": "Communication",
           "website": "https://www.verizon.com"
@@ -230,15 +230,23 @@
         {
           "symbol": "T",
           "name": "AT&T",
-          "weight": 0.0259,
+          "weight": 0.0232,
           "isin": null,
           "sector": "Communication",
           "website": "https://www.att.com"
         },
         {
+          "symbol": "PFE",
+          "name": "PFIZER",
+          "weight": 0.019299999999999998,
+          "isin": null,
+          "sector": "Health Care",
+          "website": "https://www.pfizer.com"
+        },
+        {
           "symbol": "HPE",
           "name": "HEWLETT PACKARD ENTERPRISE",
-          "weight": 0.0203,
+          "weight": 0.0178,
           "isin": null,
           "sector": "Information Technology",
           "website": "https://www.hpe.com"
@@ -246,87 +254,71 @@
         {
           "symbol": "BAC",
           "name": "BANK OF AMERICA",
-          "weight": 0.018799999999999997,
+          "weight": 0.0177,
           "isin": null,
           "sector": "Financials",
           "website": "https://www.bankofamerica.com"
         },
         {
-          "symbol": "DELL",
-          "name": "DELL TECHNOLOGIES INC CLASS C",
-          "weight": 0.0183,
-          "isin": null,
-          "sector": "Information Technology",
-          "website": "https://www.dell.com"
-        },
-        {
-          "symbol": "PFE",
-          "name": "PFIZER",
-          "weight": 0.0177,
-          "isin": null,
-          "sector": "Health Care",
-          "website": "https://www.pfizer.com"
-        },
-        {
-          "symbol": "QCOM",
-          "name": "QUALCOMM",
-          "weight": 0.0172,
-          "isin": null,
-          "sector": "Information Technology",
-          "website": "https://www.qualcomm.com"
-        },
-        {
           "symbol": "F",
           "name": "FORD MOTOR CO",
-          "weight": 0.017,
+          "weight": 0.0176,
           "isin": null,
           "sector": "Consumer Discretionary",
-          "website": null
+          "website": "https://www.ford.com"
         },
         {
           "symbol": "DIS",
           "name": "WALT DISNEY",
-          "weight": 0.016200000000000003,
+          "weight": 0.0175,
+          "isin": null,
+          "sector": "Communication",
+          "website": "https://thewaltdisneycompany.com"
+        },
+        {
+          "symbol": "CMCSA",
+          "name": "COMCAST CLASS A",
+          "weight": 0.017,
           "isin": null,
           "sector": "Communication",
           "website": null
         },
         {
-          "symbol": "CMCSA",
-          "name": "COMCAST CLASS A",
-          "weight": 0.015600000000000001,
+          "symbol": "QCOM",
+          "name": "QUALCOMM",
+          "weight": 0.015700000000000002,
           "isin": null,
-          "sector": "Communication",
+          "sector": "Information Technology",
           "website": null
         },
         {
           "symbol": "C",
           "name": "CITIGROUP",
-          "weight": 0.015300000000000001,
+          "weight": 0.0148,
           "isin": null,
           "sector": "Financials",
           "website": null
         },
         {
-          "symbol": "CVS",
-          "name": "CVS HEALTH",
-          "weight": 0.012199999999999999,
-          "isin": null,
-          "sector": "Health Care",
-          "website": null
-        },
-        {
-          "symbol": "CRM",
-          "name": "SALESFORCE",
-          "weight": 0.012,
+          "symbol": "DELL",
+          "name": "DELL TECHNOLOGIES INC CLASS C",
+          "weight": 0.0147,
           "isin": null,
           "sector": "Information Technology",
           "website": null
         },
         {
-          "symbol": "BMY",
-          "name": "BRISTOL MYERS SQUIBB",
-          "weight": 0.0115,
+          "symbol": "ACN",
+          "name": "ACCENTURE PLC CLASS A",
+          "weight": 0.014499999999999999,
+          "isin": null,
+          "sector": "Information Technology",
+          "website": null
+        },
+        {
+          "symbol": "CVS",
+          "name": "CVS HEALTH",
+          "weight": 0.0132,
           "isin": null,
           "sector": "Health Care",
           "website": null
@@ -334,39 +326,39 @@
         {
           "symbol": "FDX",
           "name": "FEDEX CORP",
-          "weight": 0.011399999999999999,
+          "weight": 0.0128,
           "isin": null,
           "sector": "Industrials",
           "website": null
         },
         {
-          "symbol": "WFC",
-          "name": "WELLS FARGO",
-          "weight": 0.0113,
-          "isin": null,
-          "sector": "Financials",
-          "website": null
-        },
-        {
-          "symbol": "ACN",
-          "name": "ACCENTURE PLC CLASS A",
-          "weight": 0.0101,
+          "symbol": "CRM",
+          "name": "SALESFORCE",
+          "weight": 0.0123,
           "isin": null,
           "sector": "Information Technology",
           "website": null
         },
         {
-          "symbol": "ADM",
-          "name": "ARCHER DANIELS MIDLAND",
-          "weight": 0.009399999999999999,
+          "symbol": "WFC",
+          "name": "WELLS FARGO",
+          "weight": 0.011899999999999999,
           "isin": null,
-          "sector": "Consumer Staples",
+          "sector": "Financials",
+          "website": null
+        },
+        {
+          "symbol": "BMY",
+          "name": "BRISTOL MYERS SQUIBB",
+          "weight": 0.011699999999999999,
+          "isin": null,
+          "sector": "Health Care",
           "website": null
         },
         {
           "symbol": "UPS",
           "name": "UNITED PARCEL SERVICE INC CLASS B",
-          "weight": 0.0088,
+          "weight": 0.0104,
           "isin": null,
           "sector": "Industrials",
           "website": null
@@ -374,17 +366,65 @@
         {
           "symbol": "CI",
           "name": "CIGNA",
-          "weight": 0.0088,
+          "weight": 0.009899999999999999,
           "isin": null,
           "sector": "Health Care",
           "website": null
         },
         {
-          "symbol": "PCAR",
-          "name": "PACCAR INC",
-          "weight": 0.0084,
+          "symbol": "ADM",
+          "name": "ARCHER DANIELS MIDLAND",
+          "weight": 0.009300000000000001,
+          "isin": null,
+          "sector": "Consumer Staples",
+          "website": null
+        },
+        {
+          "symbol": "DHI",
+          "name": "D R HORTON",
+          "weight": 0.0089,
+          "isin": null,
+          "sector": "Consumer Discretionary",
+          "website": null
+        },
+        {
+          "symbol": "EOG",
+          "name": "EOG RESOURCES",
+          "weight": 0.0089,
+          "isin": null,
+          "sector": "Energy",
+          "website": null
+        },
+        {
+          "symbol": "URI",
+          "name": "UNITED RENTALS",
+          "weight": 0.0088,
           "isin": null,
           "sector": "Industrials",
+          "website": null
+        },
+        {
+          "symbol": "DVN",
+          "name": "DEVON ENERGY",
+          "weight": 0.0086,
+          "isin": null,
+          "sector": "Energy",
+          "website": null
+        },
+        {
+          "symbol": "VLO",
+          "name": "VALERO ENERGY CORP",
+          "weight": 0.0086,
+          "isin": null,
+          "sector": "Energy",
+          "website": null
+        },
+        {
+          "symbol": "COF",
+          "name": "CAPITAL ONE FINANCIAL CORP",
+          "weight": 0.0084,
+          "isin": null,
+          "sector": "Financials",
           "website": null
         },
         {
@@ -396,97 +436,41 @@
           "website": null
         },
         {
-          "symbol": "DHI",
-          "name": "D R HORTON",
-          "weight": 0.008199999999999999,
-          "isin": null,
-          "sector": "Consumer Discretionary",
-          "website": null
-        },
-        {
-          "symbol": "VLO",
-          "name": "VALERO ENERGY CORP",
-          "weight": 0.008199999999999999,
-          "isin": null,
-          "sector": "Energy",
-          "website": null
-        },
-        {
-          "symbol": "COF",
-          "name": "CAPITAL ONE FINANCIAL CORP",
-          "weight": 0.0078000000000000005,
-          "isin": null,
-          "sector": "Financials",
-          "website": null
-        },
-        {
-          "symbol": "DVN",
-          "name": "DEVON ENERGY",
-          "weight": 0.0074,
-          "isin": null,
-          "sector": "Energy",
-          "website": null
-        },
-        {
-          "symbol": "URI",
-          "name": "UNITED RENTALS",
-          "weight": 0.0074,
+          "symbol": "PCAR",
+          "name": "PACCAR INC",
+          "weight": 0.008,
           "isin": null,
           "sector": "Industrials",
-          "website": null
-        },
-        {
-          "symbol": "EOG",
-          "name": "EOG RESOURCES",
-          "weight": 0.0073,
-          "isin": null,
-          "sector": "Energy",
-          "website": null
-        },
-        {
-          "symbol": "KHC",
-          "name": "KRAFT HEINZ",
-          "weight": 0.0069,
-          "isin": null,
-          "sector": "Consumer Staples",
           "website": null
         },
         {
           "symbol": "CSX",
           "name": "CSX",
-          "weight": 0.0068000000000000005,
+          "weight": 0.0078000000000000005,
           "isin": null,
           "sector": "Industrials",
           "website": null
         },
         {
-          "symbol": "TEL",
-          "name": "TE CONNECTIVITY PLC",
-          "weight": 0.0068000000000000005,
+          "symbol": "KHC",
+          "name": "KRAFT HEINZ",
+          "weight": 0.0075,
           "isin": null,
-          "sector": "Information Technology",
+          "sector": "Consumer Staples",
           "website": null
         },
         {
           "symbol": "ELV",
           "name": "ELEVANCE HEALTH INC",
-          "weight": 0.0067,
+          "weight": 0.0073,
           "isin": null,
           "sector": "Health Care",
           "website": null
         },
         {
-          "symbol": "NEM",
-          "name": "NEWMONT",
-          "weight": 0.0067,
-          "isin": null,
-          "sector": "Materials",
-          "website": null
-        },
-        {
-          "symbol": "ADBE",
-          "name": "ADOBE INC",
-          "weight": 0.006,
+          "symbol": "TEL",
+          "name": "TE CONNECTIVITY PLC",
+          "weight": 0.006999999999999999,
           "isin": null,
           "sector": "Information Technology",
           "website": null
@@ -494,23 +478,7 @@
         {
           "symbol": "PHM",
           "name": "PULTEGROUP",
-          "weight": 0.0059,
-          "isin": null,
-          "sector": "Consumer Discretionary",
-          "website": null
-        },
-        {
-          "symbol": "MSTR",
-          "name": "STRATEGY INC CLASS A",
-          "weight": 0.0058,
-          "isin": null,
-          "sector": "Information Technology",
-          "website": null
-        },
-        {
-          "symbol": "EXPE",
-          "name": "EXPEDIA GROUP",
-          "weight": 0.0058,
+          "weight": 0.006500000000000001,
           "isin": null,
           "sector": "Consumer Discretionary",
           "website": null
@@ -518,31 +486,39 @@
         {
           "symbol": "KR",
           "name": "KROGER",
-          "weight": 0.0055000000000000005,
+          "weight": 0.006500000000000001,
           "isin": null,
           "sector": "Consumer Staples",
           "website": null
         },
         {
+          "symbol": "ADBE",
+          "name": "ADOBE INC",
+          "weight": 0.0064,
+          "isin": null,
+          "sector": "Information Technology",
+          "website": null
+        },
+        {
+          "symbol": "EXPE",
+          "name": "EXPEDIA GROUP",
+          "weight": 0.0064,
+          "isin": null,
+          "sector": "Consumer Discretionary",
+          "website": null
+        },
+        {
+          "symbol": "NEM",
+          "name": "NEWMONT",
+          "weight": 0.0063,
+          "isin": null,
+          "sector": "Materials",
+          "website": null
+        },
+        {
           "symbol": "NXPI",
           "name": "NXP SEMICONDUCTORS NV",
-          "weight": 0.0055000000000000005,
-          "isin": null,
-          "sector": "Information Technology",
-          "website": null
-        },
-        {
-          "symbol": "HPQ",
-          "name": "HP INC",
-          "weight": 0.0055000000000000005,
-          "isin": null,
-          "sector": "Information Technology",
-          "website": null
-        },
-        {
-          "symbol": "NTAP",
-          "name": "NETAPP INC",
-          "weight": 0.0052,
+          "weight": 0.0060999999999999995,
           "isin": null,
           "sector": "Information Technology",
           "website": null
@@ -550,7 +526,7 @@
         {
           "symbol": "CTSH",
           "name": "COGNIZANT TECHNOLOGY SOLUTIONS CLA",
-          "weight": 0.0052,
+          "weight": 0.006,
           "isin": null,
           "sector": "Information Technology",
           "website": null
@@ -558,7 +534,7 @@
         {
           "symbol": "CCL",
           "name": "CARNIVAL CORP LTD",
-          "weight": 0.0049,
+          "weight": 0.0059,
           "isin": null,
           "sector": "Consumer Discretionary",
           "website": null
@@ -566,15 +542,31 @@
         {
           "symbol": "CNC",
           "name": "CENTENE CORP",
-          "weight": 0.0049,
+          "weight": 0.0055000000000000005,
           "isin": null,
           "sector": "Health Care",
           "website": null
         },
         {
-          "symbol": "TWLO",
-          "name": "TWILIO CLASS A",
-          "weight": 0.0048,
+          "symbol": "LHX",
+          "name": "L3HARRIS TECHNOLOGIES",
+          "weight": 0.0054,
+          "isin": null,
+          "sector": "Industrials",
+          "website": null
+        },
+        {
+          "symbol": "HPQ",
+          "name": "HP INC",
+          "weight": 0.0052,
+          "isin": null,
+          "sector": "Information Technology",
+          "website": null
+        },
+        {
+          "symbol": "MSTR",
+          "name": "STRATEGY INC CLASS A",
+          "weight": 0.005,
           "isin": null,
           "sector": "Information Technology",
           "website": null
@@ -582,63 +574,71 @@
         {
           "symbol": "USB",
           "name": "US BANCORP",
-          "weight": 0.0048,
+          "weight": 0.005,
           "isin": null,
           "sector": "Financials",
+          "website": null
+        },
+        {
+          "symbol": "NTAP",
+          "name": "NETAPP INC",
+          "weight": 0.005,
+          "isin": null,
+          "sector": "Information Technology",
           "website": null
         },
         {
           "symbol": "LEN",
           "name": "LENNAR A CLASS A",
-          "weight": 0.0045000000000000005,
+          "weight": 0.005,
           "isin": null,
           "sector": "Consumer Discretionary",
           "website": null
         },
         {
-          "symbol": "LHX",
-          "name": "L3HARRIS TECHNOLOGIES",
-          "weight": 0.0045000000000000005,
-          "isin": null,
-          "sector": "Industrials",
-          "website": null
-        },
-        {
           "symbol": "PNC",
           "name": "PNC FINANCIAL SERVICES GROUP",
+          "weight": 0.0046,
+          "isin": null,
+          "sector": "Financials",
+          "website": null
+        },
+        {
+          "symbol": "FANG",
+          "name": "DIAMONDBACK ENERGY",
           "weight": 0.0045000000000000005,
           "isin": null,
-          "sector": "Financials",
-          "website": null
-        },
-        {
-          "symbol": "WAB",
-          "name": "WESTINGHOUSE AIR BRAKE TECHNOLOGIE",
-          "weight": 0.0044,
-          "isin": null,
-          "sector": "Industrials",
-          "website": null
-        },
-        {
-          "symbol": "PRU",
-          "name": "PRUDENTIAL FINANCIAL INC",
-          "weight": 0.0040999999999999995,
-          "isin": null,
-          "sector": "Financials",
+          "sector": "Energy",
           "website": null
         },
         {
           "symbol": "SPG",
           "name": "SIMON PROPERTY GROUP REIT INC",
-          "weight": 0.004,
+          "weight": 0.0044,
           "isin": null,
           "sector": "Real Estate",
           "website": null
         },
         {
+          "symbol": "WAB",
+          "name": "WESTINGHOUSE AIR BRAKE TECHNOLOGIE",
+          "weight": 0.0043,
+          "isin": null,
+          "sector": "Industrials",
+          "website": null
+        },
+        {
           "symbol": "TFC",
           "name": "TRUIST FINANCIAL",
-          "weight": 0.004,
+          "weight": 0.0043,
+          "isin": null,
+          "sector": "Financials",
+          "website": null
+        },
+        {
+          "symbol": "PRU",
+          "name": "PRUDENTIAL FINANCIAL INC",
+          "weight": 0.0043,
           "isin": null,
           "sector": "Financials",
           "website": null
@@ -646,55 +646,15 @@
         {
           "symbol": "BBY",
           "name": "BEST BUY",
-          "weight": 0.0038,
+          "weight": 0.0042,
           "isin": null,
           "sector": "Consumer Discretionary",
           "website": null
         },
         {
-          "symbol": "FANG",
-          "name": "DIAMONDBACK ENERGY",
-          "weight": 0.0038,
-          "isin": null,
-          "sector": "Energy",
-          "website": null
-        },
-        {
-          "symbol": "ON",
-          "name": "ON SEMICONDUCTOR CORP",
-          "weight": 0.0038,
-          "isin": null,
-          "sector": "Information Technology",
-          "website": null
-        },
-        {
-          "symbol": "DAL",
-          "name": "DELTA AIR LINES",
-          "weight": 0.0038,
-          "isin": null,
-          "sector": "Industrials",
-          "website": null
-        },
-        {
-          "symbol": "MET",
-          "name": "METLIFE",
-          "weight": 0.0038,
-          "isin": null,
-          "sector": "Financials",
-          "website": null
-        },
-        {
-          "symbol": "PCG",
-          "name": "PG&E CORP",
-          "weight": 0.0037,
-          "isin": null,
-          "sector": "Utilities",
-          "website": null
-        },
-        {
-          "symbol": "ZM",
-          "name": "ZOOM COMMUNICATIONS CLASS A",
-          "weight": 0.0037,
+          "symbol": "ROP",
+          "name": "ROPER TECHNOLOGIES",
+          "weight": 0.0042,
           "isin": null,
           "sector": "Information Technology",
           "website": null
@@ -702,31 +662,39 @@
         {
           "symbol": "BDX",
           "name": "BECTON DICKINSON",
-          "weight": 0.0037,
+          "weight": 0.0040999999999999995,
           "isin": null,
           "sector": "Health Care",
+          "website": null
+        },
+        {
+          "symbol": "MET",
+          "name": "METLIFE",
+          "weight": 0.0040999999999999995,
+          "isin": null,
+          "sector": "Financials",
+          "website": null
+        },
+        {
+          "symbol": "PCG",
+          "name": "PG&E CORP",
+          "weight": 0.0040999999999999995,
+          "isin": null,
+          "sector": "Utilities",
           "website": null
         },
         {
           "symbol": "BIIB",
           "name": "BIOGEN",
-          "weight": 0.0036,
+          "weight": 0.0040999999999999995,
           "isin": null,
           "sector": "Health Care",
           "website": null
         },
         {
-          "symbol": "BG",
-          "name": "BUNGE GLOBAL SA",
-          "weight": 0.0034000000000000002,
-          "isin": null,
-          "sector": "Consumer Staples",
-          "website": null
-        },
-        {
-          "symbol": "FSLR",
-          "name": "FIRST SOLAR",
-          "weight": 0.0033,
+          "symbol": "ZM",
+          "name": "ZOOM COMMUNICATIONS CLASS A",
+          "weight": 0.004,
           "isin": null,
           "sector": "Information Technology",
           "website": null
@@ -734,17 +702,73 @@
         {
           "symbol": "TSN",
           "name": "TYSON FOODS INC CLASS A",
-          "weight": 0.0033,
+          "weight": 0.0038,
           "isin": null,
           "sector": "Consumer Staples",
           "website": null
         },
         {
-          "symbol": "FLEX",
-          "name": "FLEX LTD",
-          "weight": 0.0032,
+          "symbol": "DAL",
+          "name": "DELTA AIR LINES",
+          "weight": 0.0037,
+          "isin": null,
+          "sector": "Industrials",
+          "website": null
+        },
+        {
+          "symbol": "ON",
+          "name": "ON SEMICONDUCTOR CORP",
+          "weight": 0.0036,
           "isin": null,
           "sector": "Information Technology",
+          "website": null
+        },
+        {
+          "symbol": "TWLO",
+          "name": "TWILIO CLASS A",
+          "weight": 0.0034000000000000002,
+          "isin": null,
+          "sector": "Information Technology",
+          "website": null
+        },
+        {
+          "symbol": "AIG",
+          "name": "AMERICAN INTERNATIONAL GROUP",
+          "weight": 0.0034000000000000002,
+          "isin": null,
+          "sector": "Financials",
+          "website": null
+        },
+        {
+          "symbol": "FSLR",
+          "name": "FIRST SOLAR",
+          "weight": 0.0034000000000000002,
+          "isin": null,
+          "sector": "Information Technology",
+          "website": null
+        },
+        {
+          "symbol": "OXY",
+          "name": "OCCIDENTAL PETROLEUM CORP",
+          "weight": 0.0033,
+          "isin": null,
+          "sector": "Energy",
+          "website": null
+        },
+        {
+          "symbol": "SSNC",
+          "name": "SS AND C TECHNOLOGIES HOLDINGS",
+          "weight": 0.0033,
+          "isin": null,
+          "sector": "Industrials",
+          "website": null
+        },
+        {
+          "symbol": "KDP",
+          "name": "KEURIG DR PEPPER INC",
+          "weight": 0.0032,
+          "isin": null,
+          "sector": "Consumer Staples",
           "website": null
         },
         {
@@ -756,89 +780,57 @@
           "website": null
         },
         {
-          "symbol": "ROP",
-          "name": "ROPER TECHNOLOGIES",
-          "weight": 0.0031,
-          "isin": null,
-          "sector": "Information Technology",
-          "website": null
-        },
-        {
-          "symbol": "SSNC",
-          "name": "SS AND C TECHNOLOGIES HOLDINGS",
-          "weight": 0.0031,
-          "isin": null,
-          "sector": "Industrials",
-          "website": null
-        },
-        {
-          "symbol": "AIG",
-          "name": "AMERICAN INTERNATIONAL GROUP",
-          "weight": 0.0031,
-          "isin": null,
-          "sector": "Financials",
-          "website": null
-        },
-        {
-          "symbol": "FFIV",
-          "name": "F5",
-          "weight": 0.0029,
-          "isin": null,
-          "sector": "Information Technology",
-          "website": null
-        },
-        {
-          "symbol": "OXY",
-          "name": "OCCIDENTAL PETROLEUM CORP",
-          "weight": 0.0028000000000000004,
-          "isin": null,
-          "sector": "Energy",
-          "website": null
-        },
-        {
-          "symbol": "O",
-          "name": "REALTY INCOME REIT",
-          "weight": 0.0027,
-          "isin": null,
-          "sector": "Real Estate",
-          "website": null
-        },
-        {
           "symbol": "EXC",
           "name": "EXELON CORP",
-          "weight": 0.0027,
+          "weight": 0.0032,
           "isin": null,
           "sector": "Utilities",
           "website": null
         },
         {
-          "symbol": "RPRX",
-          "name": "ROYALTY PHARMA PLC CLASS A",
-          "weight": 0.0027,
-          "isin": null,
-          "sector": "Health Care",
-          "website": null
-        },
-        {
-          "symbol": "KDP",
-          "name": "KEURIG DR PEPPER INC",
-          "weight": 0.0026,
+          "symbol": "BG",
+          "name": "BUNGE GLOBAL SA",
+          "weight": 0.0031,
           "isin": null,
           "sector": "Consumer Staples",
           "website": null
         },
         {
+          "symbol": "RPRX",
+          "name": "ROYALTY PHARMA PLC CLASS A",
+          "weight": 0.0031,
+          "isin": null,
+          "sector": "Health Care",
+          "website": null
+        },
+        {
           "symbol": "TXT",
           "name": "TEXTRON INC",
-          "weight": 0.0026,
+          "weight": 0.003,
           "isin": null,
           "sector": "Industrials",
           "website": null
         },
         {
+          "symbol": "O",
+          "name": "REALTY INCOME REIT",
+          "weight": 0.003,
+          "isin": null,
+          "sector": "Real Estate",
+          "website": null
+        },
+        {
+          "symbol": "NUE",
+          "name": "NUCOR",
+          "weight": 0.003,
+          "isin": null,
+          "sector": "Materials",
+          "website": null
+        },
+        {
           "symbol": "D",
           "name": "DOMINION ENERGY",
-          "weight": 0.0025,
+          "weight": 0.0028000000000000004,
           "isin": null,
           "sector": "Utilities",
           "website": null
@@ -846,14 +838,70 @@
         {
           "symbol": "HUM",
           "name": "HUMANA",
-          "weight": 0.0025,
+          "weight": 0.0028000000000000004,
           "isin": null,
           "sector": "Health Care",
           "website": null
         },
         {
+          "symbol": "GEN",
+          "name": "GEN DIGITAL",
+          "weight": 0.0027,
+          "isin": null,
+          "sector": "Information Technology",
+          "website": null
+        },
+        {
+          "symbol": "DLTR",
+          "name": "DOLLAR TREE INC",
+          "weight": 0.0026,
+          "isin": null,
+          "sector": "Consumer Staples",
+          "website": null
+        },
+        {
           "symbol": "WDAY",
           "name": "WORKDAY CLASS A",
+          "weight": 0.0026,
+          "isin": null,
+          "sector": "Information Technology",
+          "website": null
+        },
+        {
+          "symbol": "OMC",
+          "name": "OMNICOM GROUP INC",
+          "weight": 0.0026,
+          "isin": null,
+          "sector": "Communication",
+          "website": null
+        },
+        {
+          "symbol": "ED",
+          "name": "CONSOLIDATED EDISON",
+          "weight": 0.0026,
+          "isin": null,
+          "sector": "Utilities",
+          "website": null
+        },
+        {
+          "symbol": "EIX",
+          "name": "EDISON INTERNATIONAL",
+          "weight": 0.0026,
+          "isin": null,
+          "sector": "Utilities",
+          "website": null
+        },
+        {
+          "symbol": "FDXF",
+          "name": "FEDEX FREIGHT HOLDING COMPANY INC",
+          "weight": 0.0026,
+          "isin": null,
+          "sector": "Industrials",
+          "website": null
+        },
+        {
+          "symbol": "FLEX",
+          "name": "FLEX LTD",
           "weight": 0.0025,
           "isin": null,
           "sector": "Information Technology",
@@ -868,67 +916,51 @@
           "website": null
         },
         {
-          "symbol": "NUE",
-          "name": "NUCOR",
+          "symbol": "FTV",
+          "name": "FORTIVE",
           "weight": 0.0025,
-          "isin": null,
-          "sector": "Materials",
-          "website": null
-        },
-        {
-          "symbol": "OMC",
-          "name": "OMNICOM GROUP INC",
-          "weight": 0.0023,
-          "isin": null,
-          "sector": "Communication",
-          "website": null
-        },
-        {
-          "symbol": "EIX",
-          "name": "EDISON INTERNATIONAL",
-          "weight": 0.0023,
-          "isin": null,
-          "sector": "Utilities",
-          "website": null
-        },
-        {
-          "symbol": "UAL",
-          "name": "UNITED AIRLINES HOLDINGS",
-          "weight": 0.0023,
           "isin": null,
           "sector": "Industrials",
           "website": null
         },
         {
-          "symbol": "DLTR",
-          "name": "DOLLAR TREE INC",
-          "weight": 0.0022,
+          "symbol": "LDOS",
+          "name": "LEIDOS HOLDINGS",
+          "weight": 0.0024,
           "isin": null,
-          "sector": "Consumer Staples",
+          "sector": "Industrials",
           "website": null
         },
         {
-          "symbol": "ED",
-          "name": "CONSOLIDATED EDISON",
-          "weight": 0.0022,
+          "symbol": "GPN",
+          "name": "GLOBAL PAYMENTS INC",
+          "weight": 0.0024,
           "isin": null,
-          "sector": "Utilities",
+          "sector": "Financials",
           "website": null
         },
         {
           "symbol": "TDY",
-          "name": "TELEDYNE TECHNOLOGIES INC",
-          "weight": 0.0022,
+          "name": "TELEDYNE TECHNOLOGIES",
+          "weight": 0.0024,
           "isin": null,
           "sector": "Information Technology",
           "website": null
         },
         {
-          "symbol": "FDXF",
-          "name": "FEDEX FREIGHT HOLDING COMPANY INC",
+          "symbol": "PSA",
+          "name": "PUBLIC STORAGE REIT",
+          "weight": 0.0023,
+          "isin": null,
+          "sector": "Real Estate",
+          "website": null
+        },
+        {
+          "symbol": "FFIV",
+          "name": "F5",
           "weight": 0.0022,
           "isin": null,
-          "sector": "Industrials",
+          "sector": "Information Technology",
           "website": null
         },
         {
@@ -940,43 +972,19 @@
           "website": null
         },
         {
-          "symbol": "SMCI",
-          "name": "SUPER MICRO COMPUTER INC",
+          "symbol": "UAL",
+          "name": "UNITED AIRLINES HOLDINGS",
+          "weight": 0.0022,
+          "isin": null,
+          "sector": "Industrials",
+          "website": null
+        },
+        {
+          "symbol": "LH",
+          "name": "LABCORP HOLDINGS",
           "weight": 0.0021,
           "isin": null,
-          "sector": "Information Technology",
-          "website": null
-        },
-        {
-          "symbol": "LDOS",
-          "name": "LEIDOS HOLDINGS",
-          "weight": 0.002,
-          "isin": null,
-          "sector": "Industrials",
-          "website": null
-        },
-        {
-          "symbol": "GEN",
-          "name": "GEN DIGITAL",
-          "weight": 0.002,
-          "isin": null,
-          "sector": "Information Technology",
-          "website": null
-        },
-        {
-          "symbol": "GPN",
-          "name": "GLOBAL PAYMENTS INC",
-          "weight": 0.002,
-          "isin": null,
-          "sector": "Financials",
-          "website": null
-        },
-        {
-          "symbol": "FTV",
-          "name": "FORTIVE",
-          "weight": 0.002,
-          "isin": null,
-          "sector": "Industrials",
+          "sector": "Health Care",
           "website": null
         },
         {
@@ -988,17 +996,9 @@
           "website": null
         },
         {
-          "symbol": "PSA",
-          "name": "PUBLIC STORAGE REIT",
-          "weight": 0.0019,
-          "isin": null,
-          "sector": "Real Estate",
-          "website": null
-        },
-        {
           "symbol": "ES",
           "name": "EVERSOURCE ENERGY",
-          "weight": 0.0019,
+          "weight": 0.002,
           "isin": null,
           "sector": "Utilities",
           "website": null
@@ -1006,25 +1006,41 @@
         {
           "symbol": "ZBH",
           "name": "ZIMMER BIOMET HOLDINGS",
-          "weight": 0.0018,
+          "weight": 0.0019,
           "isin": null,
           "sector": "Health Care",
           "website": null
         },
         {
-          "symbol": "SW",
-          "name": "SMURFIT WESTROCK PLC",
-          "weight": 0.0018,
+          "symbol": "FITB",
+          "name": "FIFTH THIRD BANCORP",
+          "weight": 0.0019,
           "isin": null,
-          "sector": "Materials",
+          "sector": "Financials",
           "website": null
         },
         {
-          "symbol": "CHTR",
-          "name": "CHARTER COMMUNICATIONS CLASS A",
-          "weight": 0.0018,
+          "symbol": "FISV",
+          "name": "FISERV INC",
+          "weight": 0.0019,
           "isin": null,
-          "sector": "Communication",
+          "sector": "Financials",
+          "website": null
+        },
+        {
+          "symbol": "ACGL",
+          "name": "ARCH CAPITAL GROUP",
+          "weight": 0.0019,
+          "isin": null,
+          "sector": "Financials",
+          "website": null
+        },
+        {
+          "symbol": "HBAN",
+          "name": "HUNTINGTON BANCSHARES INC",
+          "weight": 0.0019,
+          "isin": null,
+          "sector": "Financials",
           "website": null
         },
         {
@@ -1036,89 +1052,25 @@
           "website": null
         },
         {
-          "symbol": "HBAN",
-          "name": "HUNTINGTON BANCSHARES INC",
+          "symbol": "CHTR",
+          "name": "CHARTER COMMUNICATIONS CLASS A",
           "weight": 0.0018,
-          "isin": null,
-          "sector": "Financials",
-          "website": null
-        },
-        {
-          "symbol": "LH",
-          "name": "LABCORP HOLDINGS",
-          "weight": 0.0017000000000000001,
-          "isin": null,
-          "sector": "Health Care",
-          "website": null
-        },
-        {
-          "symbol": "FITB",
-          "name": "FIFTH THIRD BANCORP",
-          "weight": 0.0017000000000000001,
-          "isin": null,
-          "sector": "Financials",
-          "website": null
-        },
-        {
-          "symbol": "FISV",
-          "name": "FISERV INC",
-          "weight": 0.0017000000000000001,
-          "isin": null,
-          "sector": "Financials",
-          "website": null
-        },
-        {
-          "symbol": "ACGL",
-          "name": "ARCH CAPITAL GROUP",
-          "weight": 0.0016,
-          "isin": null,
-          "sector": "Financials",
-          "website": null
-        },
-        {
-          "symbol": "FOXA",
-          "name": "FOX CLASS A",
-          "weight": 0.0016,
           "isin": null,
           "sector": "Communication",
           "website": null
         },
         {
-          "symbol": "SYF",
-          "name": "SYNCHRONY FINANCIAL",
-          "weight": 0.0016,
+          "symbol": "SW",
+          "name": "SMURFIT WESTROCK PLC",
+          "weight": 0.0018,
           "isin": null,
-          "sector": "Financials",
-          "website": null
-        },
-        {
-          "symbol": "VICI",
-          "name": "VICI PPTYS INC",
-          "weight": 0.0016,
-          "isin": null,
-          "sector": "Real Estate",
-          "website": null
-        },
-        {
-          "symbol": "UTHR",
-          "name": "UNITED THERAPEUTICS",
-          "weight": 0.0015,
-          "isin": null,
-          "sector": "Health Care",
+          "sector": "Materials",
           "website": null
         },
         {
           "symbol": "EG",
           "name": "EVEREST GROUP",
-          "weight": 0.0015,
-          "isin": null,
-          "sector": "Financials",
-          "website": null
-        },
-        {
-          "symbol": "HIG",
-          "name": "HARTFORD INSURANCE GROUP",
-          "weight": 0.0015,
+          "weight": 0.0018,
           "isin": null,
           "sector": "Financials",
           "website": null
@@ -1126,15 +1078,63 @@
         {
           "symbol": "EQT",
           "name": "EQT",
-          "weight": 0.0015,
+          "weight": 0.0018,
           "isin": null,
           "sector": "Energy",
           "website": null
         },
         {
+          "symbol": "SMCI",
+          "name": "SUPER MICRO COMPUTER INC",
+          "weight": 0.0017000000000000001,
+          "isin": null,
+          "sector": "Information Technology",
+          "website": null
+        },
+        {
+          "symbol": "UTHR",
+          "name": "UNITED THERAPEUTICS",
+          "weight": 0.0017000000000000001,
+          "isin": null,
+          "sector": "Health Care",
+          "website": null
+        },
+        {
+          "symbol": "VICI",
+          "name": "VICI PPTYS INC",
+          "weight": 0.0017000000000000001,
+          "isin": null,
+          "sector": "Real Estate",
+          "website": null
+        },
+        {
+          "symbol": "SYF",
+          "name": "SYNCHRONY FINANCIAL",
+          "weight": 0.0017000000000000001,
+          "isin": null,
+          "sector": "Financials",
+          "website": null
+        },
+        {
+          "symbol": "FOXA",
+          "name": "FOX CLASS A",
+          "weight": 0.0017000000000000001,
+          "isin": null,
+          "sector": "Communication",
+          "website": null
+        },
+        {
+          "symbol": "HIG",
+          "name": "HARTFORD INSURANCE GROUP",
+          "weight": 0.0017000000000000001,
+          "isin": null,
+          "sector": "Financials",
+          "website": null
+        },
+        {
           "symbol": "EXE",
           "name": "EXPAND ENERGY",
-          "weight": 0.0015,
+          "weight": 0.0016,
           "isin": null,
           "sector": "Energy",
           "website": null
@@ -1150,7 +1150,7 @@
         {
           "symbol": "WPC",
           "name": "W. P. CAREY REIT",
-          "weight": 0.0014000000000000002,
+          "weight": 0.0015,
           "isin": null,
           "sector": "Real Estate",
           "website": null
@@ -1158,15 +1158,7 @@
         {
           "symbol": "RF",
           "name": "REGIONS FINANCIAL",
-          "weight": 0.0013,
-          "isin": null,
-          "sector": "Financials",
-          "website": null
-        },
-        {
-          "symbol": "PFG",
-          "name": "PRINCIPAL FINANCIAL GROUP INC",
-          "weight": 0.0013,
+          "weight": 0.0014000000000000002,
           "isin": null,
           "sector": "Financials",
           "website": null
@@ -1174,7 +1166,7 @@
         {
           "symbol": "GIS",
           "name": "GENERAL MILLS INC",
-          "weight": 0.0013,
+          "weight": 0.0014000000000000002,
           "isin": null,
           "sector": "Consumer Staples",
           "website": null
@@ -1182,7 +1174,7 @@
         {
           "symbol": "CF",
           "name": "CF INDUSTRIES HOLDINGS INC",
-          "weight": 0.0013,
+          "weight": 0.0014000000000000002,
           "isin": null,
           "sector": "Materials",
           "website": null
@@ -1190,17 +1182,33 @@
         {
           "symbol": "AMCR",
           "name": "AMCOR PLC",
-          "weight": 0.0012,
+          "weight": 0.0014000000000000002,
           "isin": null,
           "sector": "Materials",
           "website": null
         },
         {
+          "symbol": "PFG",
+          "name": "PRINCIPAL FINANCIAL GROUP INC",
+          "weight": 0.0014000000000000002,
+          "isin": null,
+          "sector": "Financials",
+          "website": null
+        },
+        {
           "symbol": "EVRG",
           "name": "EVERGY",
-          "weight": 0.0011,
+          "weight": 0.0012,
           "isin": null,
           "sector": "Utilities",
+          "website": null
+        },
+        {
+          "symbol": "FCNCA",
+          "name": "FIRST CITIZENS BANCSHARES CLASS A",
+          "weight": 0.0012,
+          "isin": null,
+          "sector": "Financials",
           "website": null
         },
         {
@@ -1212,67 +1220,83 @@
           "website": null
         },
         {
-          "symbol": "NLY",
-          "name": "ANNALY CAPITAL MANAGEMENT REIT",
+          "symbol": "IP",
+          "name": "INTERNATIONAL PAPER",
+          "weight": 0.0011,
+          "isin": null,
+          "sector": "Materials",
+          "website": null
+        },
+        {
+          "symbol": "L",
+          "name": "LOEWS",
           "weight": 0.0011,
           "isin": null,
           "sector": "Financials",
           "website": null
         },
         {
-          "symbol": "FOX",
-          "name": "FOX CLASS B",
-          "weight": 0.001,
+          "symbol": "TRU",
+          "name": "TRANSUNION",
+          "weight": 0.0011,
           "isin": null,
-          "sector": "Communication",
-          "website": null
-        },
-        {
-          "symbol": "L",
-          "name": "LOEWS",
-          "weight": 0.001,
-          "isin": null,
-          "sector": "Financials",
-          "website": null
-        },
-        {
-          "symbol": "IP",
-          "name": "INTERNATIONAL PAPER",
-          "weight": 0.001,
-          "isin": null,
-          "sector": "Materials",
-          "website": null
-        },
-        {
-          "symbol": "FCNCA",
-          "name": "FIRST CITIZENS BANCSHARES CLASS A",
-          "weight": 0.001,
-          "isin": null,
-          "sector": "Financials",
-          "website": null
-        },
-        {
-          "symbol": "KEY",
-          "name": "KEYCORP",
-          "weight": 0.001,
-          "isin": null,
-          "sector": "Financials",
-          "website": null
-        },
-        {
-          "symbol": "IFF",
-          "name": "INTERNATIONAL FLAVORS & FRAGRANCES",
-          "weight": 0.0009,
-          "isin": null,
-          "sector": "Materials",
+          "sector": "Industrials",
           "website": null
         },
         {
           "symbol": "LYB",
           "name": "LYONDELLBASELL INDUSTRIES CLASS A",
-          "weight": 0.0009,
+          "weight": 0.0011,
           "isin": null,
           "sector": "Materials",
+          "website": null
+        },
+        {
+          "symbol": "IFF",
+          "name": "INTERNATIONAL FLAVORS & FRAGRANCES",
+          "weight": 0.0011,
+          "isin": null,
+          "sector": "Materials",
+          "website": null
+        },
+        {
+          "symbol": "FOX",
+          "name": "FOX CLASS B",
+          "weight": 0.0011,
+          "isin": null,
+          "sector": "Communication",
+          "website": null
+        },
+        {
+          "symbol": "KEY",
+          "name": "KEYCORP",
+          "weight": 0.0011,
+          "isin": null,
+          "sector": "Financials",
+          "website": null
+        },
+        {
+          "symbol": "NLY",
+          "name": "ANNALY CAPITAL MANAGEMENT REIT",
+          "weight": 0.001,
+          "isin": null,
+          "sector": "Financials",
+          "website": null
+        },
+        {
+          "symbol": "DD",
+          "name": "DUPONT DE NEMOURS",
+          "weight": 0.0009,
+          "isin": null,
+          "sector": "Industrials",
+          "website": null
+        },
+        {
+          "symbol": "FIS",
+          "name": "FIDELITY NATIONAL INFORMATION SERV",
+          "weight": 0.0009,
+          "isin": null,
+          "sector": "Financials",
           "website": null
         },
         {
@@ -1284,33 +1308,9 @@
           "website": null
         },
         {
-          "symbol": "TRU",
-          "name": "TRANSUNION",
-          "weight": 0.0009,
-          "isin": null,
-          "sector": "Industrials",
-          "website": null
-        },
-        {
-          "symbol": "DD",
-          "name": "DUPONT DE NEMOURS",
-          "weight": 0.0008,
-          "isin": null,
-          "sector": "Industrials",
-          "website": null
-        },
-        {
-          "symbol": "CDE",
-          "name": "COEUR MINING",
-          "weight": 0.0008,
-          "isin": null,
-          "sector": "Materials",
-          "website": null
-        },
-        {
           "symbol": "CRBG",
           "name": "COREBRIDGE FINANCIAL INC",
-          "weight": 0.0008,
+          "weight": 0.0009,
           "isin": null,
           "sector": "Financials",
           "website": null
@@ -1324,9 +1324,9 @@
           "website": null
         },
         {
-          "symbol": "FIS",
-          "name": "FIDELITY NATIONAL INFORMATION SERV",
-          "weight": 0.0008,
+          "symbol": "PNFP",
+          "name": "PINNACLE FINANCIAL PARTNERS",
+          "weight": 0.0007000000000000001,
           "isin": null,
           "sector": "Financials",
           "website": null
@@ -1340,63 +1340,46 @@
           "website": null
         },
         {
-          "symbol": "PNFP",
-          "name": "PINNACLE FINANCIAL PARTNERS",
-          "weight": 0.0007000000000000001,
-          "isin": null,
-          "sector": "Financials",
-          "website": null
-        },
-        {
           "symbol": "COO",
           "name": "COOPER",
-          "weight": 0.0006,
+          "weight": 0.0007000000000000001,
           "isin": null,
           "sector": "Health Care",
           "website": null
         },
         {
+          "symbol": "CDE",
+          "name": "COEUR MINING",
+          "weight": 0.0006,
+          "isin": null,
+          "sector": "Materials",
+          "website": null
+        },
+        {
           "symbol": "FNF",
           "name": "FIDELITY NATIONAL FINANCIAL INC",
-          "weight": 0.0005,
+          "weight": 0.0006,
           "isin": null,
           "sector": "Financials",
           "website": null
         }
       ],
-      "snapshot_date": "2026-09-30",
-      "source_url": "https://www.ishares.com/varnish-api/uk-retail01-product-data/product-data/api/v1/get-fund-document?appType=PRODUCT_PAGE&appSubType=ISHARES&targetSite=ishares-uk&locale=en_GB&portfolioId=285207&userType=individual&asOfDate=20260930&component=holdings",
-      "net_disclosed_weight": 1.0004,
-      "disclosure_rounding_tolerance": 0.007651000000000001,
+      "snapshot_date": "2026-10-30",
+      "source_url": "https://www.ishares.com/varnish-api/uk-retail01-product-data/product-data/api/v1/get-fund-document?appType=PRODUCT_PAGE&appSubType=ISHARES&targetSite=ishares-uk&locale=en_GB&portfolioId=285207&userType=individual&asOfDate=20261030&component=holdings",
+      "net_disclosed_weight": 1.0001,
+      "disclosure_rounding_tolerance": 0.007601,
       "source": "iShares dated equity holdings",
       "fundamentals_source": "Yahoo Finance",
-      "fundamentals_fetched_at": "2026-10-31T11:50:06.156546+00:00"
+      "fundamentals_fetched_at": "2026-11-01T12:49:38.814424+00:00"
     },
     "sector": {
       "slot": "INFOTECH",
       "ticker": "IUIT.L",
       "holdings": [
         {
-          "symbol": "NVDA",
-          "name": "NVIDIA",
-          "weight": 0.2108,
-          "isin": null,
-          "sector": "Information Technology",
-          "company": "NVIDIA Corporation",
-          "website": "https://www.nvidia.com",
-          "industry": "Semiconductors",
-          "market_cap": 4941441662976.0,
-          "pe": 25.87105,
-          "forward_pe": 12.858633,
-          "revenue_growth": 1.059,
-          "earnings_growth": 1.278,
-          "profit_margin": 0.63663,
-          "dividend_yield": 0.48866301798279915
-        },
-        {
           "symbol": "AAPL",
           "name": "APPLE",
-          "weight": 0.1826,
+          "weight": 0.2024,
           "isin": null,
           "sector": "Information Technology",
           "company": "Apple Inc.",
@@ -1411,9 +1394,26 @@
           "dividend_yield": 0.3133795664915997
         },
         {
+          "symbol": "NVDA",
+          "name": "NVIDIA",
+          "weight": 0.2023,
+          "isin": null,
+          "sector": "Information Technology",
+          "company": "NVIDIA Corporation",
+          "website": "https://www.nvidia.com",
+          "industry": "Semiconductors",
+          "market_cap": 4941441662976.0,
+          "pe": 25.87105,
+          "forward_pe": 12.858633,
+          "revenue_growth": 1.059,
+          "earnings_growth": 1.278,
+          "profit_margin": 0.63663,
+          "dividend_yield": 0.48866301798279915
+        },
+        {
           "symbol": "MSFT",
           "name": "MICROSOFT",
-          "weight": 0.1459,
+          "weight": 0.1591,
           "isin": null,
           "sector": "Information Technology",
           "company": "Microsoft Corporation",
@@ -1421,7 +1421,7 @@
           "industry": "Software - Infrastructure",
           "market_cap": 3875804807168.0,
           "pe": 27.239561,
-          "forward_pe": 21.618698,
+          "forward_pe": 21.62332,
           "revenue_growth": 0.188,
           "earnings_growth": 0.323,
           "profit_margin": 0.41169998,
@@ -1430,7 +1430,7 @@
         {
           "symbol": "AVGO",
           "name": "BROADCOM INC",
-          "weight": 0.064,
+          "weight": 0.0637,
           "isin": null,
           "sector": "Information Technology",
           "company": "Broadcom Inc.",
@@ -1447,7 +1447,7 @@
         {
           "symbol": "MU",
           "name": "MICRON TECHNOLOGY",
-          "weight": 0.0461,
+          "weight": 0.040999999999999995,
           "isin": null,
           "sector": "Information Technology",
           "company": "Micron Technology, Inc.",
@@ -1464,7 +1464,7 @@
         {
           "symbol": "AMD",
           "name": "ADVANCED MICRO DEVICES",
-          "weight": 0.0383,
+          "weight": 0.0338,
           "isin": null,
           "sector": "Information Technology",
           "company": "Advanced Micro Devices, Inc.",
@@ -1472,33 +1472,16 @@
           "industry": "Semiconductors",
           "market_cap": 824073388032.0,
           "pe": 128.7755,
-          "forward_pe": 31.736631,
+          "forward_pe": 31.662281,
           "revenue_growth": 0.501,
           "earnings_growth": 1.595,
           "profit_margin": 0.15577,
           "dividend_yield": null
         },
         {
-          "symbol": "INTC",
-          "name": "INTEL CORPORATION",
-          "weight": 0.0229,
-          "isin": null,
-          "sector": "Information Technology",
-          "company": "Intel Corporation",
-          "website": "https://www.intel.com",
-          "industry": "Semiconductors",
-          "market_cap": 349514399744.0,
-          "pe": null,
-          "forward_pe": 31.33637,
-          "revenue_growth": 0.209,
-          "earnings_growth": -0.333,
-          "profit_margin": -0.20089,
-          "dividend_yield": null
-        },
-        {
           "symbol": "PLTR",
           "name": "PALANTIR TECHNOLOGIES CLASS A",
-          "weight": 0.0165,
+          "weight": 0.0174,
           "isin": null,
           "sector": "Information Technology",
           "company": "Palantir Technologies Inc.",
@@ -1515,7 +1498,7 @@
         {
           "symbol": "CSCO",
           "name": "CISCO SYSTEMS INC",
-          "weight": 0.0163,
+          "weight": 0.0169,
           "isin": null,
           "sector": "Information Technology",
           "company": "Cisco Systems, Inc.",
@@ -1530,49 +1513,66 @@
           "dividend_yield": 1.6075016744809107
         },
         {
-          "symbol": "LRCX",
-          "name": "LAM RESEARCH",
-          "weight": 0.015700000000000002,
+          "symbol": "INTC",
+          "name": "INTEL CORPORATION",
+          "weight": 0.013500000000000002,
           "isin": null,
           "sector": "Information Technology",
-          "company": "Lam Research Corporation",
-          "website": "https://www.lamresearch.com",
+          "company": "Intel Corporation",
+          "website": "https://www.intel.com",
+          "industry": "Semiconductors",
+          "market_cap": 349514399744.0,
+          "pe": null,
+          "forward_pe": 35.50066,
+          "revenue_growth": 0.209,
+          "earnings_growth": -0.333,
+          "profit_margin": -0.20089,
+          "dividend_yield": null
+        },
+        {
+          "symbol": "AMAT",
+          "name": "APPLIED MATERIAL INC",
+          "weight": 0.0127,
+          "isin": null,
+          "sector": "Information Technology",
+          "company": "Applied Materials, Inc.",
+          "website": "https://www.appliedmaterials.com",
           "industry": "Semiconductor Equipment & Materials",
-          "market_cap": 299228069888.0,
-          "pe": 35.634872,
-          "forward_pe": 19.540989,
-          "revenue_growth": 0.544,
-          "earnings_growth": 0.766,
-          "profit_margin": 0.3234,
-          "dividend_yield": 0.552047174940404
+          "market_cap": 309574434816.0,
+          "pe": 33.657463,
+          "forward_pe": 21.023851,
+          "revenue_growth": 0.248,
+          "earnings_growth": 0.428,
+          "profit_margin": 0.30052,
+          "dividend_yield": 0.5434643287446487
         }
       ],
       "yield_unit": "percent. Annual dividend rate / quote price",
       "sector_weights": {
-        "Information Technology": 0.9987999999999995
+        "Information Technology": 0.9984
       },
-      "top10_weight": 0.7591,
+      "top10_weight": 0.7628,
       "all_holdings": [
-        {
-          "symbol": "NVDA",
-          "name": "NVIDIA",
-          "weight": 0.2108,
-          "isin": null,
-          "sector": "Information Technology",
-          "website": "https://www.nvidia.com"
-        },
         {
           "symbol": "AAPL",
           "name": "APPLE",
-          "weight": 0.1826,
+          "weight": 0.2024,
           "isin": null,
           "sector": "Information Technology",
           "website": "https://www.apple.com"
         },
         {
+          "symbol": "NVDA",
+          "name": "NVIDIA",
+          "weight": 0.2023,
+          "isin": null,
+          "sector": "Information Technology",
+          "website": "https://www.nvidia.com"
+        },
+        {
           "symbol": "MSFT",
           "name": "MICROSOFT",
-          "weight": 0.1459,
+          "weight": 0.1591,
           "isin": null,
           "sector": "Information Technology",
           "website": "https://www.microsoft.com"
@@ -1580,7 +1580,7 @@
         {
           "symbol": "AVGO",
           "name": "BROADCOM INC",
-          "weight": 0.064,
+          "weight": 0.0637,
           "isin": null,
           "sector": "Information Technology",
           "website": "https://www.broadcom.com"
@@ -1588,7 +1588,7 @@
         {
           "symbol": "MU",
           "name": "MICRON TECHNOLOGY",
-          "weight": 0.0461,
+          "weight": 0.040999999999999995,
           "isin": null,
           "sector": "Information Technology",
           "website": "https://www.micron.com"
@@ -1596,23 +1596,15 @@
         {
           "symbol": "AMD",
           "name": "ADVANCED MICRO DEVICES",
-          "weight": 0.0383,
+          "weight": 0.0338,
           "isin": null,
           "sector": "Information Technology",
           "website": "https://www.amd.com"
         },
         {
-          "symbol": "INTC",
-          "name": "INTEL CORPORATION",
-          "weight": 0.0229,
-          "isin": null,
-          "sector": "Information Technology",
-          "website": "https://www.intel.com"
-        },
-        {
           "symbol": "PLTR",
           "name": "PALANTIR TECHNOLOGIES CLASS A",
-          "weight": 0.0165,
+          "weight": 0.0174,
           "isin": null,
           "sector": "Information Technology",
           "website": "https://www.palantir.com"
@@ -1620,23 +1612,31 @@
         {
           "symbol": "CSCO",
           "name": "CISCO SYSTEMS INC",
-          "weight": 0.0163,
+          "weight": 0.0169,
           "isin": null,
           "sector": "Information Technology",
           "website": "https://www.cisco.com"
         },
         {
-          "symbol": "LRCX",
-          "name": "LAM RESEARCH",
-          "weight": 0.015700000000000002,
+          "symbol": "INTC",
+          "name": "INTEL CORPORATION",
+          "weight": 0.013500000000000002,
           "isin": null,
           "sector": "Information Technology",
-          "website": "https://www.lamresearch.com"
+          "website": "https://www.intel.com"
         },
         {
           "symbol": "AMAT",
           "name": "APPLIED MATERIAL INC",
-          "weight": 0.015600000000000001,
+          "weight": 0.0127,
+          "isin": null,
+          "sector": "Information Technology",
+          "website": "https://www.appliedmaterials.com"
+        },
+        {
+          "symbol": "LRCX",
+          "name": "LAM RESEARCH",
+          "weight": 0.0123,
           "isin": null,
           "sector": "Information Technology",
           "website": null
@@ -1644,7 +1644,15 @@
         {
           "symbol": "PANW",
           "name": "PALO ALTO NETWORKS",
-          "weight": 0.0124,
+          "weight": 0.0123,
+          "isin": null,
+          "sector": "Information Technology",
+          "website": null
+        },
+        {
+          "symbol": "TXN",
+          "name": "TEXAS INSTRUMENT",
+          "weight": 0.011200000000000002,
           "isin": null,
           "sector": "Information Technology",
           "website": null
@@ -1652,31 +1660,15 @@
         {
           "symbol": "CRWD",
           "name": "CROWDSTRIKE HOLDINGS CLASS A",
-          "weight": 0.0103,
+          "weight": 0.0105,
           "isin": null,
           "sector": "Information Technology",
           "website": null
         },
         {
-          "symbol": "TXN",
-          "name": "TEXAS INSTRUMENT INC",
-          "weight": 0.0098,
-          "isin": null,
-          "sector": "Information Technology",
-          "website": null
-        },
-        {
-          "symbol": "KLAC",
-          "name": "KLA",
-          "weight": 0.0098,
-          "isin": null,
-          "sector": "Information Technology",
-          "website": null
-        },
-        {
-          "symbol": "SNDK",
-          "name": "SANDISK",
-          "weight": 0.0097,
+          "symbol": "IBM",
+          "name": "INTERNATIONAL BUSINESS MACHINES CO",
+          "weight": 0.01,
           "isin": null,
           "sector": "Information Technology",
           "website": null
@@ -1684,31 +1676,23 @@
         {
           "symbol": "ORCL",
           "name": "ORACLE",
-          "weight": 0.0091,
+          "weight": 0.0092,
           "isin": null,
           "sector": "Information Technology",
           "website": null
         },
         {
-          "symbol": "MRVL",
-          "name": "MARVELL TECHNOLOGY",
-          "weight": 0.0089,
+          "symbol": "KLAC",
+          "name": "KLA",
+          "weight": 0.0085,
           "isin": null,
           "sector": "Information Technology",
           "website": null
         },
         {
-          "symbol": "ANET",
-          "name": "ARISTA NETWORKS",
-          "weight": 0.008199999999999999,
-          "isin": null,
-          "sector": "Information Technology",
-          "website": null
-        },
-        {
-          "symbol": "STX",
-          "name": "SEAGATE TECHNOLOGY HOLDINGS PLC",
-          "weight": 0.008,
+          "symbol": "ADI",
+          "name": "ANALOG DEVICES",
+          "weight": 0.0084,
           "isin": null,
           "sector": "Information Technology",
           "website": null
@@ -1722,9 +1706,17 @@
           "website": null
         },
         {
-          "symbol": "IBM",
-          "name": "INTERNATIONAL BUSINESS MACHINES",
-          "weight": 0.0079,
+          "symbol": "CRM",
+          "name": "SALESFORCE",
+          "weight": 0.0077,
+          "isin": null,
+          "sector": "Information Technology",
+          "website": null
+        },
+        {
+          "symbol": "ANET",
+          "name": "ARISTA NETWORKS",
+          "weight": 0.0073,
           "isin": null,
           "sector": "Information Technology",
           "website": null
@@ -1732,55 +1724,23 @@
         {
           "symbol": "QCOM",
           "name": "QUALCOMM",
-          "weight": 0.0075,
-          "isin": null,
-          "sector": "Information Technology",
-          "website": null
-        },
-        {
-          "symbol": "ADI",
-          "name": "ANALOG DEVICES",
-          "weight": 0.0074,
-          "isin": null,
-          "sector": "Information Technology",
-          "website": null
-        },
-        {
-          "symbol": "CRM",
-          "name": "SALESFORCE",
           "weight": 0.0072,
           "isin": null,
           "sector": "Information Technology",
           "website": null
         },
         {
-          "symbol": "WDC",
-          "name": "WESTERN DIGITAL CORP",
-          "weight": 0.0062,
+          "symbol": "MRVL",
+          "name": "MARVELL TECHNOLOGY",
+          "weight": 0.0070999999999999995,
           "isin": null,
           "sector": "Information Technology",
           "website": null
         },
         {
-          "symbol": "DELL",
-          "name": "DELL TECHNOLOGIES INC CLASS C",
-          "weight": 0.0062,
-          "isin": null,
-          "sector": "Information Technology",
-          "website": null
-        },
-        {
-          "symbol": "NOW",
-          "name": "SERVICENOW",
-          "weight": 0.0053,
-          "isin": null,
-          "sector": "Information Technology",
-          "website": null
-        },
-        {
-          "symbol": "GLW",
-          "name": "CORNING",
-          "weight": 0.004699999999999999,
+          "symbol": "SNDK",
+          "name": "SANDISK",
+          "weight": 0.0069,
           "isin": null,
           "sector": "Information Technology",
           "website": null
@@ -1788,15 +1748,39 @@
         {
           "symbol": "ACN",
           "name": "ACCENTURE PLC CLASS A",
-          "weight": 0.0043,
+          "weight": 0.006500000000000001,
           "isin": null,
           "sector": "Information Technology",
           "website": null
         },
         {
-          "symbol": "FTNT",
-          "name": "FORTINET",
-          "weight": 0.0042,
+          "symbol": "STX",
+          "name": "SEAGATE TECHNOLOGY HOLDINGS PLC",
+          "weight": 0.006,
+          "isin": null,
+          "sector": "Information Technology",
+          "website": null
+        },
+        {
+          "symbol": "WDC",
+          "name": "WESTERN DIGITAL CORP",
+          "weight": 0.0054,
+          "isin": null,
+          "sector": "Information Technology",
+          "website": null
+        },
+        {
+          "symbol": "DELL",
+          "name": "DELL TECHNOLOGIES INC CLASS C",
+          "weight": 0.0053,
+          "isin": null,
+          "sector": "Information Technology",
+          "website": null
+        },
+        {
+          "symbol": "NOW",
+          "name": "SERVICENOW",
+          "weight": 0.0045000000000000005,
           "isin": null,
           "sector": "Information Technology",
           "website": null
@@ -1804,47 +1788,15 @@
         {
           "symbol": "ADBE",
           "name": "ADOBE INC",
-          "weight": 0.0037,
+          "weight": 0.0040999999999999995,
           "isin": null,
           "sector": "Information Technology",
           "website": null
         },
         {
-          "symbol": "DDOG",
-          "name": "DATADOG INC CLASS A",
-          "weight": 0.0034999999999999996,
-          "isin": null,
-          "sector": "Information Technology",
-          "website": null
-        },
-        {
-          "symbol": "CDNS",
-          "name": "CADENCE DESIGN SYSTEMS",
-          "weight": 0.0034999999999999996,
-          "isin": null,
-          "sector": "Information Technology",
-          "website": null
-        },
-        {
-          "symbol": "LITE",
-          "name": "LUMENTUM HOLDINGS",
-          "weight": 0.0033,
-          "isin": null,
-          "sector": "Information Technology",
-          "website": null
-        },
-        {
-          "symbol": "HPE",
-          "name": "HEWLETT PACKARD ENTERPRISE",
-          "weight": 0.0032,
-          "isin": null,
-          "sector": "Information Technology",
-          "website": null
-        },
-        {
-          "symbol": "SNPS",
-          "name": "SYNOPSYS",
-          "weight": 0.0032,
+          "symbol": "GLW",
+          "name": "CORNING",
+          "weight": 0.004,
           "isin": null,
           "sector": "Information Technology",
           "website": null
@@ -1852,7 +1804,31 @@
         {
           "symbol": "INTU",
           "name": "INTUIT",
-          "weight": 0.0029,
+          "weight": 0.0038,
+          "isin": null,
+          "sector": "Information Technology",
+          "website": null
+        },
+        {
+          "symbol": "CDNS",
+          "name": "CADENCE DESIGN SYSTEMS",
+          "weight": 0.0037,
+          "isin": null,
+          "sector": "Information Technology",
+          "website": null
+        },
+        {
+          "symbol": "SNPS",
+          "name": "SYNOPSYS",
+          "weight": 0.0037,
+          "isin": null,
+          "sector": "Information Technology",
+          "website": null
+        },
+        {
+          "symbol": "FTNT",
+          "name": "FORTINET",
+          "weight": 0.0034999999999999996,
           "isin": null,
           "sector": "Information Technology",
           "website": null
@@ -1860,39 +1836,31 @@
         {
           "symbol": "MSI",
           "name": "MOTOROLA SOLUTIONS INC",
-          "weight": 0.0028000000000000004,
+          "weight": 0.0033,
           "isin": null,
           "sector": "Information Technology",
           "website": null
         },
         {
-          "symbol": "MPWR",
-          "name": "MONOLITHIC POWER SYSTEMS INC",
-          "weight": 0.0025,
+          "symbol": "DDOG",
+          "name": "DATADOG INC CLASS A",
+          "weight": 0.0032,
           "isin": null,
           "sector": "Information Technology",
           "website": null
         },
         {
-          "symbol": "TER",
-          "name": "TERADYNE",
-          "weight": 0.0024,
+          "symbol": "LITE",
+          "name": "LUMENTUM HOLDINGS",
+          "weight": 0.0031,
           "isin": null,
           "sector": "Information Technology",
           "website": null
         },
         {
-          "symbol": "KEYS",
-          "name": "KEYSIGHT TECHNOLOGIES",
-          "weight": 0.0024,
-          "isin": null,
-          "sector": "Information Technology",
-          "website": null
-        },
-        {
-          "symbol": "TEL",
-          "name": "TE CONNECTIVITY PLC",
-          "weight": 0.0023,
+          "symbol": "HPE",
+          "name": "HEWLETT PACKARD ENTERPRISE",
+          "weight": 0.003,
           "isin": null,
           "sector": "Information Technology",
           "website": null
@@ -1900,15 +1868,47 @@
         {
           "symbol": "NXPI",
           "name": "NXP SEMICONDUCTORS NV",
-          "weight": 0.0023,
+          "weight": 0.0027,
           "isin": null,
           "sector": "Information Technology",
           "website": null
         },
         {
-          "symbol": "COHR",
-          "name": "COHERENT",
+          "symbol": "TEL",
+          "name": "TE CONNECTIVITY PLC",
+          "weight": 0.0025,
+          "isin": null,
+          "sector": "Information Technology",
+          "website": null
+        },
+        {
+          "symbol": "MPWR",
+          "name": "MONOLITHIC POWER SYSTEMS INC",
+          "weight": 0.0024,
+          "isin": null,
+          "sector": "Information Technology",
+          "website": null
+        },
+        {
+          "symbol": "ADSK",
+          "name": "AUTODESK",
           "weight": 0.0022,
+          "isin": null,
+          "sector": "Information Technology",
+          "website": null
+        },
+        {
+          "symbol": "KEYS",
+          "name": "KEYSIGHT TECHNOLOGIES",
+          "weight": 0.0022,
+          "isin": null,
+          "sector": "Information Technology",
+          "website": null
+        },
+        {
+          "symbol": "ROP",
+          "name": "ROPER TECHNOLOGIES",
+          "weight": 0.0019,
           "isin": null,
           "sector": "Information Technology",
           "website": null
@@ -1922,9 +1922,9 @@
           "website": null
         },
         {
-          "symbol": "ADSK",
-          "name": "AUTODESK",
-          "weight": 0.0017000000000000001,
+          "symbol": "TER",
+          "name": "TERADYNE",
+          "weight": 0.0018,
           "isin": null,
           "sector": "Information Technology",
           "website": null
@@ -1940,6 +1940,22 @@
         {
           "symbol": "MCHP",
           "name": "MICROCHIP TECHNOLOGY INC",
+          "weight": 0.0017000000000000001,
+          "isin": null,
+          "sector": "Information Technology",
+          "website": null
+        },
+        {
+          "symbol": "COHR",
+          "name": "COHERENT",
+          "weight": 0.0017000000000000001,
+          "isin": null,
+          "sector": "Information Technology",
+          "website": null
+        },
+        {
+          "symbol": "WDAY",
+          "name": "WORKDAY CLASS A",
           "weight": 0.0016,
           "isin": null,
           "sector": "Information Technology",
@@ -1956,23 +1972,31 @@
         {
           "symbol": "FLEX",
           "name": "FLEX LTD",
-          "weight": 0.0016,
-          "isin": null,
-          "sector": "Information Technology",
-          "website": null
-        },
-        {
-          "symbol": "WDAY",
-          "name": "WORKDAY CLASS A",
-          "weight": 0.0015,
-          "isin": null,
-          "sector": "Information Technology",
-          "website": null
-        },
-        {
-          "symbol": "ROP",
-          "name": "ROPER TECHNOLOGIES",
           "weight": 0.0013,
+          "isin": null,
+          "sector": "Information Technology",
+          "website": null
+        },
+        {
+          "symbol": "TWLO",
+          "name": "TWILIO CLASS A",
+          "weight": 0.0013,
+          "isin": null,
+          "sector": "Information Technology",
+          "website": null
+        },
+        {
+          "symbol": "TDY",
+          "name": "TELEDYNE TECHNOLOGIES",
+          "weight": 0.0012,
+          "isin": null,
+          "sector": "Information Technology",
+          "website": null
+        },
+        {
+          "symbol": "CTSH",
+          "name": "COGNIZANT TECHNOLOGY SOLUTIONS CLA",
+          "weight": 0.0012,
           "isin": null,
           "sector": "Information Technology",
           "website": null
@@ -2002,9 +2026,9 @@
           "website": null
         },
         {
-          "symbol": "TDY",
-          "name": "TELEDYNE TECHNOLOGIES INC",
-          "weight": 0.0011,
+          "symbol": "VRSN",
+          "name": "VERISIGN",
+          "weight": 0.001,
           "isin": null,
           "sector": "Information Technology",
           "website": null
@@ -2018,9 +2042,25 @@
           "website": null
         },
         {
-          "symbol": "CTSH",
-          "name": "COGNIZANT TECHNOLOGY SOLUTIONS CLA",
-          "weight": 0.001,
+          "symbol": "PTC",
+          "name": "PTC",
+          "weight": 0.0008,
+          "isin": null,
+          "sector": "Information Technology",
+          "website": null
+        },
+        {
+          "symbol": "SWKS",
+          "name": "SKYWORKS SOLUTIONS",
+          "weight": 0.0008,
+          "isin": null,
+          "sector": "Information Technology",
+          "website": null
+        },
+        {
+          "symbol": "CDW",
+          "name": "CDW",
+          "weight": 0.0008,
           "isin": null,
           "sector": "Information Technology",
           "website": null
@@ -2028,23 +2068,7 @@
         {
           "symbol": "FFIV",
           "name": "F5",
-          "weight": 0.001,
-          "isin": null,
-          "sector": "Information Technology",
-          "website": null
-        },
-        {
-          "symbol": "SMCI",
-          "name": "SUPER MICRO COMPUTER INC",
-          "weight": 0.0009,
-          "isin": null,
-          "sector": "Information Technology",
-          "website": null
-        },
-        {
-          "symbol": "VRSN",
-          "name": "VERISIGN",
-          "weight": 0.0009,
+          "weight": 0.0008,
           "isin": null,
           "sector": "Information Technology",
           "website": null
@@ -2052,7 +2076,15 @@
         {
           "symbol": "FSLR",
           "name": "FIRST SOLAR",
-          "weight": 0.0007000000000000001,
+          "weight": 0.0008,
+          "isin": null,
+          "sector": "Information Technology",
+          "website": null
+        },
+        {
+          "symbol": "SMCI",
+          "name": "SUPER MICRO COMPUTER INC",
+          "weight": 0.0008,
           "isin": null,
           "sector": "Information Technology",
           "website": null
@@ -2066,16 +2098,48 @@
           "website": null
         },
         {
-          "symbol": "PTC",
-          "name": "PTC",
+          "symbol": "GEN",
+          "name": "GEN DIGITAL",
           "weight": 0.0006,
           "isin": null,
           "sector": "Information Technology",
           "website": null
         },
         {
-          "symbol": "CDW",
-          "name": "CDW",
+          "symbol": "FICO",
+          "name": "FAIR ISAAC",
+          "weight": 0.0006,
+          "isin": null,
+          "sector": "Information Technology",
+          "website": null
+        },
+        {
+          "symbol": "TYL",
+          "name": "TYLER TECHNOLOGIES",
+          "weight": 0.0006,
+          "isin": null,
+          "sector": "Information Technology",
+          "website": null
+        },
+        {
+          "symbol": "TRMB",
+          "name": "TRIMBLE INC",
+          "weight": 0.0006,
+          "isin": null,
+          "sector": "Information Technology",
+          "website": null
+        },
+        {
+          "symbol": "GDDY",
+          "name": "GODADDY CLASS A",
+          "weight": 0.0006,
+          "isin": null,
+          "sector": "Information Technology",
+          "website": null
+        },
+        {
+          "symbol": "IT",
+          "name": "GARTNER",
           "weight": 0.0006,
           "isin": null,
           "sector": "Information Technology",
@@ -2084,75 +2148,19 @@
         {
           "symbol": "AKAM",
           "name": "AKAMAI TECHNOLOGIES INC",
-          "weight": 0.0006,
-          "isin": null,
-          "sector": "Information Technology",
-          "website": null
-        },
-        {
-          "symbol": "SWKS",
-          "name": "SKYWORKS SOLUTIONS",
           "weight": 0.0005,
-          "isin": null,
-          "sector": "Information Technology",
-          "website": null
-        },
-        {
-          "symbol": "TRMB",
-          "name": "TRIMBLE INC",
-          "weight": 0.0005,
-          "isin": null,
-          "sector": "Information Technology",
-          "website": null
-        },
-        {
-          "symbol": "FICO",
-          "name": "FAIR ISAAC",
-          "weight": 0.0005,
-          "isin": null,
-          "sector": "Information Technology",
-          "website": null
-        },
-        {
-          "symbol": "IT",
-          "name": "GARTNER",
-          "weight": 0.0005,
-          "isin": null,
-          "sector": "Information Technology",
-          "website": null
-        },
-        {
-          "symbol": "TYL",
-          "name": "TYLER TECHNOLOGIES",
-          "weight": 0.0005,
-          "isin": null,
-          "sector": "Information Technology",
-          "website": null
-        },
-        {
-          "symbol": "GEN",
-          "name": "GEN DIGITAL",
-          "weight": 0.0005,
-          "isin": null,
-          "sector": "Information Technology",
-          "website": null
-        },
-        {
-          "symbol": "GDDY",
-          "name": "GODADDY CLASS A",
-          "weight": 0.0004,
           "isin": null,
           "sector": "Information Technology",
           "website": null
         }
       ],
-      "snapshot_date": "2026-09-30",
-      "source_url": "https://www.ishares.com/varnish-api/uk-retail01-product-data/product-data/api/v1/get-fund-document?appType=PRODUCT_PAGE&appSubType=ISHARES&targetSite=ishares-uk&locale=en_GB&portfolioId=280510&userType=individual&asOfDate=20260930&component=holdings",
-      "net_disclosed_weight": 1.0004,
-      "disclosure_rounding_tolerance": 0.004001,
+      "snapshot_date": "2026-10-30",
+      "source_url": "https://www.ishares.com/varnish-api/uk-retail01-product-data/product-data/api/v1/get-fund-document?appType=PRODUCT_PAGE&appSubType=ISHARES&targetSite=ishares-uk&locale=en_GB&portfolioId=280510&userType=individual&asOfDate=20261030&component=holdings",
+      "net_disclosed_weight": 0.9999,
+      "disclosure_rounding_tolerance": 0.0041010000000000005,
       "source": "iShares dated equity holdings",
       "fundamentals_source": "Yahoo Finance",
-      "fundamentals_fetched_at": "2026-10-31T11:50:06.156546+00:00"
+      "fundamentals_fetched_at": "2026-11-01T12:49:38.814424+00:00"
     }
   }
 }
