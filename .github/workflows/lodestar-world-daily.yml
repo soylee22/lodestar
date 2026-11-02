@@ -1,20 +1,24 @@
-name: Daily read
+name: Lodestar World & LYW Daily Dispatch
 
 on:
   schedule:
-    # 07:00 UTC on weekdays. An hour after the monthly job, so on the 1st the
-    # new signal is already recorded before the daily read describes it.
-    # Weekends are skipped: no session, no new prices, nothing to say.
+    # 07:00 UTC on weekdays (07:00 London time)
     - cron: '0 7 * * 1-5'
   workflow_dispatch:
 
+permissions:
+  contents: read
+
 jobs:
-  read:
+  dispatch:
     runs-on: ubuntu-latest
     env:
       TZ: Europe/London
     steps:
       - uses: actions/checkout@v4
+        with:
+          repository: soylee22/lodestar-world
+          ref: main
 
       - uses: actions/setup-python@v5
         with:
@@ -23,7 +27,7 @@ jobs:
 
       - run: pip install -r requirements.txt
 
-      - name: Provisional signal and send the drumbeat
+      - name: Run Lodestar World and LYW daily monitor
         env:
           TG_TOKEN: ${{ secrets.TG_TOKEN }}
           TG_CHAT: ${{ secrets.TG_CHAT }}
