@@ -32,8 +32,8 @@ disclosure, but the complete strategy remains unrecovered.
 
 Recomputes the signal, rebuilds `data.js`, and announces the result on Telegram
 (`TG_TOKEN`, `TG_CHAT`) and by email (`GMAIL_APP_PASSWORD`, sent from and to
-`leeslater1992@gmail.com` unless `MAIL_TO` says otherwise). Missing credentials
-print the message instead of sending it, so the script is safe to run locally.
+`leeslater1992@gmail.com` unless `MAIL_TO` says otherwise). Missing credentials fail delivery without printing private message contents.
+Both channels must accept the message before a monthly alert is recorded.
 
 **It refreshes every morning at 06:00 UTC through GitHub Actions.** Alerts remain
 once per signal month. Daily refreshes collect delayed month-end fund prices,
@@ -71,7 +71,7 @@ now, what a rebalance today would buy, how many days remain to the next signal,
 month-to-date performance of the two holdings against the All-World, the top of
 each ranking and where the cash rule sits.
 
-It changes no files and commits nothing. What is held now comes from
+It does not commit broker information. What is held now comes from
 `data/signal_history.json`, the same archive used by the website. The previous
 alert state is retained only as a fallback for older checkouts.
 
@@ -126,3 +126,29 @@ Europe Momentum uses `IEFM.L`, the sterling London listing of
 returned no history. This correction retains the same fund and published returns.
 
 Issuer listing: https://www.ishares.com/ch/professionals/en/products/272019/ishares-msci-europe-momentum-factor-ucits-etf
+
+## GitHub operation and private reports
+
+GitHub hosts the jobs. The computer can be switched off. Schedules use UTC.
+The website refreshes daily at 06:00. Private reports run weekdays at 07:00.
+Monthly alerts are sent once per signal month after a scheduled refresh.
+
+Encrypted repository secrets hold `T212_KEY_ID`, `T212_SECRET`, `TG_TOKEN`,
+`TG_CHAT` and `GMAIL_APP_PASSWORD`. The private daily report reads current
+Trading 212 positions and values the tracked purchase at the broker's GBP price.
+Broker authentication is checked on the GitHub runner. Fresh broker values are
+not written to public build artefacts or logs. The public portfolio display uses
+saved purchase quantities and market quotes, refreshed on the daily schedule.
+
+The separate Pullback scanner checks its configured 54 instruments on weekdays
+at 16:45 and 21:30, plus Saturdays at 08:00. Lodestar checks its published journal
+hourly at minute 20. New confirmed events go to Telegram and email. A persisted
+receipt prevents repeat delivery to a channel that already accepted that event.
+The first pass establishes a baseline without repeating historical events.
+Unchanged scans stay quiet. This coverage does not scan the full broker catalogue.
+
+Failed jobs request Telegram and email alerts. Both delivery helpers retry
+transient errors. Telegram messages request normal audible notifications.
+Phone settings still control the sound. GitHub schedules can run late.
+Run `Cloud notification check` in test mode to verify broker access and both
+channels from GitHub. The test intentionally sends one message to each channel.

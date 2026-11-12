@@ -200,6 +200,8 @@ def margin(mom: pd.Series, held: str) -> str | None:
 def build_email_html(days_out: int, signal_date: date, live_pf: dict, crash_data: dict,
                      f_pick: str | None, s_pick: str | None, fmom: pd.Series, smom: pd.Series,
                      hf: str, hs: str, hmonth: str, change: list, would: str) -> str:
+    crash_status = ("100% Cash" if crash_data.get("cash_triggered") else "100% Invested") if crash_data else "Unavailable"
+    crash_note = "Lodestar 19-month floor, provisional" if crash_data else "Risk data unavailable"
     init_cap = live_pf.get("initial_capital_gbp", 0.0)
     curr_val = live_pf.get("current_value_gbp", 0.0)
     pnl_gbp = live_pf.get("total_pnl_gbp", 0.0)
@@ -285,7 +287,7 @@ def build_email_html(days_out: int, signal_date: date, live_pf: dict, crash_data
         </div>
       </div>
       <p style="margin:12px 0 0;font-size:13px;color:#d4d4d8;line-height:1.5;">
-        Tracking live Trading 212 execution of the 50/50 factor + sector targets against four core benchmark trackers, with continuous S&amp;P 500 crash protection monitoring.
+        Tracking live Trading 212 execution of the 50/50 factor + sector targets against four core benchmark trackers, with a scheduled S&amp;P 500 risk snapshot.
       </p>
     </div>
 
@@ -311,8 +313,8 @@ def build_email_html(days_out: int, signal_date: date, live_pf: dict, crash_data
         </div>
         <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;padding:14px;">
           <div style="font-size:11px;font-weight:600;text-transform:uppercase;color:#64748b;letter-spacing:0.04em;">Crash Protection</div>
-          <div style="font-size:16px;font-weight:700;color:#16a34a;margin-top:6px;">100% Invested</div>
-          <div style="font-size:11px;color:#94a3b8;margin-top:2px;">0 of 3 Ketchup checks failed</div>
+          <div style="font-size:16px;font-weight:700;color:#16a34a;margin-top:6px;">{crash_status}</div>
+          <div style="font-size:11px;color:#94a3b8;margin-top:2px;">{crash_note}</div>
         </div>
       </div>
 
@@ -584,6 +586,8 @@ def main() -> int:
 
     html_email = build_email_html(days_out, signal_date, live_pf, crash_data,
                                   f_pick, s_pick, fmom, smom, hf, hs, hmonth, change, would)
+    if live_pf.get("sync_error"):
+        html_email = None  # Plain report states broker failure without a false zero valuation.
     delivery = send(subject, "\n".join(msg), html_email)
     return 1 if live_pf.get("sync_error") else delivery
 

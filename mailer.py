@@ -1,8 +1,7 @@
 """Gmail SMTP helper. Same pattern as tools/min-jobs.
 
 Credentials come from the environment: GMAIL_APP_PASSWORD is a GitHub Actions
-secret, never committed. Without it the message is printed instead of sent, so
-the scripts stay safe to run locally.
+secret, never committed. Without it, delivery fails without printing private message content.
 """
 from __future__ import annotations
 import os, smtplib, time

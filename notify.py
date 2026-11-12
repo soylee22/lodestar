@@ -1,7 +1,6 @@
 """
 notify.py  --  Telegram push helper used by every alert script.
-Reads TG_TOKEN + TG_CHAT from env (GitHub Actions secrets). If absent, prints
-the message instead of sending (so scripts are safe to run locally).
+Reads TG_TOKEN + TG_CHAT from env (GitHub Actions secrets). If absent, reports missing credentials without printing private message content.
 """
 from __future__ import annotations
 import os, json, time, urllib.request, urllib.parse

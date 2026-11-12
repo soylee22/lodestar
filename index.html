@@ -937,7 +937,7 @@ html{scroll-behavior:smooth; scroll-padding-top:72px}
       <h2>Live Portfolio &amp; Benchmark Race</h2>
     </div>
     <p class="lede" id="livePortfolioLede">
-      Real capital deployed into the November 50/50 model targets (IUIT.L &amp; IUVL.L) via Trading 212, tracked continuously against identical capital invested simultaneously into standard buy-and-hold index trackers.
+      Real capital deployed into the November 50/50 model targets (IUIT.L &amp; IUVL.L) via Trading 212, valued using scheduled market quotes against identical capital invested simultaneously into standard buy-and-hold index trackers. Private daily reports read Trading 212 directly.
     </p>
   </div>
 
@@ -1014,10 +1014,10 @@ html{scroll-behavior:smooth; scroll-padding-top:72px}
   <div class="sechd">
     <div>
       <div class="eyebrow">Risk Architecture · S&amp;P 500 Monitor</div>
-      <h2>Crash Protection &amp; Ketchup Rule</h2>
+      <h2>Crash Protection &amp; Research Checks</h2>
     </div>
     <p class="lede">
-      MarketFighter's Ketchup Rule evaluates trailing 12-month momentum across 1M, 6M, and 12M lookbacks. If all three fail simultaneously, the system moves to cash. Lodestar pairs this with a -25% trailing 19-month catastrophe floor.
+      Lodestar's provisional cash gate checks whether the S&amp;P 500 is more than 25% below its level 19 months earlier. The 1M, 6M and 12M readings are research checks. MarketFighter's proprietary ketchup rule remains unresolved.
     </p>
   </div>
 
@@ -1025,8 +1025,8 @@ html{scroll-behavior:smooth; scroll-padding-top:72px}
     <div class="left">
       <div class="crash-pill invested" id="crashPill">INVESTED</div>
       <div>
-        <div id="crashStatusVal" style="font: 600 18px var(--mono); color: var(--ink);">All Systems Green · 100% Invested</div>
-        <div id="crashStatusDesc" style="font-size: 13px; color: var(--ink-2); margin-top: 4px;">0 of 3 Ketchup checks failed. Circuit breaker active.</div>
+        <div id="crashStatusVal" style="font: 600 18px var(--mono); color: var(--ink);">Loading risk snapshot</div>
+        <div id="crashStatusDesc" style="font-size: 13px; color: var(--ink-2); margin-top: 4px;">Lodestar uses the 19-month floor.</div>
       </div>
     </div>
     <div style="text-align: right;">
@@ -1049,7 +1049,7 @@ html{scroll-behavior:smooth; scroll-padding-top:72px}
     <div class="card rise">
       <div class="card-hd">
         <div class="ttl">Crash Gate Checklist</div>
-        <div class="sub">Trigger requires all 3 Ketchup checks to fail</div>
+        <div class="sub">Production gate: 19-month return below -25%</div>
       </div>
       <div class="card-bd" style="overflow-x: auto;">
         <table class="live-table" id="tblCrashChecks">
@@ -2015,8 +2015,8 @@ function glyph(key){
   pill.className = "crash-pill " + (C.cash_triggered ? "cash" : "invested");
   $("#crashStatusVal").textContent = C.status_text;
   $("#crashStatusDesc").textContent = C.cash_triggered
-    ? "All 3 Ketchup checks failed simultaneously. Defensive cash activated."
-    : C.ketchup_fails + " of 3 Ketchup checks failed. Full equity exposure preserved.";
+    ? "Lodestar 19-month floor breached. Provisional cash signal."
+    : "Lodestar 19-month floor has not breached. Provisional invested signal.";
 
   var chart = C.chart || C.history || [];
   if (chart.length > 0){

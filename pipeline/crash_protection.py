@@ -32,7 +32,7 @@ def get_crash_protection_data() -> dict:
     m12_pct = round((last_val / p_12m - 1) * 100.0, 2)
     m19_pct = round((last_val / p_19m - 1) * 100.0, 2)
 
-    # MarketFighter Ketchup rule requires all 3 momentum checks to fail simultaneously
+    # Research hypotheses only. The proprietary checks remain unresolved.
     checks = [
         {
             "id": "m1",
@@ -68,7 +68,7 @@ def get_crash_protection_data() -> dict:
         },
     ]
 
-    # Cash only fires if all 3 MarketFighter checks fail OR Lodestar's floor breaks
+    # Production uses the existing Lodestar floor only.
     ketchup_fails = sum(1 for c in checks[:3] if not c["pass"])
     cash_triggered = m19_pct < -25.0
 
