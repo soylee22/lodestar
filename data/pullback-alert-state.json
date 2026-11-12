@@ -1,0 +1,18 @@
+{
+  "deliveries": {},
+  "initialised": true,
+  "known": [
+    "CNX1.L:2026-11-06:PULLBACK:weekly-v2",
+    "LQQ.PA:2026-11-06:PULLBACK:weekly-v2",
+    "SMGB.L:2026-11-06:PULLBACK XL:weekly-v2",
+    "IUMO.L:2026-11-06:PULLBACK XL:weekly-v2",
+    "LQQ3.L:2026-11-06:PULLBACK XL:weekly-v2",
+    "VDPG.L:2026-11-06:PULLBACK:weekly-v2",
+    "VJPB.L:2026-11-06:PULLBACK:weekly-v2",
+    "SEMI.L:2026-11-06:PULLBACK XL:weekly-v2",
+    "QWTM.L:2026-11-06:PULLBACK XL:weekly-v2",
+    "NVDA:2026-11-06:PULLBACK:weekly-v2",
+    "ASML.AS:2026-11-06:PULLBACK XL:weekly-v2"
+  ],
+  "generated": "2026-11-12T02:24:45Z"
+}
