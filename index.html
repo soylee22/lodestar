@@ -2615,7 +2615,9 @@ function glyph(key){
     + '<div><div class="nm">Cash — the sixteenth destination</div>'
     + '<p>Both legs move here together when the S&amp;P 500 sits more than 25% below its level '
     + 'nineteen months earlier. Across all ' + M.calendarMonths + ' months of this record that never happened, '
-    + 'so the strategy was fully invested throughout and this row has no bar to draw.</p></div>';
+    + 'so the strategy was fully invested throughout and this row has no bar to draw. '
+    + 'This is an inferred substitute for MarketFighter’s ketchup rule. His rule uses three proprietary checks '
+    + 'on twelve monthly closes. Lodestar does not implement those checks.</p></div>';
   sb.appendChild(cash);
 
   box.appendChild(sb);
@@ -2633,6 +2635,8 @@ function glyph(key){
      "The ranking is computed on index levels; the returns are the London-listed funds that track those indices. Tracking difference, fund launch dates and the gap between an index close and a fund's dealing price all sit between the two, and none of them is modelled."],
     ["The window contains no slow, correlated bear market.",
      M.startPretty + " to " + M.endPretty + " holds one fast V-shaped crash and one inflation rotation, and the strategy is built for exactly the second. The regime that would actually test it, a multi-year grinding decline with everything falling together, is simply absent."],
+    ["The exact ketchup rule remains unknown.",
+     "Lodestar uses a single nineteen-month return threshold. MarketFighter describes three checks using twelve monthly closes. Matching October's rotation does not establish matching crash protection."],
     ["The cash filter never fires, so the drawdown is untested.",
      "Across all " + M.calendarMonths + " months the S&P 500 never sat 25% below its level nineteen months earlier, so the strategy was fully invested throughout. Read " + pct(s.maxdd) + " as “not yet tested” rather than “safe”. The one component that would matter most in a crisis has contributed nothing here."],
     [word(M.gaps.length).charAt(0).toUpperCase() + word(M.gaps.length).slice(1) + " months are missing from the priced record.",

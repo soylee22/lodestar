@@ -27,6 +27,7 @@ DATA.mkdir(exist_ok=True)
 UA = {"User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7)"}
 
 LOOKBACK, SKIP = 8, 0
+# Inferred substitute, not MarketFighter's proprietary twelve-close ketchup rule.
 CASH_LOOKBACK, CASH_THRESHOLD = 19, -0.25
 
 FACTOR = {"USA_MOM": "703025", "USA_QUAL": "702789", "USA_VAL": "705973",

@@ -47,6 +47,7 @@ NAMES = {**FACTOR_NAMES, **SECTOR_NAMES}
 SITE = "https://soylee22.github.io/lodestar/"
 
 LOOKBACK = 8
+# Inferred substitute, not MarketFighter's proprietary twelve-close ketchup rule.
 CASH_LOOKBACK, CASH_THRESHOLD = 19, -0.25
 
 FACTOR_PROXY = {"USA_MOM": "MTUM", "USA_QUAL": "QUAL", "USA_VAL": "VLUE",
@@ -312,6 +313,7 @@ def main() -> int:
         msg += [f"Cash rule: S&amp;P 500 {spx_ret*100:+.1f}% against its {cash_base} close, "
                 f"fires below {CASH_THRESHOLD*100:.0f}%. "
                 + ("<b>Cash.</b>" if cash else "Invested.")]
+    msg += ["Cash protection uses Lodestar's inferred rule. The exact ketchup checks remain unknown."]
     if f_missing or s_missing:
         msg += ["", "<i>Incomplete: no price today for "
                 + ", ".join(NAMES.get(k, k) for k in f_missing + s_missing)

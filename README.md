@@ -19,6 +19,12 @@ A monthly factor-and-sector ETF rotation, and the page that tracks it:
 Signals come from the indices. Returns come from the London-listed UCITS lines,
 in sterling, on a total-return basis.
 
+**Cash protection is an approximation.** Lodestar uses the nineteen-month rule
+above. MarketFighter's [13 October ketchup article](https://www.marketfighter.com/p/the-ketchup-rule-my-ultimate-drawdown)
+describes three proprietary checks using only twelve monthly closes. Lodestar
+does not implement that rule. The October 2026 rotation matched his later
+disclosure, but the complete strategy remains unrecovered.
+
 ## Running it
 
     pip install -r requirements.txt

@@ -136,6 +136,7 @@ def main(build_only=False) -> int:
         subject = f"Lodestar {month}: no trade, site updated"
     site = "https://soylee22.github.io/lodestar/"
     msg = msg.rstrip().removesuffix(site).rstrip()
+    msg += "\n\nCash protection uses Lodestar's inferred rule. The exact ketchup checks remain unknown."
     msg += (f"\n\nPage built: holdings for {signal['holding_month']}, "
             f"performance through {signal['performance_month']}.\n{site}")
     if not announce(subject, msg):
