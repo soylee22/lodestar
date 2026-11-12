@@ -145,6 +145,17 @@ class PipelineTests(unittest.TestCase):
         self.assertEqual(cstate_ief.loc['2026-09', 'defensive'], 'DEF_IEF')
         self.assertEqual(cstate_ief.loc['2026-09', 'defensive_ticker'], 'CBU0.L')
 
+        # Mixed positive and non-positive months must keep non-defensive rows None (pandas 3.0 safety)
+        mixed_vals = [100.0 + i * 0.5 for i in range(len(months))]
+        mixed_vals[-1] = 95.0
+        mixed_tip = pd.Series(mixed_vals, index=months)
+        mixed_state = crash_protection.evaluate_canary_history(mixed_tip, rising_ief, rising_bil)
+        self.assertFalse(bool(mixed_state.iloc[0]['cash']))
+        self.assertIsNone(mixed_state.iloc[0]['defensive'])
+        self.assertIsNone(mixed_state.iloc[0]['defensive_ticker'])
+        self.assertTrue(bool(mixed_state.loc['2026-09', 'cash']))
+        self.assertEqual(mixed_state.loc['2026-09', 'defensive_ticker'], 'CBU0.L')
+
     def test_splice_pre_listing_bil_joins_without_price_jump(self):
         ib01 = pd.Series([80.0, 80.4], index=pd.PeriodIndex(['2019-02', '2019-03'], freq='M'))
         bil = pd.Series([70.0, 70.7, 71.4, 72.1], index=pd.PeriodIndex(['2018-12', '2019-01', '2019-02', '2019-03'], freq='M'))

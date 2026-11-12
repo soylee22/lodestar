@@ -73,13 +73,16 @@ def evaluate_canary_history(
             columns=["tip_score", "ief_score", "bil_score", "cash", "defensive", "defensive_ticker"]
         )
     df["cash"] = df["tip_score"] <= 0.0
-    df["defensive"] = [
-        defensive_choice(ief_v, bil_v) if cash_v else None
+    defs = [
+        defensive_choice(ief_v, bil_v) if bool(cash_v) else None
         for cash_v, ief_v, bil_v in zip(df["cash"], df["ief_score"], df["bil_score"])
     ]
-    df["defensive_ticker"] = [
-        DEFENSIVE_TRADABLE[d][2] if d else None for d in df["defensive"]
-    ]
+    df["defensive"] = pd.Series(defs, index=df.index, dtype=object)
+    df["defensive_ticker"] = pd.Series(
+        [DEFENSIVE_TRADABLE[d][2] if d is not None else None for d in defs],
+        index=df.index,
+        dtype=object,
+    )
     return df
 
 
