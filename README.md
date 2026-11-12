@@ -140,16 +140,14 @@ Broker authentication is checked on the GitHub runner. Fresh broker values are
 not written to public build artefacts or logs. The public portfolio display uses
 saved purchase quantities and market quotes, refreshed on the daily schedule.
 
-The separate Pullback scanner checks its configured 54 instruments on weekdays
-at 16:45 and 21:30, plus Saturdays at 08:00. Lodestar checks its published journal
-hourly at minute 20. New confirmed events go to Telegram and email. A persisted
-receipt prevents repeat delivery to a channel that already accepted that event.
-The first pass establishes a baseline without repeating historical events.
-Unchanged healthy scans stay quiet. Overdue scans and incomplete coverage
-request one warning per day, allowing for the weekend gap. This coverage does not scan the full broker catalogue.
+Only Lodestar performance and signal reports are active. Pullback scans, alerts
+and the hourly cloud notification workflow were retired at Lee's request on
+12 November 2026. The older Simple Pullback job in Lodestar World is also disabled.
+The historical Pullback website remains available as a saved snapshot.
 
-Failed jobs request Telegram and email alerts. Both delivery helpers retry
-transient errors. Telegram messages request normal audible notifications.
-Phone settings still control the sound. GitHub schedules can run late.
-Run `Cloud notification check` in test mode to verify broker access and both
-channels from GitHub. The test intentionally sends one message to each channel.
+Failed Lodestar jobs request a Telegram warning with the run link. They no longer
+send a second custom failure email. GitHub's own genuine failure notifications
+remain subject to the account settings. Routine performance emails stay enabled.
+Both delivery helpers retry transient errors. Telegram messages request normal
+audible notifications. Phone settings still control the sound. GitHub schedules
+can run late.

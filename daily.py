@@ -580,9 +580,8 @@ def main() -> int:
             "computed at the month-end close.</i>",
             SITE]
 
-    subject = ("Lodestar: the cash rule would fire" if cash
-               else f"Lodestar: no change, {days_out}d to rebalance" if not change
-               else f"Lodestar: WOULD TRADE, {days_out}d to rebalance")
+    subject = ("Lodestar daily: broker valuation unavailable" if live_pf.get("sync_error")
+               else f"Lodestar daily: {pnl_pct:+.2f}%, {days_out}d to rebalance")
 
     html_email = build_email_html(days_out, signal_date, live_pf, crash_data,
                                   f_pick, s_pick, fmom, smom, hf, hs, hmonth, change, would)

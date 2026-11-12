@@ -1,4 +1,4 @@
-name: Daily read
+name: Lodestar performance update
 
 on:
   schedule:
@@ -29,7 +29,7 @@ jobs:
           T212_SECRET: ${{ secrets.T212_SECRET }}
         run: python -m pipeline.broker
 
-      - name: Provisional signal and send the drumbeat
+      - name: Private performance and signal report
         env:
           TG_TOKEN: ${{ secrets.TG_TOKEN }}
           TG_CHAT: ${{ secrets.TG_CHAT }}
@@ -43,5 +43,4 @@ jobs:
         env:
           TG_TOKEN: ${{ secrets.TG_TOKEN }}
           TG_CHAT: ${{ secrets.TG_CHAT }}
-          GMAIL_APP_PASSWORD: ${{ secrets.GMAIL_APP_PASSWORD }}
         run: python cloud_alerts.py failure
