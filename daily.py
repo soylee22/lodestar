@@ -396,7 +396,7 @@ def build_email_html(days_out: int, signal_date: date, live_pf: dict, crash_data
 
     <div style="background:#f8fafc;padding:16px 24px;border-top:1px solid #e2e8f0;font-size:12px;color:#94a3b8;text-align:center;line-height:1.5;">
       Lodestar Factor &amp; Sector Rotation · Next signal acts <strong>{signal_date:%-d %b %Y}</strong> ({days_out} days away).<br>
-      Trading 212 execution synced continuously. MarketFighter Ketchup Rule requires 3 simultaneous check failures to exit.
+      Broker valuation is checked on each scheduled report. The exact MarketFighter cash rule remains under research.
     </div>
 
   </div>
@@ -415,10 +415,10 @@ def send(subject: str, telegram_body: str, html_body: str | None = None) -> int:
                      "font-size:15px;line-height:1.5;max-width:640px\">"
                      + telegram_body.replace("\n", "<br>").replace("  ", "&nbsp;&nbsp;")
                      + "</div>")
-    print(telegram_body)
-    telegram(telegram_body)
-    email(subject, plain, html_body)
-    return 0
+    telegram_ok = telegram(telegram_body)
+    email_ok = email(subject, plain, html_body)
+    print(f"Delivery status: Telegram={telegram_ok}, email={email_ok}")
+    return 0 if telegram_ok and email_ok else 1
 
 
 def main() -> int:
@@ -493,10 +493,10 @@ def main() -> int:
     days_out = (signal_date - today).days
 
     try:
-        live_pf = get_live_portfolio_data()
+        live_pf = get_live_portfolio_data(broker=True)
     except Exception as e:
         print(f"  !! live portfolio load error: {e}")
-        live_pf = {}
+        live_pf = {"sync_error": True}
 
     try:
         crash_data = get_crash_protection_data()
@@ -523,7 +523,7 @@ def main() -> int:
     if change:
         msg += [""] + ["  " + c for c in change]
 
-    if live_pf:
+    if live_pf and not live_pf.get("sync_error"):
         init_c = live_pf.get("initial_capital_gbp", 0.0)
         curr_v = live_pf.get("current_value_gbp", 0.0)
         msg += [
@@ -538,6 +538,9 @@ def main() -> int:
         msg += ["", f"<b>Benchmark Race (Same Capital £{init_c:,.2f})</b>"]
         for b in live_pf.get("benchmarks", []):
             msg.append(f"  • {b['ticker']}: {b['return_pct']:+.2f}% · Alpha: <b>{b['alpha_pct']:+.2f}pp</b>")
+
+    if live_pf.get("sync_error"):
+        msg += ["", "Broker sync failed. Portfolio valuation is unavailable. GitHub will report this failure."]
 
     if crash_data:
         msg += [
@@ -581,7 +584,8 @@ def main() -> int:
 
     html_email = build_email_html(days_out, signal_date, live_pf, crash_data,
                                   f_pick, s_pick, fmom, smom, hf, hs, hmonth, change, would)
-    return send(subject, "\n".join(msg), html_email)
+    delivery = send(subject, "\n".join(msg), html_email)
+    return 1 if live_pf.get("sync_error") else delivery
 
 
 if __name__ == "__main__":

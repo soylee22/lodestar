@@ -12,6 +12,8 @@ on:
       - 'requirements.txt'
       - 'universe.py'
       - 'index.html'
+      - 'notify.py'
+      - 'mailer.py'
   schedule:
     # Refresh daily so delayed month-end prices are picked up after the 5th too.
     # Signals are archived. Alerts remain once per signal month.
@@ -50,6 +52,12 @@ jobs:
       - name: Check the signal and book regressions
         run: python -m unittest discover -s tests
 
+      - name: Verify private broker connection
+        env:
+          T212_KEY_ID: ${{ secrets.T212_KEY_ID }}
+          T212_SECRET: ${{ secrets.T212_SECRET }}
+        run: python -m pipeline.broker
+
       - name: Recompute signal and rebuild the page
         env:
           TG_TOKEN: ${{ secrets.TG_TOKEN }}
@@ -74,3 +82,11 @@ jobs:
             git commit -m "refresh: $(date +%Y-%m-%d)"
             git push
           fi
+
+      - name: Notify job failure
+        if: failure()
+        env:
+          TG_TOKEN: ${{ secrets.TG_TOKEN }}
+          TG_CHAT: ${{ secrets.TG_CHAT }}
+          GMAIL_APP_PASSWORD: ${{ secrets.GMAIL_APP_PASSWORD }}
+        run: python cloud_alerts.py failure

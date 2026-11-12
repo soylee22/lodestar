@@ -4,26 +4,31 @@ Reads TG_TOKEN + TG_CHAT from env (GitHub Actions secrets). If absent, prints
 the message instead of sending (so scripts are safe to run locally).
 """
 from __future__ import annotations
-import os, json, urllib.request, urllib.parse
+import os, json, time, urllib.request, urllib.parse
 
 def telegram(text: str, token: str | None = None, chat: str | None = None, thread: int | None = None) -> bool:
     token = token or os.environ.get("TG_TOKEN")
     chat  = chat  or os.environ.get("TG_CHAT")
     if not token or not chat:
-        print("[notify] no TG creds set; message would be:\n" + "-"*50 + "\n" + text[:1500] + "\n" + "-"*50)
+        print("[notify] Telegram credentials are missing")
         return False
     url = f"https://api.telegram.org/bot{token}/sendMessage"
-    payload = {"chat_id": chat, "text": text, "parse_mode": "HTML", "disable_web_page_preview": "true"}
+    payload = {"chat_id": chat, "text": text, "parse_mode": "HTML", "disable_web_page_preview": "true", "disable_notification": "false"}
     if thread is not None:
         payload["message_thread_id"] = thread     # post into a forum/group Topic
     data = urllib.parse.urlencode(payload).encode()
-    try:
-        with urllib.request.urlopen(url, data=data, timeout=20) as r:
-            json.load(r)
-        return True
-    except Exception as e:
-        print("[notify] telegram send failed:", e)
-        return False
+    for attempt in range(3):
+        try:
+            with urllib.request.urlopen(url, data=data, timeout=20) as response:
+                result = json.load(response)
+            if result.get("ok"):
+                print("[notify] Telegram accepted the notification")
+                return True
+        except Exception as exc:
+            print("[notify] Telegram attempt failed:", type(exc).__name__)
+        if attempt < 2:
+            time.sleep(2)
+    return False
 
 def get_chat_id(token: str) -> None:
     """One-off helper: after you message your new bot, run this to print your chat id."""

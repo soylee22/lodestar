@@ -1,0 +1,53 @@
+name: Cloud notification check
+on:
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: Run the cloud delivery check or Pullback notification pass
+        type: choice
+        options: [test, pullback]
+        default: test
+  schedule:
+    - cron: '20 * * * *'
+permissions:
+  contents: write
+concurrency:
+  group: lodestar-refresh
+  cancel-in-progress: false
+jobs:
+  notify:
+    runs-on: ubuntu-latest
+    env:
+      TG_TOKEN: ${{ secrets.TG_TOKEN }}
+      TG_CHAT: ${{ secrets.TG_CHAT }}
+      GMAIL_APP_PASSWORD: ${{ secrets.GMAIL_APP_PASSWORD }}
+      T212_KEY_ID: ${{ secrets.T212_KEY_ID }}
+      T212_SECRET: ${{ secrets.T212_SECRET }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+      - run: pip install -r requirements.txt
+      - name: Deliver cloud notification
+        env:
+          MODE: ${{ github.event_name == 'schedule' && 'pullback' || inputs.mode }}
+        run: python cloud_alerts.py "$MODE"
+      - name: Report job failure
+        if: failure()
+        run: python cloud_alerts.py failure
+      - name: Preserve delivery receipts
+        if: always()
+        run: |
+          if [ -f data/pullback-alert-state.json ]; then
+            git config user.name soylee22
+            git config user.email leeslater1992@gmail.com
+            git add data/pullback-alert-state.json
+            if ! git diff --staged --quiet; then
+              git commit -m "Record Pullback notification state"
+              git push
+            fi
+          fi

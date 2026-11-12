@@ -23,6 +23,12 @@ jobs:
 
       - run: pip install -r requirements.txt
 
+      - name: Verify private broker connection
+        env:
+          T212_KEY_ID: ${{ secrets.T212_KEY_ID }}
+          T212_SECRET: ${{ secrets.T212_SECRET }}
+        run: python -m pipeline.broker
+
       - name: Provisional signal and send the drumbeat
         env:
           TG_TOKEN: ${{ secrets.TG_TOKEN }}
@@ -31,3 +37,11 @@ jobs:
           T212_KEY_ID: ${{ secrets.T212_KEY_ID }}
           T212_SECRET: ${{ secrets.T212_SECRET }}
         run: python daily.py
+
+      - name: Notify job failure
+        if: failure()
+        env:
+          TG_TOKEN: ${{ secrets.TG_TOKEN }}
+          TG_CHAT: ${{ secrets.TG_CHAT }}
+          GMAIL_APP_PASSWORD: ${{ secrets.GMAIL_APP_PASSWORD }}
+        run: python cloud_alerts.py failure

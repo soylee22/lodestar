@@ -54,8 +54,8 @@ def announce(subject: str, msg: str) -> bool:
     body = ("<div style=\"font-family:-apple-system,Segoe UI,Helvetica,Arial,sans-serif;"
             "font-size:15px;line-height:1.5;max-width:640px\">"
             + msg.replace("\n", "<br>") + "</div>")
-    email(subject, _plain(msg), body)
-    return ok
+    email_ok = email(subject, _plain(msg), body)
+    return ok and email_ok
 
 
 def main(build_only=False) -> int:
@@ -140,7 +140,8 @@ def main(build_only=False) -> int:
     msg += (f"\n\nPage built: holdings for {signal['holding_month']}, "
             f"performance through {signal['performance_month']}.\n{site}")
     if not announce(subject, msg):
-        print("(telegram not configured; message printed only)")
+        print("Alert delivery incomplete. Signal will be retried.")
+        return 1
     record_alert(month, picks)
     return 0
 

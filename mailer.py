@@ -5,7 +5,7 @@ secret, never committed. Without it the message is printed instead of sent, so
 the scripts stay safe to run locally.
 """
 from __future__ import annotations
-import os, smtplib
+import os, smtplib, time
 from email.message import EmailMessage
 
 GMAIL_USER = os.environ.get("GMAIL_USER", "leeslater1992@gmail.com")
@@ -15,8 +15,7 @@ MAIL_TO = os.environ.get("MAIL_TO", "leeslater1992@gmail.com")
 def email(subject: str, plain: str, html: str | None = None) -> bool:
     pw = os.environ.get("GMAIL_APP_PASSWORD")
     if not pw:
-        print(f"[mailer] no GMAIL_APP_PASSWORD set; would send '{subject}':\n"
-              + "-" * 50 + "\n" + plain[:1500] + "\n" + "-" * 50)
+        print("[mailer] Gmail credentials are missing")
         return False
     msg = EmailMessage()
     msg["Subject"] = subject
@@ -25,15 +24,19 @@ def email(subject: str, plain: str, html: str | None = None) -> bool:
     msg.set_content(plain)
     if html:
         msg.add_alternative(html, subtype="html")
-    try:
-        with smtplib.SMTP_SSL("smtp.gmail.com", 465, timeout=30) as smtp:
-            smtp.login(GMAIL_USER, pw.replace(" ", ""))
-            smtp.send_message(msg)
-        print(f"[mailer] sent '{subject}' to {MAIL_TO}")
-        return True
-    except Exception as e:
-        print("[mailer] send failed:", e)
-        return False
+    for attempt in range(3):
+        try:
+            with smtplib.SMTP_SSL("smtp.gmail.com", 465, timeout=30) as smtp:
+                smtp.login(GMAIL_USER, pw.replace(" ", ""))
+                rejected = smtp.send_message(msg)
+            if not rejected:
+                print("[mailer] Gmail accepted the email")
+                return True
+        except Exception as exc:
+            print("[mailer] Email attempt failed:", type(exc).__name__)
+        if attempt < 2:
+            time.sleep(2)
+    return False
 
 
 if __name__ == "__main__":

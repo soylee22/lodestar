@@ -47,29 +47,26 @@ def load_t212_credentials() -> tuple[str | None, str | None, str]:
     return key, secret, base
 
 
-def get_live_portfolio_data() -> dict:
+def get_live_portfolio_data(broker: bool = False) -> dict:
     cfg_path = DATA_DIR / "live_portfolio.json"
     if not cfg_path.exists():
         return {}
     cfg = json.loads(cfg_path.read_text(encoding="utf-8"))
     initial_cap = float(cfg.get("initial_capital_gbp", 5248.14))
 
-    # 1. Fetch Trading 212 API positions if available
-    key, secret, base = load_t212_credentials()
+    # Broker data is requested only for private Telegram/email reports.
     t212_positions = {}
-    t212_cash = {}
-    if key and secret:
-        try:
-            auth = "Basic " + base64.b64encode(f"{key}:{secret}".encode()).decode()
-            req = urllib.request.Request(f"{base}/api/v0/equity/portfolio", headers={"Authorization": auth})
-            with urllib.request.urlopen(req, timeout=10) as r:
-                for p in json.load(r):
-                    t212_positions[p.get("ticker")] = p
-            req2 = urllib.request.Request(f"{base}/api/v0/equity/account/cash", headers={"Authorization": auth})
-            with urllib.request.urlopen(req2, timeout=10) as r:
-                t212_cash = json.load(r)
-        except Exception:
-            pass
+    broker_status = "market_quotes"
+    if broker:
+        from pipeline.broker import positions
+        t212_positions = positions()
+        broker_status = "trading212"
+
+    if broker:
+        missing = [h["ticker"] for h in cfg.get("holdings", [])
+                   if h.get("t212_ticker") not in t212_positions]
+        if missing:
+            raise RuntimeError("Configured holdings were not found in the broker response")
 
     # 2. Fetch live quotes via yfinance for fallback and benchmarks
     bm_symbols = list(cfg.get("benchmarks", {}).keys())
@@ -93,12 +90,11 @@ def get_live_portfolio_data() -> dict:
         shares = float(h["shares"])
         cost_gbp = float(h["cost_gbp"])
 
-        if t212_match and "currentPrice" in t212_match:
-            px_usd = float(t212_match["currentPrice"])
-            val_gbp = (shares * px_usd) / fx_gbp_usd
-            # Use direct T212 PnL if available
-            pnl_gbp = float(t212_match.get("ppl", val_gbp - cost_gbp))
-            val_gbp = cost_gbp + pnl_gbp
+        if t212_match and t212_match.get("quantity", 0) > 0:
+            # Value the configured purchase quantity using the broker's GBP
+            # per-share value. Additional purchases do not become trading gains.
+            val_gbp = shares * t212_match["value_gbp"] / t212_match["quantity"]
+            pnl_gbp = val_gbp - cost_gbp
         else:
             px_raw = float(quotes.get(ticker, h["fill_price_usd"])) if hasattr(quotes, "get") else h["fill_price_usd"]
             # IUIT.L and IUVL.L trade in USD on LSE
@@ -182,6 +178,7 @@ def get_live_portfolio_data() -> dict:
     }
 
     return {
+        "sync_source": broker_status,
         "entry_date": cfg.get("entry_date", "2026-11-12"),
         "initial_capital_gbp": initial_cap,
         "current_value_gbp": round(total_val, 2),

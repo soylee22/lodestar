@@ -40,7 +40,7 @@ def get_crash_protection_data() -> dict:
             "desc": "Latest close vs previous month",
             "reading_pct": m1_pct,
             "pass": m1_pct >= 0,
-            "rule": "MarketFighter Check 1",
+            "rule": "Research Check 1",
         },
         {
             "id": "m6",
@@ -48,7 +48,7 @@ def get_crash_protection_data() -> dict:
             "desc": "Latest close vs 6 months earlier",
             "reading_pct": m6_pct,
             "pass": m6_pct >= 0,
-            "rule": "MarketFighter Check 2",
+            "rule": "Research Check 2",
         },
         {
             "id": "m12",
@@ -56,7 +56,7 @@ def get_crash_protection_data() -> dict:
             "desc": "Latest close vs 12 months earlier",
             "reading_pct": m12_pct,
             "pass": m12_pct >= 0,
-            "rule": "MarketFighter Check 3",
+            "rule": "Research Check 3",
         },
         {
             "id": "floor19",
@@ -70,7 +70,7 @@ def get_crash_protection_data() -> dict:
 
     # Cash only fires if all 3 MarketFighter checks fail OR Lodestar's floor breaks
     ketchup_fails = sum(1 for c in checks[:3] if not c["pass"])
-    cash_triggered = (ketchup_fails == 3) or (m19_pct < -25.0)
+    cash_triggered = m19_pct < -25.0
 
     chart_points = [{"month": str(idx), "price": round(float(v), 2)} for idx, v in last_24.items()]
     return {
@@ -80,6 +80,8 @@ def get_crash_protection_data() -> dict:
         "chart": chart_points,
         "checks": checks,
         "ketchup_fails": ketchup_fails,
+        "research_cash_triggered": ketchup_fails == 3,
+        "method_note": "The three research checks do not recover the proprietary MarketFighter rule. The production gate uses the 19-month floor.",
         "cash_triggered": cash_triggered,
         "status": "CASH" if cash_triggered else "INVESTED",
         "status_text": "Circuit Breaker Active · 100% Cash" if cash_triggered else "All Systems Green · 100% Invested",
