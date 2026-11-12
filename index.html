@@ -769,6 +769,10 @@ html{scroll-behavior:smooth; scroll-padding-top:72px}
 .crash-pill.cash{background:rgba(239,68,68,.15);color:#ef4444;border:1px solid rgba(239,68,68,.3)}
 .crash-status-card .desc{font-size:13px;color:var(--ink-2);line-height:1.5}
 .crash-status-card .val{font:500 22px var(--mono);color:var(--ink)}
+.rank-badge{display:inline-grid;place-items:center;width:22px;height:22px;border-radius:6px;font:700 11px var(--mono)}
+.rank-1{background:rgba(245,158,11,.15);color:#f59e0b;border:1px solid rgba(245,158,11,.3)}
+.rank-other{background:var(--rule);color:var(--ink-2)}
+.live-badge.blue{background:color-mix(in srgb,#3b82f6 15%,transparent);color:#3b82f6;border:1px solid color-mix(in srgb,#3b82f6 30%,transparent)}
 @media(max-width:860px){.crash-grid{grid-template-columns:1fr!important}}
 
 </style>
@@ -779,6 +783,7 @@ html{scroll-behavior:smooth; scroll-padding-top:72px}
   <div class="wrap">
     <div class="mark"><b>Lodestar</b></div>
     <nav class="railnav" aria-label="Sections">
+      <a href="#emergingSec" id="navEmerging">Next Month</a>
       <a href="#livePortfolioSec" id="navPortfolio">Live Portfolio</a>
       <a href="#crashProtectionSec" id="navCrash">Crash Gate</a>
       <a href="#inside" id="navInside">Holdings</a>
@@ -851,6 +856,79 @@ html{scroll-behavior:smooth; scroll-padding-top:72px}
   </div>
 </section>
 
+<!-- ── EMERGING NEXT-MONTH TARGET ALLOCATION ────────────────────────── -->
+<section class="sec wrap" id="emergingSec">
+  <div class="sechd">
+    <div>
+      <div class="eyebrow" id="emergingEyebrow">Provisional Momentum Signal · Acting 1 Dec 2026</div>
+      <h2>Emerging Picture: Next Month's Target Allocation</h2>
+    </div>
+    <p class="lede" id="emergingLede">
+      Where the 8-month momentum signal stands on live prices today. If the month closed now, this is what the model would hold for next month.
+    </p>
+  </div>
+
+  <div class="crash-status-card" id="emergingStatusCard" style="margin-bottom: 24px;">
+    <div class="left">
+      <div class="live-badge pass" id="emergingActionBadge" style="font-size: 13px; padding: 6px 14px; text-transform: uppercase;">HOLD · ZERO TURNOVER</div>
+      <div>
+        <div id="emergingTitle" style="font: 600 18px var(--mono); color: var(--ink);">Provisional Targets: USA Value (50%) + Information Technology (50%)</div>
+        <div id="emergingDesc" style="font-size: 13px; color: var(--ink-2); margin-top: 4px;">Both provisional leaders match currently held positions. Zero turnover projected.</div>
+      </div>
+    </div>
+    <div style="text-align: right;">
+      <div style="font-size: 11px; text-transform: uppercase; color: var(--muted); letter-spacing: .05em;">Days to Month End</div>
+      <div id="emergingDaysOut" style="font: 600 22px var(--mono); color: var(--ink);">19 Days</div>
+    </div>
+  </div>
+
+  <div class="crash-grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px;">
+    <div class="card rise">
+      <div class="card-hd">
+        <div class="ttl">Factor Leg Momentum Rankings</div>
+        <div class="sub">8 Candidates · 8-Month Lookback</div>
+      </div>
+      <div class="card-bd" style="overflow-x: auto;">
+        <table class="live-table" id="tblEmergingFactors">
+          <thead>
+            <tr>
+              <th style="width: 45px;">Rank</th>
+              <th>Factor Asset</th>
+              <th class="num">8-Mo Return</th>
+              <th class="num">Lead / Gap</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+        <div id="emergingFactorMargin" style="font-size: 12px; font-style: italic; color: var(--ink-2); padding: 12px 8px 4px;"></div>
+      </div>
+    </div>
+
+    <div class="card rise">
+      <div class="card-hd">
+        <div class="ttl">Sector Leg Momentum Rankings</div>
+        <div class="sub">7 Candidates · 8-Month Lookback</div>
+      </div>
+      <div class="card-bd" style="overflow-x: auto;">
+        <table class="live-table" id="tblEmergingSectors">
+          <thead>
+            <tr>
+              <th style="width: 45px;">Rank</th>
+              <th>Sector Asset</th>
+              <th class="num">8-Mo Return</th>
+              <th class="num">Lead / Gap</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+        <div id="emergingSectorMargin" style="font-size: 12px; font-style: italic; color: var(--ink-2); padding: 12px 8px 4px;"></div>
+      </div>
+    </div>
+  </div>
+</section>
+
 <!-- ── LIVE PORTFOLIO & BENCHMARKS ──────────────────────────────────── -->
 <section class="sec wrap" id="livePortfolioSec">
   <div class="sechd">
@@ -907,6 +985,25 @@ html{scroll-behavior:smooth; scroll-padding-top:72px}
           </thead>
           <tbody></tbody>
         </table>
+      </div>
+    </div>
+    <!-- Forward Testing Benchmark Line Chart Card -->
+    <div class="card rise" style="margin-top: 24px; grid-column: 1 / -1;">
+      <div class="card-hd" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;">
+        <div>
+          <div class="ttl">Forward Testing: Lodestar vs Passive Benchmarks</div>
+          <div class="sub" id="ftChartSubtitle">Tracking Real Capital (£5,248.14) vs Vanguard Trackers</div>
+        </div>
+        <div style="display: flex; gap: 14px; align-items: center; flex-wrap: wrap;">
+          <div class="legend" id="ftChartLegend"></div>
+          <div class="seg" role="group" aria-label="Forward test scale">
+            <button type="button" id="btnFtReal" aria-pressed="true">Real (£)</button>
+            <button type="button" id="btnFtPct" aria-pressed="false">Return (%)</button>
+          </div>
+        </div>
+      </div>
+      <div class="card-bd">
+        <div id="forwardTestingChart" style="width: 100%; min-height: 280px;" tabindex="0" role="img" aria-label="Forward testing line chart"></div>
       </div>
     </div>
   </div>
@@ -1637,6 +1734,83 @@ function glyph(key){
 })();
 
 /* ══════════════════════════════════════════════════════════════════════
+   EMERGING NEXT-MONTH TARGET ALLOCATION
+   ══════════════════════════════════════════════════════════════════════ */
+(function emerging(){
+  var E = DATA.emerging;
+  if (!E || !E.factors || !E.sectors){
+    var s = $("#emergingSec"), n = $("#navEmerging");
+    if (s) s.hidden = true;
+    if (n) n.remove();
+    return;
+  }
+
+  var elEyebrow = $("#emergingEyebrow");
+  if (elEyebrow && E.next_action_date) elEyebrow.textContent = "Provisional Momentum Signal · Acting " + E.next_action_date;
+
+  var badge = $("#emergingActionBadge");
+  if (badge){
+    badge.textContent = E.action_text;
+    badge.className = "live-badge " + (E.action === "HOLD" ? "pass" : "fail");
+  }
+
+  var elTitle = $("#emergingTitle");
+  if (elTitle && E.projected_holdings && E.projected_holdings.length >= 2){
+    elTitle.textContent = "Provisional Targets: " + E.projected_holdings[0].name + " (50%) + " + E.projected_holdings[1].name + " (50%)";
+  }
+  var elDesc = $("#emergingDesc");
+  if (elDesc) elDesc.textContent = E.action_summary;
+  var elDays = $("#emergingDaysOut");
+  if (elDays) elDays.textContent = E.days_out + " Days";
+
+  if (E.factor_lead && E.factor_lead.giveback_pct != null){
+    var fm = $("#emergingFactorMargin");
+    if (fm) fm.textContent = E.factor_lead.leader_name + " holds unless it gives back " + E.factor_lead.giveback_pct.toFixed(1) + "% against " + E.factor_lead.runner_up_name + " this month.";
+  }
+  if (E.sector_lead && E.sector_lead.giveback_pct != null){
+    var sm = $("#emergingSectorMargin");
+    if (sm) sm.textContent = E.sector_lead.leader_name + " holds unless it gives back " + E.sector_lead.giveback_pct.toFixed(1) + "% against " + E.sector_lead.runner_up_name + " this month.";
+  }
+
+  function renderTable(tbodyId, rows){
+    var tbody = $(tbodyId);
+    if (!tbody || !rows) return;
+    tbody.innerHTML = "";
+    rows.forEach(function(r){
+      var tr = el("tr");
+      var tdRank = el("td");
+      var rBadge = el("span", {class:"rank-badge " + (r.rank === 1 ? "rank-1" : "rank-other")}, String(r.rank));
+      tdRank.appendChild(rBadge);
+      tr.appendChild(tdRank);
+
+      var tdAsset = el("td");
+      tdAsset.innerHTML = "<b>" + esc(r.name) + "</b> <small style=\"color:var(--muted);font-size:11px\">(" + esc(r.ticker) + ")</small>";
+      tr.appendChild(tdAsset);
+
+      var tdMom = el("td", {class:"num " + (r.momentum_pct >= 0 ? "up" : "dn")}, sgn(r.momentum_pct));
+      tr.appendChild(tdMom);
+
+      var tdMargin = el("td", {class:"num", style:"color:var(--ink-2);font-size:12px;font-family:var(--mono)"}, r.lead_margin || "—");
+      tr.appendChild(tdMargin);
+
+      var tdStatus = el("td");
+      if (r.is_held){
+        tdStatus.appendChild(el("span", {class:"live-badge pass", style:"font-size:10px"}, "HELD"));
+      } else if (r.rank === 2){
+        tdStatus.appendChild(el("span", {class:"live-badge blue", style:"font-size:10px"}, "RUNNER UP"));
+      } else {
+        tdStatus.textContent = "—";
+      }
+      tr.appendChild(tdStatus);
+      tbody.appendChild(tr);
+    });
+  }
+
+  renderTable("#tblEmergingFactors tbody", E.factors);
+  renderTable("#tblEmergingSectors tbody", E.sectors);
+})();
+
+/* ══════════════════════════════════════════════════════════════════════
    LIVE PORTFOLIO & BENCHMARK RACE
    ══════════════════════════════════════════════════════════════════════ */
 (function livePortfolio(){
@@ -1704,6 +1878,123 @@ function glyph(key){
     tr.appendChild(tdAlpha);
     bBody.appendChild(tr);
   });
+
+  // Forward Testing Line Chart
+  var ftNode = $("#forwardTestingChart");
+  var ftChart = P.benchmarkChart;
+  if (ftNode && ftChart && ftChart.series && ftChart.series.length > 0){
+    var ftMode = "real";
+    var ftLegend = $("#ftChartLegend");
+    var btnReal = $("#btnFtReal");
+    var btnPct = $("#btnFtPct");
+
+    if (ftLegend){
+      ftLegend.innerHTML = "";
+      ftChart.series.forEach(function(s){
+        var span = el("span", {class:"item", style:"color:" + s.colour + ";font-weight:600;font-size:12px"});
+        var dot = el("span", {style:"display:inline-block;width:12px;height:3px;background:" + s.colour + ";border-radius:2px;margin-right:5px"});
+        span.appendChild(dot);
+        span.appendChild(document.createTextNode(s.ticker));
+        ftLegend.appendChild(span);
+      });
+    }
+
+    if (btnReal && btnPct){
+      btnReal.addEventListener("click", function(){
+        ftMode = "real";
+        btnReal.setAttribute("aria-pressed", "true");
+        btnPct.setAttribute("aria-pressed", "false");
+        $("#ftChartSubtitle").textContent = "Tracking Real Capital (£5,248.14) vs Vanguard Trackers";
+        drawFt(ftNode, ftNode.clientWidth || 600);
+      });
+      btnPct.addEventListener("click", function(){
+        ftMode = "pct";
+        btnReal.setAttribute("aria-pressed", "false");
+        btnPct.setAttribute("aria-pressed", "true");
+        $("#ftChartSubtitle").textContent = "Normalised Return (%) vs Vanguard Trackers";
+        drawFt(ftNode, ftNode.clientWidth || 600);
+      });
+    }
+
+    function drawFt(root, W){
+      W = Math.max(340, root.clientWidth || W || 600);
+      var H = 280, P_pad = { t:25, r:80, b:35, l:60 };
+      var iw = W - P_pad.l - P_pad.r, ih = H - P_pad.t - P_pad.b;
+      var isReal = (ftMode === "real");
+
+      var allVals = [];
+      ftChart.series.forEach(function(s){
+        var arr = isReal ? s.values : s.pcts;
+        arr.forEach(function(v){ allVals.push(v); });
+      });
+      var minV = Math.min.apply(null, allVals);
+      var maxV = Math.max.apply(null, allVals);
+      var spanV = maxV - minV;
+      if (spanV < 0.01) spanV = isReal ? 20.0 : 0.5;
+      var yLo = isReal ? (minV - spanV * 0.25) : (minV - spanV * 0.3);
+      var yHi = isReal ? (maxV + spanV * 0.25) : (maxV + spanV * 0.3);
+
+      var numPts = ftChart.dates.length;
+      var x = function(i){ return P_pad.l + (i / Math.max(1, numPts - 1)) * iw; };
+      var y = function(v){ return P_pad.t + ih - ((v - yLo) / (yHi - yLo)) * ih; };
+
+      var svg = sv("svg", {class:"chart", viewBox:"0 0 " + W + " " + H, width:W, height:H});
+      svg.style.width = W + "px"; svg.style.height = H + "px";
+      root.innerHTML = "";
+      root.appendChild(svg);
+
+      for (var k = 0; k <= 4; k++){
+        var val = yLo + k * ((yHi - yLo) / 4);
+        var yPos = y(val);
+        var line = sv("line", {x1:P_pad.l, y1:yPos, x2:W - P_pad.r, y2:yPos, stroke:"var(--rule)", "stroke-width":"1", "stroke-dasharray":"3 3"});
+        svg.appendChild(line);
+        var txt = sv("text", {x:P_pad.l - 8, y:yPos + 4, "text-anchor":"end", fill:"var(--muted)", "font-size":"10.5", "font-family":"var(--mono)"},
+                     isReal ? ("£" + val.toFixed(0)) : (val.toFixed(2) + "%"));
+        svg.appendChild(txt);
+      }
+
+      if (!isReal && yLo <= 0 && yHi >= 0){
+        var yZero = y(0);
+        var zLine = sv("line", {x1:P_pad.l, y1:yZero, x2:W - P_pad.r, y2:yZero, stroke:"var(--rule-2)", "stroke-width":"1.5"});
+        svg.appendChild(zLine);
+      }
+
+      ftChart.series.forEach(function(s){
+        var arr = isReal ? s.values : s.pcts;
+        var dPath = "";
+        for (var i = 0; i < arr.length; i++){
+          var px = x(i), py = y(arr[i]);
+          dPath += (i === 0 ? "M " : " L ") + px + " " + py;
+        }
+        var p = sv("path", {d:dPath, fill:"none", stroke:s.colour, "stroke-width":String(s.strokeWidth || 1.5)});
+        svg.appendChild(p);
+
+        for (var j = 0; j < arr.length; j++){
+          var cx = x(j), cy = y(arr[j]);
+          var dot = sv("circle", {cx:cx, cy:cy, r:(j === arr.length - 1 ? "4" : "3"), fill:s.colour, stroke:"var(--surface)", "stroke-width":"1.5"});
+          svg.appendChild(dot);
+        }
+
+        if (arr.length > 0){
+          var lastIdx = arr.length - 1;
+          var endVal = arr[lastIdx];
+          var endTxt = isReal ? ("£" + endVal.toFixed(2)) : (sgn(endVal));
+          var lbl = sv("text", {x:x(lastIdx) + 8, y:y(endVal) + 4, fill:s.colour, "font-size":"10.5", "font-family":"var(--mono)", "font-weight":"600"}, endTxt);
+          svg.appendChild(lbl);
+        }
+      });
+
+      ftChart.dates.forEach(function(dStr, i){
+        var tx = x(i);
+        var align = (i === 0 ? "start" : i === ftChart.dates.length - 1 ? "end" : "middle");
+        var txt = sv("text", {x:tx, y:H - 10, "text-anchor":align, fill:"var(--muted)", "font-size":"11", "font-family":"var(--mono)"}, dStr);
+        svg.appendChild(txt);
+      });
+    }
+
+    register(ftNode, drawFt, 320);
+    drawFt(ftNode, ftNode.clientWidth || 600);
+  }
 })();
 
 /* ══════════════════════════════════════════════════════════════════════
@@ -1727,7 +2018,7 @@ function glyph(key){
     ? "All 3 Ketchup checks failed simultaneously. Defensive cash activated."
     : C.ketchup_fails + " of 3 Ketchup checks failed. Full equity exposure preserved.";
 
-  var chart = C.chart || [];
+  var chart = C.chart || C.history || [];
   if (chart.length > 0){
     var latest = chart[chart.length - 1];
     $("#crashSpPrice").textContent = latest.price.toLocaleString("en-US", {minimumFractionDigits:2, maximumFractionDigits:2});
@@ -1756,7 +2047,7 @@ function glyph(key){
   if (!node || chart.length < 2) return;
 
   function drawCrash(root, W){
-    W = Math.max(340, W);
+    W = Math.max(340, root.clientWidth || W || 400);
     var H = 240, P = { t:20, r:20, b:30, l:50 };
     var iw = W - P.l - P.r, ih = H - P.t - P.b;
     var prices = chart.map(function(d){ return d.price; });
@@ -1818,6 +2109,7 @@ function glyph(key){
   }
 
   register(node, drawCrash, 320);
+  drawCrash(node, node.clientWidth || 400);
 })();
 
 /* ══════════════════════════════════════════════════════════════════════

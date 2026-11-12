@@ -32,6 +32,7 @@ import pandas as pd
 
 from pipeline.live_portfolio import get_live_portfolio_data
 from pipeline.crash_protection import get_crash_protection_data
+from pipeline.emerging import compute_emerging_data
 
 HERE = Path(__file__).resolve().parent
 SOURCE = (sys.argv[1] if len(sys.argv) > 1 else os.environ.get("LODESTAR_DATA", "")).strip()
@@ -525,6 +526,12 @@ def main() -> None:
         print(f"Warning: crash protection fetch failed: {e}")
         crash_protection = {}
 
+    try:
+        emerging = compute_emerging_data()
+    except Exception as e:
+        print(f"Warning: emerging data fetch failed: {e}")
+        emerging = {}
+
     payload = {
         "meta": {
             "name": "Lodestar",
@@ -572,6 +579,7 @@ def main() -> None:
         "current": current,
         "livePortfolio": live_portfolio,
         "crashProtection": crash_protection,
+        "emerging": emerging,
         "priceStatus": price_status,
         "book": book,
         "universe": {

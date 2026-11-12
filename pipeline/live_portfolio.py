@@ -124,13 +124,14 @@ def get_live_portfolio_data() -> dict:
 
     # 4. Calculate benchmarks
     benchmarks_out = []
+    bm_map = {}
     for sym, b in cfg.get("benchmarks", {}).items():
         init_shares = float(b["initial_shares"])
         px = float(quotes.get(sym, b["entry_price_gbp"])) if hasattr(quotes, "get") else b["entry_price_gbp"]
         cur_val = init_shares * px
         ret_pct = (cur_val / initial_cap - 1) * 100.0
         alpha_pct = total_pnl_pct - ret_pct
-        benchmarks_out.append({
+        row = {
             "ticker": sym,
             "name": b["name"],
             "entry_price_gbp": float(b["entry_price_gbp"]),
@@ -138,7 +139,47 @@ def get_live_portfolio_data() -> dict:
             "current_value_gbp": round(cur_val, 2),
             "return_pct": round(ret_pct, 2),
             "alpha_pct": round(alpha_pct, 2),
-        })
+        }
+        benchmarks_out.append(row)
+        bm_map[sym] = row
+
+    # 5. Build forward testing benchmark chart time series
+    saved_history = cfg.get("history", [])
+    if saved_history:
+        chart_dates = [h["label"] for h in saved_history] + ["Live"]
+        s_lodestar_val = [h["lodestar"] for h in saved_history] + [round(total_val, 2)]
+        s_lodestar_pct = [h["lodestar_pct"] for h in saved_history] + [round(total_pnl_pct, 2)]
+        s_vuag_val = [h.get("vuag", initial_cap) for h in saved_history] + [bm_map.get("VUAG.L", {}).get("current_value_gbp", initial_cap)]
+        s_vuag_pct = [h.get("vuag_pct", 0.0) for h in saved_history] + [bm_map.get("VUAG.L", {}).get("return_pct", 0.0)]
+        s_vwrp_val = [h.get("vwrp", initial_cap) for h in saved_history] + [bm_map.get("VWRP.L", {}).get("current_value_gbp", initial_cap)]
+        s_vwrp_pct = [h.get("vwrp_pct", 0.0) for h in saved_history] + [bm_map.get("VWRP.L", {}).get("return_pct", 0.0)]
+        s_vukg_val = [h.get("vukg", initial_cap) for h in saved_history] + [bm_map.get("VUKG.L", {}).get("current_value_gbp", initial_cap)]
+        s_vukg_pct = [h.get("vukg_pct", 0.0) for h in saved_history] + [bm_map.get("VUKG.L", {}).get("return_pct", 0.0)]
+        s_vall_val = [h.get("vall", initial_cap) for h in saved_history] + [bm_map.get("VALL.L", {}).get("current_value_gbp", initial_cap)]
+        s_vall_pct = [h.get("vall_pct", 0.0) for h in saved_history] + [bm_map.get("VALL.L", {}).get("return_pct", 0.0)]
+    else:
+        chart_dates = ["12 Nov (Fill)", "Live"]
+        s_lodestar_val = [initial_cap, round(total_val, 2)]
+        s_lodestar_pct = [0.0, round(total_pnl_pct, 2)]
+        s_vuag_val = [initial_cap, bm_map.get("VUAG.L", {}).get("current_value_gbp", initial_cap)]
+        s_vuag_pct = [0.0, bm_map.get("VUAG.L", {}).get("return_pct", 0.0)]
+        s_vwrp_val = [initial_cap, bm_map.get("VWRP.L", {}).get("current_value_gbp", initial_cap)]
+        s_vwrp_pct = [0.0, bm_map.get("VWRP.L", {}).get("return_pct", 0.0)]
+        s_vukg_val = [initial_cap, bm_map.get("VUKG.L", {}).get("current_value_gbp", initial_cap)]
+        s_vukg_pct = [0.0, bm_map.get("VUKG.L", {}).get("return_pct", 0.0)]
+        s_vall_val = [initial_cap, bm_map.get("VALL.L", {}).get("current_value_gbp", initial_cap)]
+        s_vall_pct = [0.0, bm_map.get("VALL.L", {}).get("return_pct", 0.0)]
+
+    benchmark_chart = {
+        "dates": chart_dates,
+        "series": [
+            {"name": "Lodestar (50/50)", "ticker": "Lodestar", "colour": "#f59e0b", "strokeWidth": 2.5, "values": s_lodestar_val, "pcts": s_lodestar_pct},
+            {"name": "Vanguard S&P 500", "ticker": "VUAG.L", "colour": "#10b981", "strokeWidth": 1.5, "values": s_vuag_val, "pcts": s_vuag_pct},
+            {"name": "Vanguard FTSE All-World", "ticker": "VWRP.L", "colour": "#3b82f6", "strokeWidth": 1.5, "values": s_vwrp_val, "pcts": s_vwrp_pct},
+            {"name": "Vanguard FTSE 100", "ticker": "VUKG.L", "colour": "#f43f5e", "strokeWidth": 1.5, "values": s_vukg_val, "pcts": s_vukg_pct},
+            {"name": "Vanguard Developed World", "ticker": "VALL.L", "colour": "#a855f7", "strokeWidth": 1.5, "values": s_vall_val, "pcts": s_vall_pct},
+        ]
+    }
 
     return {
         "entry_date": cfg.get("entry_date", "2026-11-12"),
@@ -148,6 +189,7 @@ def get_live_portfolio_data() -> dict:
         "total_pnl_pct": round(total_pnl_pct, 2),
         "holdings": holdings_out,
         "benchmarks": benchmarks_out,
+        "benchmarkChart": benchmark_chart,
     }
 
 

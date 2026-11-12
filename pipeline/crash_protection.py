@@ -72,10 +72,12 @@ def get_crash_protection_data() -> dict:
     ketchup_fails = sum(1 for c in checks[:3] if not c["pass"])
     cash_triggered = (ketchup_fails == 3) or (m19_pct < -25.0)
 
+    chart_points = [{"month": str(idx), "price": round(float(v), 2)} for idx, v in last_24.items()]
     return {
         "asof": str(spx.index[-1]),
         "latest_price": round(last_val, 2),
-        "history": [{"month": str(idx), "price": round(float(v), 2)} for idx, v in last_24.items()],
+        "history": chart_points,
+        "chart": chart_points,
         "checks": checks,
         "ketchup_fails": ketchup_fails,
         "cash_triggered": cash_triggered,
