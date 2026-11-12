@@ -97,6 +97,21 @@ def annotate_sources(out):
 
 def build(signal=None):
     signal = signal or json.loads((DATA / "signal.json").read_text())
+    if signal.get("cash"):
+        out = {
+            "as_at": signal["signal_month"],
+            "fetched_at": datetime.now(timezone.utc).isoformat(),
+            "snapshot_date": None,
+            "source": "US Treasury ETF defensive mode",
+            "cash": True,
+            "defensive": signal.get("defensive"),
+            "defensive_ticker": signal.get("defensive_ticker"),
+            "defensive_name": signal.get("defensive_name"),
+            "legs": {},
+        }
+        (DATA / "holdings.json").write_text(json.dumps(out, indent=2, default=str))
+        print(f"\nwrote {DATA/'holdings.json'} (defensive: {out.get('defensive_ticker') or 'CASH'})")
+        return out
     funds = {
         "factor": {"slot": signal["factor"], "ticker": signal["factor_ticker"]},
         "sector": {"slot": signal["sector"], "ticker": signal["sector_ticker"]},

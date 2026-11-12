@@ -31,6 +31,7 @@
   --s2:#eb6834;  /* FTSE All-World */
   --s3:#1baf7a;  /* S&P 500 */
   --s4:#51468b;  /* MSCI World */
+  --s5:#8b6f47;  /* Lodestar (-25%/19m) comparator */
 
   --pos-ink:#006300;
   --neg-ink:#a52a22;
@@ -68,7 +69,7 @@
     --rule:rgba(244,243,240,.12);
     --rule-2:rgba(244,243,240,.22);
     --shadow:0 1px 2px rgba(0,0,0,.5), 0 10px 34px -22px rgba(0,0,0,.9);
-    --s1:#3987e5; --s2:#d95926; --s3:#199e70; --s4:#5e5696;
+    --s1:#3987e5; --s2:#d95926; --s3:#199e70; --s4:#5e5696; --s5:#c29b61;
     --pos-ink:#0ca30c; --neg-ink:#e66767;
     --dv-n4:#d96a63; --dv-n3:#b04641; --dv-n2:#833733; --dv-n1:#5a2b28;
     --dv-0:#242428;
@@ -91,7 +92,7 @@
   --rule:rgba(244,243,240,.12);
   --rule-2:rgba(244,243,240,.22);
   --shadow:0 1px 2px rgba(0,0,0,.5), 0 10px 34px -22px rgba(0,0,0,.9);
-  --s1:#3987e5; --s2:#d95926; --s3:#199e70; --s4:#5e5696;
+  --s1:#3987e5; --s2:#d95926; --s3:#199e70; --s4:#5e5696; --s5:#c29b61;
   --pos-ink:#0ca30c; --neg-ink:#e66767;
   --dv-n4:#d96a63; --dv-n3:#b04641; --dv-n2:#833733; --dv-n1:#5a2b28;
   --dv-0:#242428;
@@ -297,6 +298,7 @@ section.sec{padding-block:clamp(46px,6.4vw,86px)}
 .legend .key{width:16px; height:3px; border-radius:2px; background:currentColor; flex:none}
 .legend .k1{color:var(--s1)} .legend .k2{color:var(--s2)}
 .legend .k3{color:var(--s3)} .legend .k4{color:var(--s4)}
+.legend .k5{color:var(--s5)}
 .legend .lbl{color:var(--ink-2)}
 .legend button[aria-pressed="true"] .lbl{color:var(--ink)}
 
@@ -773,7 +775,13 @@ html{scroll-behavior:smooth; scroll-padding-top:72px}
 .rank-1{background:rgba(245,158,11,.15);color:#f59e0b;border:1px solid rgba(245,158,11,.3)}
 .rank-other{background:var(--rule);color:var(--ink-2)}
 .live-badge.blue{background:color-mix(in srgb,#3b82f6 15%,transparent);color:#3b82f6;border:1px solid color-mix(in srgb,#3b82f6 30%,transparent)}
+.live-badge.muted{background:var(--rule);color:var(--ink-2);border:1px solid var(--rule)}
+section[id]{scroll-margin-top:72px}
 @media(max-width:860px){.crash-grid{grid-template-columns:1fr!important}}
+@media(max-width:600px){
+  #tblCrashChecks th,#tblCrashChecks td{padding:8px 6px;font-size:12px}
+  #tblCrashChecks th:nth-child(2),#tblCrashChecks td:nth-child(2){display:none}
+}
 
 </style>
 </head>
@@ -785,7 +793,7 @@ html{scroll-behavior:smooth; scroll-padding-top:72px}
     <nav class="railnav" aria-label="Sections">
       <a href="#emergingSec" id="navEmerging">Next Month</a>
       <a href="#livePortfolioSec" id="navPortfolio">Live Portfolio</a>
-      <a href="#crashProtectionSec" id="navCrash">Crash Gate</a>
+      <a href="#crashProtectionSec" id="navCrash">TIP Canary</a>
       <a href="#inside" id="navInside">Holdings</a>
       <a href="#record">Record</a>
       <a href="#growth">Growth</a>
@@ -1009,15 +1017,15 @@ html{scroll-behavior:smooth; scroll-padding-top:72px}
   </div>
 </section>
 
-<!-- ── CRASH PROTECTION & KETCHUP RULE ──────────────────────────────── -->
+<!-- ── CRASH PROTECTION & TIP CANARY ─────────────────────────────────── -->
 <section class="sec wrap" id="crashProtectionSec">
   <div class="sechd">
     <div>
-      <div class="eyebrow">Risk Architecture · S&amp;P 500 Monitor</div>
-      <h2>Crash Protection &amp; Research Checks</h2>
+      <div class="eyebrow">Risk Architecture · Monthly TIP Canary</div>
+      <h2>Crash Protection &amp; TIP Canary</h2>
     </div>
     <p class="lede">
-      Lodestar's provisional cash gate checks whether the S&amp;P 500 is more than 25% below its level 19 months earlier. The 1M, 6M and 12M readings are research checks. MarketFighter's proprietary ketchup rule remains unresolved.
+      Lodestar checks US Treasury Inflation-Protected Securities (TIP) using the weighted 1-3-6-12 momentum composite in USD total return at each month-end. Whenever TIP sits at or below 0%, the entire portfolio moves into whichever USD Treasury UCITS ETF scores higher on the same metric (IB01.L or CBU0.L) for the following month.
     </p>
   </div>
 
@@ -1026,11 +1034,11 @@ html{scroll-behavior:smooth; scroll-padding-top:72px}
       <div class="crash-pill invested" id="crashPill">INVESTED</div>
       <div>
         <div id="crashStatusVal" style="font: 600 18px var(--mono); color: var(--ink);">Loading risk snapshot</div>
-        <div id="crashStatusDesc" style="font-size: 13px; color: var(--ink-2); margin-top: 4px;">Lodestar uses the 19-month floor.</div>
+        <div id="crashStatusDesc" style="font-size: 13px; color: var(--ink-2); margin-top: 4px;">TIP 1-3-6-12 canary determines equity vs Treasury regime.</div>
       </div>
     </div>
     <div style="text-align: right;">
-      <div style="font-size: 11px; text-transform: uppercase; color: var(--muted); letter-spacing: .05em;">S&amp;P 500 Index Level</div>
+      <div style="font-size: 11px; text-transform: uppercase; color: var(--muted); letter-spacing: .05em;">TIP 1-3-6-12 Score</div>
       <div id="crashSpPrice" style="font: 600 22px var(--mono); color: var(--ink);">—</div>
     </div>
   </div>
@@ -1038,18 +1046,18 @@ html{scroll-behavior:smooth; scroll-padding-top:72px}
   <div class="crash-grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px;">
     <div class="card rise">
       <div class="card-hd">
-        <div class="ttl">S&amp;P 500 Trailing Closes</div>
-        <div class="sub">24-Month Monthly Closes</div>
+        <div class="ttl">TIP 1-3-6-12 Canary History</div>
+        <div class="sub">24-Month Score (Zero Cutoff Threshold)</div>
       </div>
       <div class="card-bd">
-        <div id="crashChart" style="width: 100%; min-height: 240px;" tabindex="0" role="img" aria-label="S&P 500 24-month close trend"></div>
+        <div id="crashChart" style="width: 100%; min-height: 240px;" tabindex="0" role="img" aria-label="TIP 1-3-6-12 24-month canary score chart"></div>
       </div>
     </div>
 
     <div class="card rise">
       <div class="card-hd">
-        <div class="ttl">Crash Gate Checklist</div>
-        <div class="sub">Production gate: 19-month return below -25%</div>
+        <div class="ttl">Canary &amp; Defensive Sleeve</div>
+        <div class="sub">Trigger: TIP &lt;= 0.00% selects max(IB01.L, CBU0.L)</div>
       </div>
       <div class="card-bd" style="overflow-x: auto;">
         <table class="live-table" id="tblCrashChecks">
@@ -1163,7 +1171,7 @@ html{scroll-behavior:smooth; scroll-padding-top:72px}
   <div class="sechd">
     <div>
       <div class="eyebrow">05 — Calendar years</div>
-      <h2>Twelve years, twelve&nbsp;wins</h2>
+      <h2 id="yearsHeading">Twelve calendar years</h2>
     </div>
     <p class="lede" id="yearsLede"></p>
   </div>
@@ -1235,7 +1243,7 @@ html{scroll-behavior:smooth; scroll-padding-top:72px}
   <div class="sechd">
     <div>
       <div class="eyebrow">08 — The universe</div>
-      <h2>Fifteen things it may&nbsp;own</h2>
+      <h2>Fifteen equity legs, two defensive Treasuries</h2>
     </div>
     <p class="lede" id="uniLede"></p>
   </div>
@@ -1258,14 +1266,14 @@ html{scroll-behavior:smooth; scroll-padding-top:72px}
       <li><b>Hold the top of each basket.</b> One factor index, one sector index. Nothing else is held, and nothing is shorted.</li>
       <li><b>Weight them 50/50, and reset only when you trade.</b> Equal money in each leg at the moment a leg changes, then left to drift until the next change. No tilt for conviction, momentum strength or volatility.</li>
       <li><b>Trade at the start of the month.</b> The signal is fixed at the month-end close; the trade goes on at the first trading day of the following month. If neither leg's winner has changed, nothing trades at all &mdash; which is most months.</li>
-      <li><b>Go to cash on a deep decline.</b> Both legs move to cash when the S&amp;P 500 sits more than 25% below its level nineteen months earlier, and stay there until it does not. One signal, one market index, applied to both legs together.</li>
+      <li><b>Protect capital with the TIP canary.</b> At each month-end, compute the weighted 1-3-6-12 momentum score for US TIPS (<code>TIP</code>) in USD total return. Whenever TIP sits at or below 0%, exit both equity legs into 100% of whichever London-listed UCITS US Treasury ETF scores higher on the same metric: short-bill <code>IB01.L</code> or intermediate <code>CBU0.L</code>.</li>
     </ol>
     <div class="prose">
       <p><b>Why these two baskets.</b> Factor indices and sector indices break the same equity market along different seams. A factor leg captures style regimes such as value leading growth; a sector leg captures the specific thing that is working, energy in 2022, technology in 2020. Ranking them separately, then holding one of each, produces a book that is diversified by construction without any correlation estimate.</p>
-      <p><b>Why eight months.</b> Long enough that a single volatile month cannot flip the ranking, short enough to turn inside a regime change. On this data the strategy changed its factor leg 36 times and its sector leg 35 times in 127 months, so it holds a given pick for about three and a half months on average.</p>
-      <p><b>What the returns represent.</b> Signals come from the indices as described. Returns come from the London-listed UCITS lines that track them, in sterling, on a total-return basis, so dividends, fund charges and currency are already inside the number. Dealing costs, bid-offer spread, platform fees and tax are not.</p>
-      <p><b>Why this rebalancing rule.</b> Four schemes were tested on this data: reset every month, never reset, reset when the split passes 55/45, and the one used here, reset only when a leg changes. The first three are indistinguishable &mdash; they span 0.16pp of annual return and 0.01 of Sharpe over 118 months, which is noise. Never resetting is the only one that is genuinely worse: no more return, a third more drawdown, and one leg is allowed to reach 78% of the book. This rule was chosen because it needs no monitoring, not because it tested best.</p>
-      <p><b>Lineage.</b> The fifteen-index universe and the two-basket 50/50 structure follow a publicly documented approach; the momentum lookback, ranking convention, cash rule and London-listed implementation here were derived independently and differ from it.</p>
+      <p><b>Why eight months.</b> Long enough that a single volatile month cannot flip the ranking, short enough to turn inside a regime change. Keeping equity selection strictly separate from the inflation-linked bond canary means equity momentum picks stay focused while broad rate or growth shocks trigger a clean defensive exit.</p>
+      <p><b>What the returns represent.</b> Equity signals come from MSCI and S&amp;P indices; the defensive canary and Treasury selector run in USD total return on <code>TIP</code>, <code>IEF</code> and <code>BIL</code>. Executed returns come from London-listed UCITS accumulating lines converted to sterling total return (with <code>BIL</code> scaled in GBP before <code>IB01.L</code> listed in February 2019), net of fund charges and gross of dealing spread or tax.</p>
+      <p><b>Why this rebalancing rule.</b> Four schemes were tested on this data: reset every month, never reset, reset when the split passes 55/45, and the one used here, reset only when a leg changes. Returning from defensive mode always enters the new equity pair at 50/50. Rebalancing only on turnover avoids unnecessary trades during steady trends.</p>
+      <p><b>Lineage.</b> The fifteen-index universe and two-basket 50/50 equity structure follow the MarketFighter model. The live defensive gate adopts Keller and Keuning's Hybrid Asset Allocation <code>TIP</code> 1-3-6-12 canary with London-listed UCITS Treasury twins, while keeping the original -25%/19m equity gate plotted as a comparator.</p>
     </div>
   </div>
 </section>
@@ -1402,9 +1410,10 @@ function grow(x){
 var M  = DATA.meta;
 var ST = DATA.stats;
 var LB = DATA.labels;
-var SERIES = DATA.order;                       // strategy, allworld, sp500, world
-var HUE = { strategy:"--s1", allworld:"--s2", sp500:"--s3", world:"--s4" };
-function hue(k){ return css(HUE[k]); }
+var SERIES = DATA.order;                       // strategy, [classic,] allworld, sp500, world
+var HUE = { strategy:"--s1", allworld:"--s2", sp500:"--s3", world:"--s4", classic:"--s5" };
+var KCLS = { strategy:"k1", allworld:"k2", sp500:"k3", world:"k4", classic:"k5" };
+function hue(k){ return css(HUE[k] || "--s1"); }
 
 /* ── theme ──────────────────────────────────────────────────────────── */
 var ICONS = {
@@ -1631,9 +1640,12 @@ function glyph(key){
     + " · signal at " + DATA.current.asofPretty + " close";
   var tiles = $("#bookTiles");
   if (DATA.current.cash){
-    var cashTile = el("div", {class:"tile"});
+    var cashTile = el("div", {class:"tile", style:"--dot:var(--s5)"});
     cashTile.appendChild(el("div", {class:"wt num"}, "100%"));
-    cashTile.appendChild(el("div", {class:"nm"}, "Cash"));
+    cashTile.appendChild(el("div", {class:"leg"}, "Defensive sleeve"));
+    cashTile.appendChild(el("div", {class:"nm"}, DATA.current.defensiveName || "Cash"));
+    if (DATA.current.defensiveTicker) cashTile.appendChild(el("div", {class:"tk"}, DATA.current.defensiveTicker));
+    if (DATA.current.defensiveIsin) cashTile.appendChild(el("div", {class:"isin"}, DATA.current.defensiveIsin));
     tiles.appendChild(cashTile);
   }
   DATA.current.legs.forEach(function(leg, i){
@@ -1646,7 +1658,10 @@ function glyph(key){
     tiles.appendChild(t);
   });
   var sources = "Factor: " + DATA.current.factorSource + ". Sector: " + DATA.current.sectorSource + ".";
-  $("#bookFoot").textContent = (DATA.current.cash ? "Both legs hold cash. " :
+  var defDesc = DATA.current.defensiveTicker
+    ? "TIP canary triggered: 100% held in " + DATA.current.defensiveTicker + " (" + DATA.current.defensiveName + "). "
+    : "Both legs hold cash. ";
+  $("#bookFoot").textContent = (DATA.current.cash ? defDesc :
     "London lines shown. Weights are the targets at a change of holding. ")
     + sources + " Performance through " + DATA.meta.endPretty + "."
     + (DATA.meta.performancePending ? " The next completed month's fund prices are not yet available." : "")
@@ -1697,10 +1712,15 @@ function glyph(key){
   function rows(n){
     facts.innerHTML = "";
     [
-      ["Signal computed", fmtDate(n.signal), "At the close. Ranks all fifteen indices on eight-month momentum."],
-      ["Trade placed",    fmtDate(n.trade),  "First trading day of the month. Either leg only trades if its winner changed."],
-      ["Current book",    (DATA.current.cash ? "Cash 100%" : DATA.current.legs.map(function(l){ return l.lse; }).join("  +  ") + "   target 50/50"),
-                          (DATA.current.cash ? "Both legs in cash" : DATA.current.legs.map(function(l){ return l.name; }).join(" and ")) + ", holding for " + DATA.current.holdingMonthPretty + "."]
+      ["Signal computed", fmtDate(n.signal), "At the close. Ranks all fifteen indices on eight-month momentum plus the TIP 1-3-6-12 canary."],
+      ["Trade placed",    fmtDate(n.trade),  "First trading day of the month. Rotates only when the regime or a winner changes."],
+      ["Current book",    (DATA.current.cash
+                            ? ((DATA.current.defensiveTicker || "Cash") + "   100% defensive")
+                            : DATA.current.legs.map(function(l){ return l.lse; }).join("  +  ") + "   target 50/50"),
+                          (DATA.current.cash
+                            ? (DATA.current.defensiveName || "Defensive Treasury sleeve")
+                            : DATA.current.legs.map(function(l){ return l.name; }).join(" and "))
+                            + ", holding for " + DATA.current.holdingMonthPretty + "."]
     ].forEach(function(r){
       var row = el("div", {class:"row"});
       row.appendChild(el("div", {class:"k"}, r[0]));
@@ -1751,15 +1771,25 @@ function glyph(key){
   var badge = $("#emergingActionBadge");
   if (badge){
     badge.textContent = E.action_text;
-    badge.className = "live-badge " + (E.action === "HOLD" ? "pass" : "fail");
+    badge.className = "live-badge " + (E.action_badge_cls || (E.action === "HOLD" ? "pass" : "fail"));
   }
 
   var elTitle = $("#emergingTitle");
-  if (elTitle && E.projected_holdings && E.projected_holdings.length >= 2){
-    elTitle.textContent = "Provisional Targets: " + E.projected_holdings[0].name + " (50%) + " + E.projected_holdings[1].name + " (50%)";
+  if (elTitle && E.projected_holdings){
+    if (E.canary && E.canary.triggered && E.projected_holdings.length >= 1){
+      var d0 = E.projected_holdings[0];
+      elTitle.textContent = "Provisional Target: 100% " + d0.name + " (" + d0.ticker + ")";
+    } else if (E.projected_holdings.length >= 2){
+      elTitle.textContent = "Provisional Targets: " + E.projected_holdings[0].name + " (50%) + " + E.projected_holdings[1].name + " (50%)";
+    }
   }
   var elDesc = $("#emergingDesc");
-  if (elDesc) elDesc.textContent = E.action_summary;
+  if (elDesc){
+    var canarySuffix = (E.canary && E.canary.tip_score_pct != null && !E.canary.triggered)
+      ? " TIP 1-3-6-12 canary sits at " + sgn(E.canary.tip_score_pct, 2) + " (above 0% cutoff)."
+      : "";
+    elDesc.textContent = (E.action_summary || "") + canarySuffix;
+  }
   var elDays = $("#emergingDaysOut");
   if (elDays) elDays.textContent = E.days_out + " Days";
 
@@ -1998,7 +2028,7 @@ function glyph(key){
 })();
 
 /* ══════════════════════════════════════════════════════════════════════
-   CRASH PROTECTION & KETCHUP RULE
+   CRASH PROTECTION & TIP CANARY
    ══════════════════════════════════════════════════════════════════════ */
 (function crashProtection(){
   var C = DATA.crashProtection;
@@ -2011,48 +2041,58 @@ function glyph(key){
 
   // Pill & Status
   var pill = $("#crashPill");
-  pill.textContent = C.status;
+  pill.textContent = C.status || (C.cash_triggered ? "DEFENSIVE" : "INVESTED");
   pill.className = "crash-pill " + (C.cash_triggered ? "cash" : "invested");
-  $("#crashStatusVal").textContent = C.status_text;
-  $("#crashStatusDesc").textContent = C.cash_triggered
-    ? "Lodestar 19-month floor breached. Provisional cash signal."
-    : "Lodestar 19-month floor has not breached. Provisional invested signal.";
+  $("#crashStatusVal").textContent = C.status_text || (C.cash_triggered ? "DEFENSIVE" : "INVESTED");
+  $("#crashStatusDesc").textContent = C.status_desc || C.method_note || (C.cash_triggered
+    ? "TIP 1-3-6-12 at or below 0%. Provisional defensive Treasury signal."
+    : "TIP 1-3-6-12 above 0%. Provisional equity signal.");
 
   var chart = C.chart || C.history || [];
-  if (chart.length > 0){
-    var latest = chart[chart.length - 1];
-    $("#crashSpPrice").textContent = latest.price.toLocaleString("en-US", {minimumFractionDigits:2, maximumFractionDigits:2});
+  if (C.tip_score_pct != null){
+    var spEl = $("#crashSpPrice");
+    spEl.textContent = sgn(C.tip_score_pct, 2);
+    spEl.style.color = C.tip_score_pct > 0 ? "var(--pos-ink)" : "var(--neg-ink)";
+  } else if (chart.length > 0 && chart[chart.length - 1].score_pct != null){
+    $("#crashSpPrice").textContent = sgn(chart[chart.length - 1].score_pct, 2);
   }
 
   // Checklist
   var cBody = $("#tblCrashChecks tbody");
   cBody.innerHTML = "";
-  C.checks.forEach(function(ck){
+  (C.checks || []).forEach(function(ck){
     var tr = el("tr");
     var tdName = el("td");
     tdName.innerHTML = "<b>" + esc(ck.name) + "</b><br><small style=\"color:var(--ink-2);font-size:11px\">" + esc(ck.desc) + "</small>";
     tr.appendChild(tdName);
     tr.appendChild(el("td", {style:"font-size:12px;color:var(--muted)"}, ck.rule));
-    var tdRead = el("td", {class:"num " + (ck.reading_pct >= 0 ? "up" : "dn")}, sgn(ck.reading_pct));
+    var val = ck.reading_pct;
+    var tdRead = el("td", {class:"num " + (val != null && val >= 0 ? "up" : "dn")}, val == null ? "—" : sgn(val, 2));
     tr.appendChild(tdRead);
     var tdStatus = el("td");
-    var badge = el("span", {class:"live-badge " + (ck.pass ? "pass" : "fail")}, ck.pass ? "✓ Pass" : "✗ Fail");
+    var isDef = ck.id && ck.id.indexOf("def_") === 0;
+    var badgeLabel = ck.badge_text || (isDef ? (ck.pass ? "✓ Selected" : "Standby") : (ck.pass ? "✓ Pass" : "✗ Triggered"));
+    var badgeCls = ck.pass ? "pass" : (isDef ? "muted" : "fail");
+    var badge = el("span", {class:"live-badge " + badgeCls}, badgeLabel);
     tdStatus.appendChild(badge);
     tr.appendChild(tdStatus);
     cBody.appendChild(tr);
   });
 
-  // S&P 500 Chart
+  // TIP 1-3-6-12 Chart
   var node = $("#crashChart");
   if (!node || chart.length < 2) return;
 
   function drawCrash(root, W){
     W = Math.max(340, root.clientWidth || W || 400);
-    var H = 240, P = { t:20, r:20, b:30, l:50 };
+    var H = 240, P = { t:20, r:24, b:30, l:52 };
     var iw = W - P.l - P.r, ih = H - P.t - P.b;
-    var prices = chart.map(function(d){ return d.price; });
-    var minP = Math.min.apply(null, prices) * 0.96;
-    var maxP = Math.max.apply(null, prices) * 1.04;
+    var scores = chart.map(function(d){ return d.score_pct != null ? d.score_pct : d.price; });
+    var rawMin = Math.min(0, Math.min.apply(null, scores));
+    var rawMax = Math.max(0, Math.max.apply(null, scores));
+    var span = Math.max(1.5, rawMax - rawMin);
+    var minP = rawMin - span * 0.14;
+    var maxP = rawMax + span * 0.14;
 
     var x = function(i){ return P.l + (i / (chart.length - 1)) * iw; };
     var y = function(p){ return P.t + ih - ((p - minP) / (maxP - minP)) * ih; };
@@ -2062,49 +2102,50 @@ function glyph(key){
     root.innerHTML = "";
     root.appendChild(svg);
 
-    // Grid ticks (4 horizontal ticks)
     var step = (maxP - minP) / 4;
     for (var k = 0; k <= 4; k++){
       var val = minP + k * step;
       var yPos = y(val);
-      var line = sv("line", {x1:P.l, y1:yPos, x2:W - P.r, y2:yPos, stroke:"var(--rule)", "stroke-width":"1", "stroke-dasharray":"3 3"});
-      svg.appendChild(line);
-      var txt = sv("text", {x:P.l - 6, y:yPos + 4, "text-anchor":"end", fill:"var(--muted)", "font-size":"10", "font-family":"var(--mono)"}, val.toFixed(0));
-      svg.appendChild(txt);
+      svg.appendChild(sv("line", {x1:P.l, y1:yPos, x2:W - P.r, y2:yPos, stroke:"var(--rule)", "stroke-width":"1", "stroke-dasharray":"3 3"}));
+      svg.appendChild(sv("text", {x:P.l - 6, y:yPos + 4, "text-anchor":"end", fill:"var(--muted)", "font-size":"10", "font-family":"var(--mono)"}, sgn(val, 1)));
     }
 
-    // Path
+    // Zero cutoff line
+    var yZero = y(0);
+    svg.appendChild(sv("line", {x1:P.l, y1:yZero, x2:W - P.r, y2:yZero, stroke:"var(--ink-2)", "stroke-width":"1.2", "stroke-dasharray":"5 4", opacity:".7"}));
+    var zeroLblY = (yZero + 14 < H - P.b) ? (yZero + 13) : (yZero - 5);
+    svg.appendChild(sv("text", {x:P.l + iw * 0.44, y:zeroLblY, "text-anchor":"middle", fill:"var(--muted)", "font-size":"9.5", "font-family":"var(--mono)"}, "0% cutoff"));
+
     var dPath = "";
-    var dArea = "M " + x(0) + " " + (P.t + ih);
     for (var i = 0; i < chart.length; i++){
-      var px = x(i), py = y(chart[i].price);
+      var px = x(i), py = y(scores[i]);
       dPath += (i === 0 ? "M " : " L ") + px + " " + py;
-      dArea += " L " + px + " " + py;
     }
-    dArea += " L " + x(chart.length - 1) + " " + (P.t + ih) + " Z";
+    var strokeCol = C.cash_triggered ? "#dc2626" : "#10b981";
+    svg.appendChild(sv("path", {d:dPath, fill:"none", stroke:strokeCol, "stroke-width":"2"}));
 
-    // Area fill
-    var area = sv("path", {d:dArea, fill:"color-mix(in srgb, #10b981 10%, transparent)"});
-    svg.appendChild(area);
-
-    // Line stroke
-    var path = sv("path", {d:dPath, fill:"none", stroke:"#10b981", "stroke-width":"2"});
-    svg.appendChild(path);
-
-    // Points
     for (var j = 0; j < chart.length; j++){
-      var cx = x(j), cy = y(chart[j].price);
-      var dot = sv("circle", {cx:cx, cy:cy, r:(j === chart.length - 1 ? "4" : "2.5"), fill:"#10b981", stroke:"var(--surface)", "stroke-width":"1.5"});
+      var cx = x(j), cy = y(scores[j]);
+      var col = scores[j] > 0 ? "#10b981" : "#dc2626";
+      var dot = sv("circle", {cx:cx, cy:cy, r:(j === chart.length - 1 ? "4.5" : "2.8"), fill:col, stroke:"var(--surface)", "stroke-width":"1.5"});
+      dot.addEventListener("pointerenter", (function(item, sc, xx, yy){
+        return function(ev){
+          var html = '<div class="h">' + esc(item.month) + (item.provisional ? " (live)" : "") + '</div>'
+            + '<div class="r"><i class="sw" style="background:' + (sc > 0 ? "#10b981" : "#dc2626") + '"></i>'
+            + '<span class="nm">TIP 1-3-6-12</span><span class="vl">' + sgn(sc, 2) + '</span></div>'
+            + '<div class="foot">' + (sc > 0 ? "Invested (above 0% cutoff)" : "Defensive (<= 0% cutoff)") + '</div>';
+          showTip(html, ev.clientX, ev.clientY);
+        };
+      })(chart[j], scores[j], cx, cy));
+      dot.addEventListener("pointerleave", hideTip);
       svg.appendChild(dot);
     }
 
-    // X axis labels (first, middle, last)
     var idxs = [0, Math.floor(chart.length / 2), chart.length - 1];
     idxs.forEach(function(idx){
       var item = chart[idx];
       var tx = x(idx);
-      var txt = sv("text", {x:tx, y:H - 8, "text-anchor":(idx === 0 ? "start" : idx === chart.length - 1 ? "end" : "middle"), fill:"var(--muted)", "font-size":"10", "font-family":"var(--mono)"}, item.month);
-      svg.appendChild(txt);
+      svg.appendChild(sv("text", {x:tx, y:H - 8, "text-anchor":(idx === 0 ? "start" : idx === chart.length - 1 ? "end" : "middle"), fill:"var(--muted)", "font-size":"10", "font-family":"var(--mono)"}, item.month));
     });
   }
 
@@ -2513,20 +2554,21 @@ function glyph(key){
    03 CUMULATIVE GROWTH  (inline SVG, hand-built)
    ══════════════════════════════════════════════════════════════════════ */
 (function(){
-  var node = $("#growthChart"), scale = "lin", on = {strategy:1, allworld:1, sp500:1, world:1};
+  var node = $("#growthChart"), scale = "lin", on = {};
+  SERIES.forEach(function(k){ on[k] = 1; });
   var T = DATA.t, SPAN = DATA.span, N = DATA.months.length;
   var drawn = false, reg;
 
   $("#growthLede").innerHTML =
-    "The whole record on one axis. The shaded band is nine months of 2016 with no priced record: "
-    + "one of the two funds held in those months had not listed in London yet, so the line is "
-    + "interpolated across the gap rather than measured. Switch to <b>log</b> to compare the shape "
-    + "of the compounding rather than its size.";
+    "The whole record on one axis."
+    + (M.gaps.length ? " The shaded band is " + word(M.gaps.length) + " months of 2016 with no priced record: one of the two funds held in those months had not listed in London yet, so the line is interpolated across the gap rather than measured." : "")
+    + (ST.classic ? " The dashed comparator shows the legacy -25%/19m S&amp;P 500 rule on the same equity picks." : "")
+    + " Switch to <b>log</b> to compare the shape of the compounding rather than its size.";
 
   // legend (always present, doubles as a series toggle)
   var lg = $("#growthLegend");
-  SERIES.forEach(function(k, i){
-    var b = el("button", {type:"button", class:"k" + (i + 1), "aria-pressed":"true"});
+  SERIES.forEach(function(k){
+    var b = el("button", {type:"button", class:KCLS[k] || "k1", "aria-pressed":"true"});
     b.appendChild(el("i", {class:"key"}));
     b.appendChild(el("span", {class:"lbl"}, LB[k]));
     b.addEventListener("click", function(){
@@ -2552,12 +2594,12 @@ function glyph(key){
   function draw(root, W){
     W = Math.max(560, W);
     var H = W < 720 ? 380 : W < 1000 ? 440 : 490;
-    var P = { t:22, r:W < 720 ? 74 : 118, b:34, l:46 };
+    var P = { t:22, r:W < 720 ? 115 : 150, b:34, l:46 };
     var iw = W - P.l - P.r, ih = H - P.t - P.b;
     var live = SERIES.filter(function(k){ return on[k]; });
 
     var maxW = 0;
-    live.forEach(function(k){ ST[k].wealth.forEach(function(v){ if (v > maxW) maxW = v; }); });
+    live.forEach(function(k){ ST[k].wealth.forEach(function(v){ if (v != null && v > maxW) maxW = v; }); });
     var lo = 0.85, hi = maxW * 1.04;
 
     var y = scale === "log"
@@ -2607,15 +2649,22 @@ function glyph(key){
     // series
     var ends = [];
     live.forEach(function(k){
-      var w = ST[k].wealth, d = "";
-      for (var i = 0; i < N; i++) d += (i ? "L" : "M") + x(T[i]).toFixed(2) + " " + y(w[i]).toFixed(2);
-      var path = sv("path", {class:"ser", d:d, stroke:hue(k)});
+      var w = ST[k].wealth, d = "", first = true, endV = null;
+      for (var i = 0; i < N; i++){
+        if (w[i] == null) continue;
+        d += (first ? "M" : "L") + x(T[i]).toFixed(2) + " " + y(w[i]).toFixed(2);
+        first = false;
+        endV = w[i];
+      }
+      var attrs = {class:"ser", d:d, stroke:hue(k)};
+      if (k === "classic") attrs["stroke-dasharray"] = "6 4";
+      var path = sv("path", attrs);
       if (!drawn){
         path.setAttribute("data-draw", "1");
         path.style.animationDelay = (SERIES.indexOf(k) * 90) + "ms";
       }
       svg.appendChild(path);
-      ends.push({ k:k, y:y(w[N - 1]), v:w[N - 1] });
+      if (endV != null) ends.push({ k:k, y:y(endV), v:endV });
     });
 
     // end dots
@@ -2668,6 +2717,12 @@ function glyph(key){
       var rowsHtml = "";
       live.forEach(function(k){
         var w = ST[k].wealth[i];
+        if (w == null){
+          rowsHtml += '<div class="r"><i class="sw" style="background:' + hue(k) + '"></i>'
+                    + '<span class="nm">' + LB[k] + '</span>'
+                    + '<span class="vl">unpriced</span></div>';
+          return;
+        }
         dots.appendChild(sv("circle", {cx:xx, cy:y(w), r:4, fill:hue(k), class:"halo"}));
         rowsHtml += '<div class="r"><i class="sw" style="background:' + hue(k) + '"></i>'
                   + '<span class="nm">' + LB[k] + '</span>'
@@ -2712,18 +2767,19 @@ function glyph(key){
    ══════════════════════════════════════════════════════════════════════ */
 (function drawdown(){
   var node = $("#ddChart"), T = DATA.t, SPAN = DATA.span, N = DATA.months.length;
-  var KEYS = ["strategy", "allworld"];
+  var KEYS = ST.classic ? ["strategy", "classic", "allworld"] : ["strategy", "allworld"];
   var drawn = false;
+  var defM = M.defensiveMonths || 0;
 
   $("#ddLede").innerHTML =
-    "Distance below the previous high-water mark, month by month. The strategy takes more volatility than "
-    + "a world tracker yet its worst fall is <b>" + pct(ST.strategy.maxdd) + "</b> against <b>"
-    + pct(ST.allworld.maxdd) + "</b>. Read the caveats before treating that as a durable property: "
-    + "the cash filter that exists for a real bear market never fired once in this window.";
+    "Distance below the previous high-water mark, month by month. The TIP canary held defensive US Treasuries for <b>"
+    + defM + (defM === 1 ? " month" : " months") + "</b>, finishing at a worst fall of <b>"
+    + pct(ST.strategy.maxdd) + "</b> against <b>" + pct(ST.allworld.maxdd) + "</b> for the All-World"
+    + (ST.classic ? " and <b>" + pct(ST.classic.maxdd) + "</b> for the unhedged -25%/19m comparator" : "") + ".";
 
   var lg = $("#ddLegend");
-  KEYS.forEach(function(k, i){
-    var s = el("span", {class:"item k" + (i + 1)});
+  KEYS.forEach(function(k){
+    var s = el("span", {class:"item " + (KCLS[k] || "k1")});
     s.appendChild(el("i", {class:"key"}));
     s.appendChild(el("span", {class:"lbl"}, LB[k]));
     lg.appendChild(s);
@@ -2733,7 +2789,7 @@ function glyph(key){
     W = Math.max(560, W);
     var H = W < 720 ? 260 : 320;
     var P = { t:18, r:W < 720 ? 20 : 30, b:32, l:46 }, iw = W - P.l - P.r, ih = H - P.t - P.b;
-    var lo = Math.min(ST.strategy.maxdd, ST.allworld.maxdd) * 1.08;
+    var lo = Math.min.apply(null, KEYS.map(function(k){ return ST[k].maxdd; })) * 1.08;
     var y = function(v){ return P.t + (v / lo) * ih; };
     var x = function(t){ return P.l + t / SPAN * iw; };
 
@@ -2756,15 +2812,21 @@ function glyph(key){
     });
 
     KEYS.slice().reverse().forEach(function(k){
-      var dd = ST[k].drawdown, line = "", area = "";
+      var dd = ST[k].drawdown, line = "", area = "", first = true, firstX = x(T[0]), lastX = x(T[N - 1]);
       for (var i = 0; i < N; i++){
+        if (dd[i] == null) continue;
         var px = x(T[i]).toFixed(2), py = y(dd[i]).toFixed(2);
-        line += (i ? "L" : "M") + px + " " + py;
+        if (first) firstX = px;
+        lastX = px;
+        line += (first ? "M" : "L") + px + " " + py;
+        first = false;
       }
-      area = "M" + x(T[0]).toFixed(2) + " " + y(0) + " " + line.slice(1)
-           + "L" + x(T[N - 1]).toFixed(2) + " " + y(0) + "Z";
-      svg.appendChild(sv("path", {d:area, fill:hue(k), "fill-opacity":.10, stroke:"none"}));
-      var p = sv("path", {class:"ser", d:line, stroke:hue(k)});
+      area = "M" + firstX + " " + y(0) + " " + line.slice(1)
+           + "L" + lastX + " " + y(0) + "Z";
+      if (k !== "classic") svg.appendChild(sv("path", {d:area, fill:hue(k), "fill-opacity":.10, stroke:"none"}));
+      var attrs = {class:"ser", d:line, stroke:hue(k)};
+      if (k === "classic") attrs["stroke-dasharray"] = "6 4";
+      var p = sv("path", attrs);
       if (!drawn) p.setAttribute("data-draw", "1");
       svg.appendChild(p);
     });
@@ -2796,6 +2858,11 @@ function glyph(key){
       var html = '<div class="h">' + DATA.monthsPretty[i] + '</div>';
       KEYS.forEach(function(k){
         var v = ST[k].drawdown[i];
+        if (v == null){
+          html += '<div class="r"><i class="sw" style="background:' + hue(k) + '"></i>'
+                + '<span class="nm">' + LB[k] + '</span><span class="vl">unpriced</span></div>';
+          return;
+        }
         dots.appendChild(sv("circle", {cx:xx, cy:y(v), r:4, fill:hue(k), class:"halo"}));
         html += '<div class="r"><i class="sw" style="background:' + hue(k) + '"></i>'
               + '<span class="nm">' + LB[k] + '</span><span class="vl">' + pct(v) + '</span></div>';
@@ -2834,10 +2901,17 @@ function glyph(key){
    ══════════════════════════════════════════════════════════════════════ */
 (function years(){
   var Y = DATA.years, root = $("#yearsChart");
+  var yh = $("#yearsHeading");
+  if (yh){
+    yh.textContent = DATA.excess.beatYears === DATA.excess.totalYears
+      ? cap(word(DATA.excess.totalYears)) + " years, " + word(DATA.excess.beatYears) + " wins"
+      : DATA.excess.beatYears + " winning years out of " + DATA.excess.totalYears;
+  }
+  var lastYr = Y.length ? Y[Y.length - 1].year : "";
   $("#yearsLede").innerHTML =
     "The strategy finished ahead of the FTSE All-World in <b>" + DATA.excess.beatYears + " of "
-    + DATA.excess.totalYears + " calendar years</b>, including both down years for the index. "
-    + "Two of those years are stubs: 2015 is a single month and 2026 runs to June. "
+    + DATA.excess.totalYears + " calendar years</b>. "
+    + "Two of those years are stubs: 2015 is a single month and " + lastYr + " runs to " + M.endPretty + ". "
     + "2016 covers only the three months that have a priced record.";
 
   var lo = 0, hi = 0;
@@ -2990,6 +3064,7 @@ function glyph(key){
             + '<span class="nm">All-World</span><span class="vl">'
             + sgn(DATA.returns.allworld[DATA.months.indexOf(m)]) + '</span></div>';
           if (h && !h.cash) html += '<div class="foot">' + nameOf(h.factor) + "  +  " + nameOf(h.sector) + '</div>';
+          else if (h && h.cash) html += '<div class="foot">Defensive · ' + (h.defensiveName || "Cash") + (h.defensiveTicker ? " (" + h.defensiveTicker + ")" : "") + '</div>';
           showTip(html, ev.clientX, ev.clientY);
         });
         c.addEventListener("pointerleave", hideTip);
@@ -3020,7 +3095,9 @@ function glyph(key){
     return n + " months";
   }
   $("#ribLede").textContent = "Allocation history through " + DATA.current.holdingMonthPretty
-    + ". Current allocation: " + (DATA.current.cash ? "cash" : DATA.current.legs.map(function(l){ return l.name; }).join(" + "))
+    + ". Current allocation: " + (DATA.current.cash
+      ? ("Defensive · " + (DATA.current.defensiveName || "Cash") + (DATA.current.defensiveTicker ? " (" + DATA.current.defensiveTicker + ")" : ""))
+      : DATA.current.legs.map(function(l){ return l.name; }).join(" + "))
     + ". Returns are priced through " + M.endPretty
     + ". Hatched bar ends show allocations without a completed return.";
 
@@ -3221,18 +3298,23 @@ function glyph(key){
     sb.appendChild(row);
   });
 
+  var defTotal = M.defensiveMonths || 0;
+  var defRows = (U.defensive || []).map(function(d){
+    return esc(d.name) + " (<code>" + esc(d.lse) + "</code>, " + esc(d.isin) + ", held " + d.held + " priced mos)";
+  }).join(", ");
+  var proxyNote = (M.preListingBilProxyMonths && M.preListingBilProxyMonths.length)
+    ? " Before IB01.L listed in February 2019, defensive BIL months (" + M.preListingBilProxyMonths.length
+      + " months) splice US BIL converted to GBP total return with zero price jump at listing."
+    : "";
   var cash = el("div", {class:"cashnote"});
   cash.innerHTML =
     '<div class="gl"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">'
     + '<rect x="3.2" y="6.6" width="17.6" height="10.8" rx="1.8"/>'
     + '<circle cx="12" cy="12" r="2.6"/>'
     + '<path d="M6.6 9.6v4.8M17.4 9.6v4.8"/></svg></div>'
-    + '<div><div class="nm">Cash — the sixteenth destination</div>'
-    + '<p>Both legs move here together when the S&amp;P 500 sits more than 25% below its level '
-    + 'nineteen months earlier. Across all ' + M.calendarMonths + ' months of this record that never happened, '
-    + 'so the strategy was fully invested throughout and this row has no bar to draw. '
-    + 'This is an inferred substitute for MarketFighter’s ketchup rule. His rule uses three proprietary checks '
-    + 'on twelve monthly closes. Lodestar does not implement those checks.</p></div>';
+    + '<div><div class="nm">Defensive Treasury sleeves: active for ' + defTotal + ' of ' + M.calendarMonths + ' months</div>'
+    + '<p>Whenever <code>TIP</code> 1-3-6-12 momentum in USD total return is at or below 0% at month-end, both equity legs exit into 100% of the stronger US Treasury sleeve: '
+    + (defRows || "<code>IB01.L</code> or <code>CBU0.L</code>") + '.' + proxyNote + '</p></div>';
   sb.appendChild(cash);
 
   box.appendChild(sb);
@@ -3243,25 +3325,27 @@ function glyph(key){
    ══════════════════════════════════════════════════════════════════════ */
 (function caveats(){
   var s = ST.strategy;
+  var defTotal = M.defensiveMonths || 0;
+  var preBilN = (M.preListingBilProxyMonths || []).length;
   var items = [
-    ["The record is a backtest, not a live track record.",
-     "No money was at risk. No order was ever placed. Every figure is what the rule would have produced applied after the fact to prices that were already known. Nothing here has been traded."],
-    ["Signals come from indices, returns from funds.",
-     "The ranking is computed on index levels; the returns are the London-listed funds that track those indices. Tracking difference, fund launch dates and the gap between an index close and a fund's dealing price all sit between the two, and none of them is modelled."],
-    ["The window contains no slow, correlated bear market.",
-     M.startPretty + " to " + M.endPretty + " holds one fast V-shaped crash and one inflation rotation, and the strategy is built for exactly the second. The regime that would actually test it, a multi-year grinding decline with everything falling together, is simply absent."],
-    ["The exact ketchup rule remains unknown.",
-     "Lodestar uses a single nineteen-month return threshold. MarketFighter describes three checks using twelve monthly closes. Matching October's rotation does not establish matching crash protection."],
-    ["The cash filter never fires, so the drawdown is untested.",
-     "Across all " + M.calendarMonths + " months the S&P 500 never sat 25% below its level nineteen months earlier, so the strategy was fully invested throughout. Read " + pct(s.maxdd) + " as “not yet tested” rather than “safe”. The one component that would matter most in a crisis has contributed nothing here."],
+    ["The backtest spans both backtest history and live execution.",
+     "Before November 2026 every figure is what the rule would have produced applied after the fact to historical prices. Only live trades executed after deployment risk real capital."],
+    ["Signals come from indices and US proxies, returns from UCITS funds.",
+     "Equity ranking uses MSCI and S&P index levels while the TIP canary and Treasury selector run in USD total return on TIP, IEF and BIL. Executed returns come from London-listed UCITS funds in GBP, leaving modest tracking and close-timing differences."],
+    ["The window covers fast shocks and one rate cycle.",
+     M.startPretty + " to " + M.endPretty + " holds a pandemic crash, an inflation shock and narrow AI leadership. The TIP canary rotated to US Treasuries for " + defTotal + " months across this window, cutting deep rate-driven drawdowns, though future crises can always look different."],
+    ["Pre-listing short-bill backfill uses USD BIL converted to GBP.",
+     preBilN > 0
+       ? "iShares USD Treasury Bond 0-1yr (IB01.L) launched in February 2019. For the " + preBilN + " defensive short-bill months prior to listing, returns splice US BIL converted via GBPUSD at zero price jump, matching correlation 0.9996 post-listing."
+       : "Where pre-listing Treasury history is required before IB01.L listed in February 2019, US BIL converted via GBPUSD provides the equivalent exposure."],
     [word(M.gaps.length).charAt(0).toUpperCase() + word(M.gaps.length).slice(1) + " months are missing from the priced record.",
      "The record covers " + M.months + " priced months inside a " + M.calendarMonths + "-month span. All " + word(M.gaps.length) + " absent months fall in 2016, where one of the two funds held at the time had not yet listed in London. Annualised figures treat the " + M.months + " observations as consecutive, and the 2016 calendar figure covers three months, not twelve."],
     ["Costs are only partly in the number.",
-     "Returns come from total-return fund prices, so dividends and fund charges are inside them. Bid-offer spread, dealing commission, platform fees, the friction on roughly " + (DATA.lanes[0].runs.length + DATA.lanes[1].runs.length) + " leg changes, and tax are not. On a monthly rebalance those matter."],
-    ["The rule was chosen with the answers visible.",
-     "An eight-month lookback, a 25% threshold and a nineteen-month window are specific choices, and they were made knowing how this window turned out. Any rule selected that way flatters itself, and flatters itself most in the sample it was selected on."],
+     "Returns come from total-return fund prices, so dividends and fund charges are inside them. Bid-offer spread, FX conversion fees, dealing commission and tax on switches between equity and Treasury legs are not."],
+    ["The canary rule replaces an unexercised tail floor.",
+     "The TIP 1-3-6-12 canary is borrowed verbatim from Keller and Keuning's Hybrid Asset Allocation rather than fit to Lodestar's equities, yet switching regime filters with historical data visible still introduces look-ahead selection bias."],
     ["Past performance is not a guide, and this is not advice.",
-     "Nothing on this page is a recommendation, an offer or a solicitation to buy or sell anything. Momentum strategies work until they do not, and they tend to stop working shortly after they have been most convincing."]
+     "Nothing on this page is a recommendation, an offer or a solicitation to buy or sell anything. Momentum strategies work until they do not, and TIPS inflation regimes can whipsaw around flat 0% scores."]
   ];
   var ul = $("#caveatList");
   items.forEach(function(it){
@@ -3338,7 +3422,8 @@ function glyph(key){
         sgn(DATA.returns.sp500[i]),
         sgn(DATA.returns.world[i]),
         sgnpp(DATA.excess.monthly[i]),
-        {v: h && !h.cash ? names[h.factor] + " + " + names[h.sector] : "Cash", cls:"hold"}
+        {v: h && !h.cash ? names[h.factor] + " + " + names[h.sector]
+          : (h && h.defensiveName ? h.defensiveName + " (" + h.defensiveTicker + ")" : "Cash"), cls:"hold"}
       ];
     }));
 
@@ -3363,7 +3448,7 @@ function glyph(key){
     ["Positive months", function(s){ return s.posMonths + " / " + s.months; }]
   ];
   build($("#tblStats"),
-    ["Statistic","Lodestar","All-World","S&P 500","MSCI World"],
+    ["Statistic"].concat(SERIES.map(function(k){ return LB[k]; })),
     rowsDef.map(function(r){
       return [r[0]].concat(SERIES.map(function(k, i){
         return i === 0 ? {v:r[1](ST[k]), cls:"k"} : r[1](ST[k]);

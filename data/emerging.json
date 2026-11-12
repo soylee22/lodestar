@@ -4,10 +4,21 @@
   "days_out": 19,
   "next_action_date": "1 Dec 2026",
   "days_run": "12 of 30 days",
-  "action": "HOLD",
-  "action_text": "HOLD \u00b7 ZERO TURNOVER",
-  "action_badge_cls": "pass",
-  "action_summary": "Both provisional leaders match currently held positions. Zero turnover projected if month closed today.",
+  "action": "DEFENSIVE",
+  "action_text": "DEFENSIVE \u00b7 TIP CANARY TRIGGERED",
+  "action_badge_cls": "fail",
+  "action_summary": "TIP 1-3-6-12 sits at -2.05% (<= 0%). Rotate 100% into US Treasury 0-1yr (BIL) (IB01.L) if month closed today.",
+  "canary": {
+    "triggered": true,
+    "tip_score_pct": -2.05,
+    "ief_score_pct": -2.38,
+    "bil_score_pct": 1.5,
+    "defensive_slot": "DEF_BIL",
+    "defensive_ticker": "IB01.L",
+    "defensive_name": "US Treasury 0-1yr (BIL)",
+    "defensive_isin": "IE00BGSF1X88",
+    "asof": "2026-11-12"
+  },
   "current_holdings": [
     {
       "leg": "Factor",
@@ -24,20 +35,13 @@
   ],
   "projected_holdings": [
     {
-      "leg": "Factor",
-      "code": "USA_VAL",
-      "name": "USA Value",
-      "ticker": "IUVL.L",
-      "weight_pct": 50.0,
-      "status": "KEEP"
-    },
-    {
-      "leg": "Sector",
-      "code": "INFOTECH",
-      "name": "Information Technology",
-      "ticker": "IUIT.L",
-      "weight_pct": 50.0,
-      "status": "KEEP"
+      "leg": "Defensive",
+      "code": "DEF_BIL",
+      "name": "US Treasury 0-1yr (BIL)",
+      "ticker": "IB01.L",
+      "isin": "IE00BGSF1X88",
+      "weight_pct": 100.0,
+      "status": "NEW BUY"
     }
   ],
   "factor_lead": {
@@ -48,21 +52,21 @@
     "is_held": true,
     "runner_up_name": "USA Quality",
     "runner_up_ticker": "IUQA.L",
-    "runner_up_momentum_pct": 16.86,
-    "gap_pp": 17.02,
+    "runner_up_momentum_pct": 16.89,
+    "gap_pp": 16.99,
     "giveback_pct": 12.7
   },
   "sector_lead": {
     "leader_code": "INFOTECH",
     "leader_name": "Information Technology",
     "leader_ticker": "IUIT.L",
-    "momentum_pct": 30.26,
+    "momentum_pct": 30.75,
     "is_held": true,
     "runner_up_name": "Health Care",
     "runner_up_ticker": "IHCU.L",
-    "runner_up_momentum_pct": 28.46,
-    "gap_pp": 1.8,
-    "giveback_pct": 1.4
+    "runner_up_momentum_pct": 28.12,
+    "gap_pp": 2.63,
+    "giveback_pct": 2.0
   },
   "factors": [
     {
@@ -80,7 +84,7 @@
       "name": "USA Quality",
       "ticker": "IUQA.L",
       "proxy": "QUAL",
-      "momentum_pct": 16.86,
+      "momentum_pct": 16.89,
       "is_held": false,
       "rank": 2,
       "lead_margin": "-17.0pp"
@@ -90,17 +94,17 @@
       "name": "USA Momentum",
       "ticker": "IUMO.L",
       "proxy": "MTUM",
-      "momentum_pct": 15.49,
+      "momentum_pct": 15.6,
       "is_held": false,
       "rank": 3,
-      "lead_margin": "-18.4pp"
+      "lead_margin": "-18.3pp"
     },
     {
       "code": "USA_SMALL",
       "name": "USA Small Cap",
       "ticker": "CUSS.L",
       "proxy": "SMLF",
-      "momentum_pct": 13.21,
+      "momentum_pct": 13.17,
       "is_held": false,
       "rank": 4,
       "lead_margin": "-20.7pp"
@@ -110,7 +114,7 @@
       "name": "Europe Quality",
       "ticker": "IEQU.L",
       "proxy": "IQLT",
-      "momentum_pct": 8.68,
+      "momentum_pct": 8.7,
       "is_held": false,
       "rank": 5,
       "lead_margin": "-25.2pp"
@@ -130,17 +134,17 @@
       "name": "Europe Small Cap",
       "ticker": "XXSC.L",
       "proxy": "IEUS",
-      "momentum_pct": 7.49,
+      "momentum_pct": 7.34,
       "is_held": false,
       "rank": 7,
-      "lead_margin": "-26.4pp"
+      "lead_margin": "-26.5pp"
     },
     {
       "code": "EUR_MOM",
       "name": "Europe Momentum",
       "ticker": "IEFM.L",
       "proxy": "IMTM",
-      "momentum_pct": 4.55,
+      "momentum_pct": 4.58,
       "is_held": false,
       "rank": 8,
       "lead_margin": "-29.3pp"
@@ -152,70 +156,70 @@
       "name": "Information Technology",
       "ticker": "IUIT.L",
       "proxy": "XLK",
-      "momentum_pct": 30.26,
+      "momentum_pct": 30.75,
       "is_held": true,
       "rank": 1,
-      "lead_margin": "+1.8pp"
+      "lead_margin": "+2.6pp"
     },
     {
       "code": "HEALTH",
       "name": "Health Care",
       "ticker": "IHCU.L",
       "proxy": "XLV",
-      "momentum_pct": 28.46,
+      "momentum_pct": 28.12,
       "is_held": false,
       "rank": 2,
-      "lead_margin": "-1.8pp"
+      "lead_margin": "-2.6pp"
     },
     {
       "code": "CONS_STAP",
       "name": "Consumer Staples",
       "ticker": "IUCS.L",
       "proxy": "XLP",
-      "momentum_pct": 11.31,
+      "momentum_pct": 11.08,
       "is_held": false,
       "rank": 3,
-      "lead_margin": "-19.0pp"
+      "lead_margin": "-19.7pp"
     },
     {
       "code": "CONS_DISC",
       "name": "Consumer Discretionary",
       "ticker": "IUCD.L",
       "proxy": "XLY",
-      "momentum_pct": 10.6,
+      "momentum_pct": 10.53,
       "is_held": false,
       "rank": 4,
-      "lead_margin": "-19.7pp"
+      "lead_margin": "-20.2pp"
     },
     {
       "code": "ENERGY",
       "name": "Energy",
       "ticker": "IUES.L",
       "proxy": "XLE",
-      "momentum_pct": 5.19,
+      "momentum_pct": 5.01,
       "is_held": false,
       "rank": 5,
-      "lead_margin": "-25.1pp"
-    },
-    {
-      "code": "MATERIALS",
-      "name": "Materials",
-      "ticker": "IUMS.L",
-      "proxy": "XLB",
-      "momentum_pct": 5.0,
-      "is_held": false,
-      "rank": 6,
-      "lead_margin": "-25.3pp"
+      "lead_margin": "-25.7pp"
     },
     {
       "code": "INDUST",
       "name": "Industrials",
       "ticker": "IUIS.L",
       "proxy": "XLI",
-      "momentum_pct": 4.97,
+      "momentum_pct": 4.77,
+      "is_held": false,
+      "rank": 6,
+      "lead_margin": "-26.0pp"
+    },
+    {
+      "code": "MATERIALS",
+      "name": "Materials",
+      "ticker": "IUMS.L",
+      "proxy": "XLB",
+      "momentum_pct": 4.74,
       "is_held": false,
       "rank": 7,
-      "lead_margin": "-25.3pp"
+      "lead_margin": "-26.0pp"
     }
   ]
 }
