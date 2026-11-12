@@ -1,77 +1,26 @@
 {
   "2026-07": {
-    "provenance": "Reconstructed ETF fallback",
-    "rule": "tip-canary-v1",
     "factor": "USA_VAL",
-    "factor_source": "ETF proxy",
-    "factor_table": {
-      "USA_MOM": 0.1971628225290334,
-      "USA_QUAL": 0.10722942900252996,
-      "USA_VAL": 0.42993941802906943,
-      "USA_SMALL": 0.1448486949855774,
-      "EUR_MOM": 0.07790866925636175,
-      "EUR_QUAL": 0.11662581411480422,
-      "EUR_VAL": 0.1704759447889479,
-      "EUR_SMALL": 0.07290889237958043
-    },
     "sector": "ENERGY",
-    "sector_source": "S&P index",
-    "sector_table": {
-      "CONS_DISC": -0.013047831681836763,
-      "CONS_STAP": 0.06918171155126518,
-      "ENERGY": 0.28347146682245095,
-      "HEALTH": 0.02433024176249088,
-      "INDUST": 0.16963930165388863,
-      "INFOTECH": 0.14623588511524988,
-      "MATERIALS": 0.11946372304714048
-    },
     "cash": false,
-    "defensive": null,
-    "defensive_ticker": null,
-    "canary": {
-      "tip_score": 0.002218,
-      "ief_score": -0.00498,
-      "bil_score": 0.017141
-    }
+    "factor_source": "ETF proxy",
+    "sector_source": "S&P index",
+    "provenance": "Published alert",
+    "sent": "2026-08-01",
+    "evidence_commit": "2c2348b"
   },
   "2026-08": {
-    "provenance": "Reconstructed ETF fallback",
-    "rule": "tip-canary-v1",
     "factor": "USA_VAL",
-    "factor_source": "ETF proxy",
-    "factor_table": {
-      "USA_MOM": 0.19995201262887163,
-      "USA_QUAL": 0.12083375586551481,
-      "USA_VAL": 0.47399985068192496,
-      "USA_SMALL": 0.171607993788075,
-      "EUR_MOM": 0.11027719337532549,
-      "EUR_QUAL": 0.1324532531729341,
-      "EUR_VAL": 0.16057820585710947,
-      "EUR_SMALL": 0.08112047686498003
-    },
     "sector": "ENERGY",
+    "cash": false,
+    "factor_source": "ETF proxy",
     "sector_source": "ETF proxy",
-    "sector_table": {
-      "CONS_DISC": -0.023616173165846632,
-      "CONS_STAP": 0.09397532213026283,
-      "ENERGY": 0.4305524579329578,
-      "HEALTH": 0.10167952147334458,
-      "INDUST": 0.12899697263726817,
-      "INFOTECH": 0.2954087547314752,
-      "MATERIALS": 0.16185226900892724
-    },
-    "cash": true,
-    "defensive": "DEF_BIL",
-    "defensive_ticker": "IB01.L",
-    "canary": {
-      "tip_score": -0.003978,
-      "ief_score": -0.010387,
-      "bil_score": 0.01667
-    }
+    "provenance": "Published alert",
+    "sent": "2026-09-01",
+    "evidence_commit": "487d03e"
   },
   "2026-09": {
-    "provenance": "Reconstructed ETF fallback",
-    "rule": "tip-canary-v1",
+    "provenance": "Computed at month end",
     "factor": "USA_VAL",
     "factor_source": "ETF proxy",
     "factor_table": {
@@ -82,12 +31,12 @@
       "EUR_MOM": 0.03827189769115602,
       "EUR_QUAL": 0.03906743512931521,
       "EUR_VAL": 0.05901233060860345,
-      "EUR_SMALL": -0.02297092417956126
+      "EUR_SMALL": -0.022964020230906268
     },
     "sector": "INFOTECH",
     "sector_source": "S&P index",
     "sector_table": {
-      "CONS_DISC": -0.07854106700509444,
+      "CONS_DISC": -0.07854106700509456,
       "CONS_STAP": -0.03155214745107404,
       "ENERGY": 0.20160529585210307,
       "HEALTH": 0.0894753411697371,
@@ -95,18 +44,10 @@
       "INFOTECH": 0.3005183162707932,
       "MATERIALS": -0.010143282880825
     },
-    "cash": true,
-    "defensive": "DEF_BIL",
-    "defensive_ticker": "IB01.L",
-    "canary": {
-      "tip_score": -0.026456,
-      "ief_score": -0.040473,
-      "bil_score": 0.016593
-    }
+    "cash": false
   },
   "2026-10": {
     "provenance": "Computed at month end",
-    "rule": "tip-canary-v1",
     "factor": "USA_VAL",
     "factor_source": "ETF proxy",
     "factor_table": {
@@ -130,13 +71,6 @@
       "INFOTECH": 0.26205070746153103,
       "MATERIALS": -0.02625462885387797
     },
-    "cash": false,
-    "defensive": null,
-    "defensive_ticker": null,
-    "canary": {
-      "tip_score": 0.003228,
-      "ief_score": -2.7e-05,
-      "bil_score": 0.016977
-    }
+    "cash": false
   }
 }

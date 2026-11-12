@@ -41,20 +41,16 @@ HERE = Path(__file__).resolve().parent
 sys.path.insert(0, str(HERE))
 from notify import telegram              # noqa: E402
 from mailer import email                 # noqa: E402
-from universe import (  # noqa: E402
-    DEFENSIVE_NAMES,
-    DEFENSIVE_TRADABLE,
-    FACTOR_NAMES,
-    SECTOR_NAMES,
-    TRADABLE,
-)
+from universe import FACTOR_NAMES, SECTOR_NAMES  # noqa: E402
 from pipeline.live_portfolio import get_live_portfolio_data  # noqa: E402
 from pipeline.crash_protection import get_crash_protection_data  # noqa: E402
 
-NAMES = {**FACTOR_NAMES, **SECTOR_NAMES, **DEFENSIVE_NAMES}
+NAMES = {**FACTOR_NAMES, **SECTOR_NAMES}
 SITE = "https://soylee22.github.io/lodestar/"
 
 LOOKBACK = 8
+# Inferred substitute, not MarketFighter's proprietary twelve-close ketchup rule.
+CASH_LOOKBACK, CASH_THRESHOLD = 19, -0.25
 
 FACTOR_PROXY = {"USA_MOM": "MTUM", "USA_QUAL": "QUAL", "USA_VAL": "VLUE",
                 "USA_SMALL": "SMLF", "EUR_MOM": "IMTM", "EUR_QUAL": "IQLT",
@@ -65,8 +61,11 @@ SECTOR_YF = {"CONS_DISC": "^SP500-25", "CONS_STAP": "^SP500-30", "ENERGY": "^GSP
 SECTOR_PROXY = {"CONS_DISC": "XLY", "CONS_STAP": "XLP", "ENERGY": "XLE",
                 "HEALTH": "XLV", "INDUST": "XLI", "INFOTECH": "XLK",
                 "MATERIALS": "XLB"}
-LSE = {k: v[2] for k, v in TRADABLE.items()}
-DEFENSIVE_LSE = {k: v[2] for k, v in DEFENSIVE_TRADABLE.items()}
+LSE = {"USA_MOM": "IUMO.L", "USA_QUAL": "IUQA.L", "USA_VAL": "IUVL.L",
+       "USA_SMALL": "CUSS.L", "EUR_MOM": "IEMO.L", "EUR_QUAL": "IEQU.L",
+       "EUR_VAL": "IEVL.L", "EUR_SMALL": "XXSC.L", "CONS_DISC": "IUCD.L",
+       "CONS_STAP": "IUCS.L", "ENERGY": "IUES.L", "HEALTH": "IHCU.L",
+       "INDUST": "IUIS.L", "INFOTECH": "IUIT.L", "MATERIALS": "IUMS.L"}
 
 
 def _retry(fn, n=4, wait=5):
@@ -156,7 +155,7 @@ def momentum(px: pd.DataFrame, base: pd.Period, missing: list) -> tuple[pd.Serie
 
 
 def held_now() -> tuple[str, str, str]:
-    """(factor or defensive slot, sector slot, month the signal was computed at)."""
+    """(factor slot, sector slot, month the signal was computed at)."""
     history_path = HERE / "data" / "signal_history.json"
     if history_path.exists():
         history = json.loads(history_path.read_text())
@@ -166,14 +165,12 @@ def held_now() -> tuple[str, str, str]:
             month = eligible[-1]
             row = history[month]
             if row["cash"]:
-                return row.get("defensive") or "CASH", "", month
+                return "CASH", "CASH", month
             return row["factor"], row["sector"], month
     state = json.loads((HERE / "data" / "last_alert.json").read_text())
     picks = state.get("picks", "")
-    if picks.startswith("DEF:"):
-        return picks[4:], "", state.get("month", "?")
     if picks == "CASH":
-        return "CASH", "", state.get("month", "?")
+        return "CASH", "CASH", state.get("month", "?")
     f, _, s = picks.partition("+")
     return f, s, state.get("month", "?")
 
@@ -203,20 +200,8 @@ def margin(mom: pd.Series, held: str) -> str | None:
 def build_email_html(days_out: int, signal_date: date, live_pf: dict, crash_data: dict,
                      f_pick: str | None, s_pick: str | None, fmom: pd.Series, smom: pd.Series,
                      hf: str, hs: str, hmonth: str, change: list, would: str) -> str:
-    is_defensive = bool(crash_data.get("cash_triggered"))
-    if crash_data:
-        def_tick = crash_data.get("defensive_ticker") or "Defensive"
-        crash_status = f"100% Defensive ({def_tick})" if is_defensive else "100% Invested"
-        tip_val = crash_data.get("tip_score_pct")
-        crash_note = (f"TIP 1-3-6-12: {tip_val:+.2f}% (cutoff 0.00%)"
-                      if tip_val is not None else "TIP 1-3-6-12 canary, provisional")
-    else:
-        crash_status = "Unavailable"
-        crash_note = "Risk data unavailable"
-    crash_color = "#dc2626" if is_defensive else ("#16a34a" if crash_data else "#64748b")
-    checklist_status = (f"Canary Triggered · {crash_data.get('defensive_ticker', 'Defensive')}"
-                        if is_defensive else ("All Systems Green" if crash_data else "Unavailable"))
-    holdings_split_label = "100% Defensive Sleeve" if hf in DEFENSIVE_LSE else "50/50 Target Split"
+    crash_status = ("100% Cash" if crash_data.get("cash_triggered") else "100% Invested") if crash_data else "Unavailable"
+    crash_note = "Lodestar 19-month floor, provisional" if crash_data else "Risk data unavailable"
     init_cap = live_pf.get("initial_capital_gbp", 0.0)
     curr_val = live_pf.get("current_value_gbp", 0.0)
     pnl_gbp = live_pf.get("total_pnl_gbp", 0.0)
@@ -302,7 +287,7 @@ def build_email_html(days_out: int, signal_date: date, live_pf: dict, crash_data
         </div>
       </div>
       <p style="margin:12px 0 0;font-size:13px;color:#d4d4d8;line-height:1.5;">
-        Tracking live Trading 212 execution of the 50/50 factor + sector targets (or UCITS US Treasury defensive sleeve) against core benchmark trackers, with a daily TIP 1-3-6-12 canary snapshot.
+        Tracking live Trading 212 execution of the 50/50 factor + sector targets against four core benchmark trackers, with a scheduled S&amp;P 500 risk snapshot.
       </p>
     </div>
 
@@ -328,7 +313,7 @@ def build_email_html(days_out: int, signal_date: date, live_pf: dict, crash_data
         </div>
         <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;padding:14px;">
           <div style="font-size:11px;font-weight:600;text-transform:uppercase;color:#64748b;letter-spacing:0.04em;">Crash Protection</div>
-          <div style="font-size:16px;font-weight:700;color:{crash_color};margin-top:6px;">{crash_status}</div>
+          <div style="font-size:16px;font-weight:700;color:#16a34a;margin-top:6px;">{crash_status}</div>
           <div style="font-size:11px;color:#94a3b8;margin-top:2px;">{crash_note}</div>
         </div>
       </div>
@@ -336,7 +321,7 @@ def build_email_html(days_out: int, signal_date: date, live_pf: dict, crash_data
       <div style="margin-bottom:24px;">
         <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:8px;">
           <h2 style="font-size:14px;font-weight:700;text-transform:uppercase;letter-spacing:0.05em;color:#0f172a;margin:0;">Active Holdings (Trading 212)</h2>
-          <span style="font-size:12px;color:#64748b;">{holdings_split_label}</span>
+          <span style="font-size:12px;color:#64748b;">50/50 Target Split</span>
         </div>
         <div style="overflow-x:auto;">
           <table style="width:100%;border-collapse:collapse;font-size:13px;text-align:left;">
@@ -383,8 +368,8 @@ def build_email_html(days_out: int, signal_date: date, live_pf: dict, crash_data
 
       <div style="margin-bottom:24px;">
         <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:8px;">
-          <h2 style="font-size:14px;font-weight:700;text-transform:uppercase;letter-spacing:0.05em;color:#0f172a;margin:0;">Crash Protection &amp; TIP Canary Checklist</h2>
-          <span style="font-size:12px;color:{crash_color};font-weight:600;">{checklist_status}</span>
+          <h2 style="font-size:14px;font-weight:700;text-transform:uppercase;letter-spacing:0.05em;color:#0f172a;margin:0;">Crash Protection &amp; Ketchup Checklist</h2>
+          <span style="font-size:12px;color:#16a34a;font-weight:600;">All Systems Green</span>
         </div>
         <div style="overflow-x:auto;">
           <table style="width:100%;border-collapse:collapse;font-size:13px;text-align:left;">
@@ -413,7 +398,7 @@ def build_email_html(days_out: int, signal_date: date, live_pf: dict, crash_data
 
     <div style="background:#f8fafc;padding:16px 24px;border-top:1px solid #e2e8f0;font-size:12px;color:#94a3b8;text-align:center;line-height:1.5;">
       Lodestar Factor &amp; Sector Rotation · Next signal acts <strong>{signal_date:%-d %b %Y}</strong> ({days_out} days away).<br>
-      Broker valuation is checked on each scheduled report. Crash protection uses the monthly TIP 1-3-6-12 canary in USD total return.
+      Broker valuation is checked on each scheduled report. The exact MarketFighter cash rule remains under research.
     </div>
 
   </div>
@@ -442,10 +427,12 @@ def main() -> int:
     today = date.today()
     now = pd.Timestamp(today).to_period("M")
     base = now - LOOKBACK                 # the month-end the eight-month window opens at
-    start = (pd.Timestamp(today) - pd.DateOffset(months=14)).date().isoformat()
+    cash_base = now - CASH_LOOKBACK
+    start = (pd.Timestamp(today) - pd.DateOffset(months=CASH_LOOKBACK + 4)).date().isoformat()
 
     factor_px, f_missing = closes(FACTOR_PROXY, start, need=base)
     sector_px, s_missing = closes(SECTOR_YF, start, need=base, retries=2)
+    spx_px, _ = closes({"SPX": "^GSPC"}, start, need=cash_base)
 
     fmom, f_missing = momentum(factor_px, base, f_missing)
     smom, s_missing = momentum(sector_px, base, s_missing)
@@ -461,7 +448,7 @@ def main() -> int:
 
     if not len(fmom) and not len(smom):
         return send("Lodestar: no read today",
-                    "<b>Lodestar - no read today</b>\n\nYahoo returned no usable price "
+                    "<b>Lodestar — no read today</b>\n\nYahoo returned no usable price "
                     "history for either leg. Nothing is wrong with the strategy and "
                     "nothing needs doing; the month-end signal is computed from a "
                     "different path.\n\n" + SITE)
@@ -469,51 +456,30 @@ def main() -> int:
     dates = [px.index[-1] for px in (factor_px, sector_px) if not px.empty]
     asof = max(dates).date()
 
-    try:
-        crash_data = get_crash_protection_data()
-    except Exception as e:
-        print(f"  !! crash protection load error: {e}")
-        crash_data = {}
-
-    cash = bool(crash_data.get("cash_triggered", False))
-    def_slot = crash_data.get("defensive_slot")
-    def_ticker = crash_data.get("defensive_ticker")
-    def_name = crash_data.get("defensive_name")
+    spx_lvl = month_end_level(spx_px, cash_base)
+    if len(spx_lvl):
+        spx_ret = float(spx_px["SPX"].iloc[-1] / spx_lvl["SPX"] - 1)
+        cash = spx_ret < CASH_THRESHOLD
+    else:
+        spx_ret, cash = None, False
 
     f_pick = str(fmom.idxmax()) if len(fmom) else None
     s_pick = str(smom.idxmax()) if len(smom) else None
     hf, hs, hmonth = held_now()
 
     if cash:
-        would = (f"<b>100% {def_name}</b> (<code>{def_ticker}</code>)"
-                 if def_ticker else "<b>defensive Treasury sleeve</b>")
-        if hf in DEFENSIVE_LSE and def_slot and hf != def_slot:
-            change = [f"defensive: {NAMES.get(hf, hf)} ({DEFENSIVE_LSE[hf]}) -> <b>{def_name}</b> (<code>{def_ticker}</code>)"]
-        elif hf not in DEFENSIVE_LSE and def_ticker:
-            change = [f"regime exit -> <b>100% {def_name}</b> (<code>{def_ticker}</code>)"]
-        else:
-            change = []
+        would = "<b>cash, both legs</b>"
     else:
         would = " + ".join(f"{NAMES[p]} (<code>{LSE[p]}</code>)" if p else "leg unavailable"
                            for p in (f_pick, s_pick))
-        if hf in DEFENSIVE_LSE or hf == "CASH":
-            change = ([f"re-enter equities -> <b>{NAMES[f_pick]}</b> + <b>{NAMES[s_pick]}</b>"]
-                      if f_pick and s_pick else ["re-enter equities"])
-        else:
-            change = (
-                ([f"factor: {NAMES.get(hf, hf)} -> <b>{NAMES[f_pick]}</b>"] if f_pick and f_pick != hf else []) +
-                ([f"sector: {NAMES.get(hs, hs)} -> <b>{NAMES[s_pick]}</b>"] if s_pick and s_pick != hs else []))
+    change = [] if cash else (
+        ([f"factor: {NAMES.get(hf, hf)} → <b>{NAMES[f_pick]}</b>"] if f_pick and f_pick != hf else []) +
+        ([f"sector: {NAMES.get(hs, hs)} → <b>{NAMES[s_pick]}</b>"] if s_pick and s_pick != hs else []))
 
     # month to date on what is actually held, in sterling, against the benchmark
     mtd = ""
     try:
-        if hf in DEFENSIVE_LSE:
-            held_wanted = {hf: DEFENSIVE_LSE[hf]}
-        elif hf == "CASH":
-            held_wanted = {}
-        else:
-            held_wanted = {hf: LSE[hf], hs: LSE[hs]}
-        wanted = held_wanted | {"All-World": "VWRL.L"}
+        wanted = ({} if hf == "CASH" else {hf: LSE[hf], hs: LSE[hs]}) | {"All-World": "VWRL.L"}
         lse, _ = closes(wanted, start=str((now - 2).to_timestamp("M").date()),
                         need=now - 1, adjusted=True)
         m0 = month_end_level(lse, now - 1)
@@ -534,7 +500,13 @@ def main() -> int:
         print(f"  !! live portfolio load error: {e}")
         live_pf = {"sync_error": True}
 
-    head = ("<b>Lodestar: TIP canary triggered (defensive mode)</b>" if cash
+    try:
+        crash_data = get_crash_protection_data()
+    except Exception as e:
+        print(f"  !! crash protection load error: {e}")
+        crash_data = {}
+
+    head = ("<b>Lodestar: the cash rule would fire</b>" if cash
             else "<b>Lodestar: rebalance today has NO CHANGE</b>" if not change
             else "<b>Lodestar: rebalance today WOULD TRADE</b>")
 
@@ -542,18 +514,11 @@ def main() -> int:
     pnl_pct = live_pf.get("total_pnl_pct", 0.0)
     pnl_sign = "+" if pnl_gbp >= 0 else "−"
 
-    if hf in DEFENSIVE_LSE:
-        holding_str = f"<b>{NAMES.get(hf, hf)}</b> (<code>{DEFENSIVE_LSE[hf]}</code>), 100% defensive"
-    elif hf == "CASH":
-        holding_str = "<b>Cash</b>, 100%"
-    else:
-        holding_str = f"<b>{NAMES.get(hf, hf)}</b> + <b>{NAMES.get(hs, hs)}</b>, 50/50"
-
     msg = [
         f"<b>Lodestar Daily · {days_out} days to new month</b> (acting {signal_date:%-d %b})",
         head,
         "",
-        f"Holding now: {holding_str}"
+        f"Holding now: <b>{NAMES.get(hf, hf)}</b> + <b>{NAMES.get(hs, hs)}</b>, 50/50"
         + (f" (signal of {hmonth})" if hmonth != "?" else ""),
         f"Provisional target: {would}",
     ]
@@ -582,11 +547,11 @@ def main() -> int:
     if crash_data:
         msg += [
             "",
-            "<b>Crash Protection and TIP Canary</b>",
+            "<b>Crash Gate and Ketchup Rule</b>",
             f"Status: <b>{crash_data.get('status_text', 'INVESTED')}</b>",
         ]
         checks_summary = " · ".join(
-            f"{c['name']}: {c['reading_pct']:+.2f}% " + ("✓" if c["pass"] else "✗")
+            f"{c['name'].split()[0]}: {c['reading_pct']:+.1f}% " + ("✓" if c["pass"] else "✗")
             for c in crash_data.get("checks", [])
         )
         msg.append(f"  {checks_summary}")

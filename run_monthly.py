@@ -17,9 +17,9 @@ from pipeline import build            # noqa: E402
 from pipeline import holdings        # noqa: E402
 from notify import telegram           # noqa: E402
 from mailer import email              # noqa: E402
-from universe import DEFENSIVE_NAMES, DEFENSIVE_TRADABLE, FACTOR_NAMES, SECTOR_NAMES  # noqa: E402
+from universe import FACTOR_NAMES, SECTOR_NAMES  # noqa: E402
 
-NAMES = {**FACTOR_NAMES, **SECTOR_NAMES, **DEFENSIVE_NAMES}
+NAMES = {**FACTOR_NAMES, **SECTOR_NAMES}
 
 
 STATE = HERE / "data" / "last_alert.json"
@@ -73,57 +73,29 @@ def main(build_only=False) -> int:
     fails = signal.get("source_failures") or []
     f, s = signal["factor"], signal["sector"]
     ft, st = signal["factor_ticker"], signal["sector_ticker"]
-    canary = signal.get("canary") or {}
-    tip_pct = canary.get("tip_score") * 100.0 if canary.get("tip_score") is not None else None
-    ief_pct = canary.get("ief_score") * 100.0 if canary.get("ief_score") is not None else None
-    bil_pct = canary.get("bil_score") * 100.0 if canary.get("bil_score") is not None else None
-    def_slot = signal.get("defensive") or "DEF_BIL"
-    def_ticker = signal.get("defensive_ticker") or DEFENSIVE_TRADABLE.get(def_slot, ("", "", "IB01.L", ""))[2]
-    def_name = signal.get("defensive_name") or NAMES.get(def_slot, def_slot)
-    changed = []
 
     if stale:
-        msg = ("<b>Lodestar - SIGNAL NOT COMPUTED</b>\n\n"
+        msg = ("<b>Lodestar — SIGNAL NOT COMPUTED</b>\n\n"
                f"The index panel only runs to {signal['signal_month']}, but "
                f"{signal['expected_month']} has ended.\n"
                f"Sources unavailable: {len(fails)}\n\n"
                "<b>Do not trade on this.</b> The page has not been updated with a new month. "
                "Re-run the job once the data source is back.")
     elif signal["cash"]:
-        score_line = (f"TIP 1-3-6-12 sits at <b>{tip_pct:+.2f}%</b> (&lt;= 0%) "
-                      f"with IEF {ief_pct:+.2f}% vs BIL {bil_pct:+.2f}%."
-                      if tip_pct is not None else "TIP 1-3-6-12 sits at or below 0%.")
-        prev_def = prev.get("defensive")
-        if prev.get("cash") and prev_def == def_slot:
-            changed = []
-            head = "<b>Lodestar - DEFENSIVE HOLD</b>"
-            body = f"Already in {def_name} (<code>{def_ticker}</code>). Do nothing."
-        elif prev.get("cash"):
-            prev_t = prev.get("defensive_ticker") or NAMES.get(prev_def, prev_def)
-            changed = [f"DEFENSIVE: sell {NAMES.get(prev_def, prev_def)} ({prev_t}) -> buy <b>{def_name}</b> (<code>{def_ticker}</code>), 100%"]
-            head = "<b>Lodestar - DEFENSIVE SWAP</b>"
-            body = changed[0]
-        else:
-            changed = [f"REGIME EXIT: sell {NAMES.get(prev['factor'], prev['factor'])} + {NAMES.get(prev['sector'], prev['sector'])} -> buy <b>{def_name}</b> (<code>{def_ticker}</code>), 100%"]
-            head = "<b>Lodestar - GO DEFENSIVE</b>"
-            body = changed[0]
-        msg = (f"{head}\n\n"
-               f"Signal at {signal['signal_month']} close: {score_line}\n\n"
-               f"{body}\n\n"
-               f"<b>Hold:</b> 100% <code>{def_ticker}</code> ({def_name})")
+        msg = ("<b>Lodestar — GO TO CASH</b>\n\n"
+               f"Signal for {signal['signal_month']}: the S&amp;P 500 sits more than 25% below its "
+               "level nineteen months ago, so <b>both legs move to cash</b>.\n\n"
+               f"Sell {prev['factor']} and {prev['sector']}. Hold cash until the signal lifts.\n\n"
+               "This has never fired before in the record.")
     else:
-        if prev.get("cash"):
-            prev_def = prev.get("defensive")
-            prev_t = prev.get("defensive_ticker") or NAMES.get(prev_def, prev_def) or "Treasury sleeve"
-            changed.append(f"RE-ENTER EQUITIES: sell {prev_t} -> buy <b>{NAMES.get(f, f)}</b> (<code>{ft}</code>) + <b>{NAMES.get(s, s)}</b> (<code>{st}</code>), 50/50")
-        else:
-            if f != prev["factor"]:
-                changed.append(f"FACTOR: sell {NAMES.get(prev['factor'], prev['factor'])} -> "
-                               f"buy <b>{NAMES.get(f, f)}</b> (<code>{ft}</code>)")
-            if s != prev["sector"]:
-                changed.append(f"SECTOR: sell {NAMES.get(prev['sector'], prev['sector'])} -> "
-                               f"buy <b>{NAMES.get(s, s)}</b> (<code>{st}</code>)")
-        head = "<b>Lodestar - NO TRADE</b>" if not changed else "<b>Lodestar - TRADE</b>"
+        changed = []
+        if f != prev["factor"] or prev.get("cash"):
+            changed.append(f"FACTOR: sell {NAMES.get(prev['factor'], prev['factor'])} → "
+                           f"buy <b>{NAMES.get(f, f)}</b> (<code>{ft}</code>)")
+        if s != prev["sector"] or prev.get("cash"):
+            changed.append(f"SECTOR: sell {NAMES.get(prev['sector'], prev['sector'])} → "
+                           f"buy <b>{NAMES.get(s, s)}</b> (<code>{st}</code>)")
+        head = "<b>Lodestar — NO TRADE</b>" if not changed else "<b>Lodestar — TRADE</b>"
         body = ("Both legs unchanged. Do nothing.\n" if not changed
                 else "\n".join(changed) + "\n\nReset both legs to 50/50 while you are trading.\n")
         ftab = sorted(signal["factor_table"].items(), key=lambda kv: -kv[1])[:3]
@@ -134,24 +106,21 @@ def main(build_only=False) -> int:
                f"\n<i>{' and '.join(proxied)} leg{'s' if len(proxied) > 1 else ''} computed "
                "from ETF proxies: the index feed was unavailable. Momentum values differ "
                "by roughly 1-4pp from the indices.</i>\n")
-        canary_line = (f"TIP 1-3-6-12: <b>{tip_pct:+.2f}%</b> (&gt; 0% risk-on)\n\n"
-                       if tip_pct is not None else "")
-        msg = (f"{head}\n\nSignal computed at the {signal['signal_month']} close.{src}\n\n"
-               f"{canary_line}{body}\n"
+        msg = (f"{head}\n\nSignal computed at the {signal['signal_month']} close.{src}\n\n{body}\n"
                f"<b>Hold:</b> <code>{ft}</code> + <code>{st}</code>, 50/50\n\n"
                "<b>Factor ranking</b>\n" +
                "\n".join(f"  {NAMES.get(k,k)} {v*100:+.1f}%" for k, v in ftab) +
                "\n<b>Sector ranking</b>\n" +
                "\n".join(f"  {NAMES.get(k,k)} {v*100:+.1f}%" for k, v in stab) +
                "\n\nhttps://soylee22.github.io/lodestar/")
-    picks = f"DEF:{def_slot}" if signal["cash"] else f"{f}+{s}"
+    picks = "CASH" if signal["cash"] else f"{f}+{s}"
     month = signal["signal_month"]
 
     # Alert once per signal month. Failures always shout, every retry, because a
     # month with no signal is the thing you must not miss.
     if stale:
         print("\n--- alert (failure) ---\n" + msg)
-        announce("Lodestar: SIGNAL NOT COMPUTED - do not trade", msg)
+        announce("Lodestar: SIGNAL NOT COMPUTED — do not trade", msg)
         return 2
 
     if already_alerted(month, picks):
@@ -160,22 +129,14 @@ def main(build_only=False) -> int:
 
     print("\n--- alert ---\n" + msg)
     if signal["cash"]:
-        if not prev.get("cash"):
-            subject = f"Lodestar {month}: GO DEFENSIVE - {def_ticker}"
-        elif changed:
-            subject = f"Lodestar {month}: DEFENSIVE SWAP - {def_ticker}"
-        else:
-            subject = f"Lodestar {month}: hold defensive ({def_ticker}), site updated"
+        subject = f"Lodestar {month}: GO TO CASH"
     elif changed:
-        subject = f"Lodestar {month}: TRADE - {NAMES.get(f, f)} + {NAMES.get(s, s)}"
+        subject = f"Lodestar {month}: TRADE — {NAMES.get(f, f)} + {NAMES.get(s, s)}"
     else:
         subject = f"Lodestar {month}: no trade, site updated"
     site = "https://soylee22.github.io/lodestar/"
     msg = msg.rstrip().removesuffix(site).rstrip()
-    if tip_pct is not None:
-        msg += f"\n\nCrash protection: TIP 1-3-6-12 canary ({tip_pct:+.2f}%, IEF {ief_pct:+.2f}% vs BIL {bil_pct:+.2f}%)."
-    else:
-        msg += "\n\nCrash protection: monthly TIP 1-3-6-12 canary."
+    msg += "\n\nCash protection uses Lodestar's inferred rule. The exact ketchup checks remain unknown."
     msg += (f"\n\nPage built: holdings for {signal['holding_month']}, "
             f"performance through {signal['performance_month']}.\n{site}")
     if not announce(subject, msg):

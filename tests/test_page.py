@@ -12,7 +12,7 @@ ROOT = Path(__file__).resolve().parents[1]
 
 
 class PageTests(unittest.TestCase):
-    def compile_page(self, cash=False, holdings=None, company_logos=None, defensive=None, with_classic=False):
+    def compile_page(self, cash=False, holdings=None, company_logos=None):
         with tempfile.TemporaryDirectory() as folder:
             root = Path(folder)
             data = root / 'data'
@@ -34,18 +34,14 @@ class PageTests(unittest.TestCase):
                 'Lodestar': values, 'FTSE All-World': values * .8,
                 'S&P 500': values * .7, 'MSCI World': values * .6}, index=months)
             monthly.to_csv(data / 'final_tradable.csv')
-            if with_classic:
-                pd.DataFrame({'Lodestar (-25%/19m)': values * .95}, index=months).to_csv(data / 'classic_track.csv')
             annual = monthly.groupby(monthly.index.str[:4]).agg(lambda s: ((1+s/100).prod()-1)*100)
             annual['vs All-World'] = annual['Lodestar'] - annual['FTSE All-World']
             annual.to_csv(data / 'final_tradable_annual.csv')
             book_months = pd.period_range('2024-01', '2026-03', freq='M').astype(str)
             book = pd.DataFrame({'factor': 'USA_VAL', 'sector': 'ENERGY', 'cash': False,
-                'defensive': None, 'factor_source': 'ETF proxy', 'sector_source': 'ETF proxy'}, index=book_months)
+                'factor_source': 'ETF proxy', 'sector_source': 'ETF proxy'}, index=book_months)
             book.loc['2026-03', 'sector'] = 'INFOTECH'
             book.loc['2026-03', 'cash'] = cash
-            if defensive:
-                book.loc['2026-03', 'defensive'] = defensive
             book.to_csv(data / 'final_book.csv')
             result = subprocess.run([sys.executable, str(root / 'build_data.py'), str(data)], capture_output=True, text=True)
             self.assertEqual(result.returncode, 0, result.stderr)
@@ -70,19 +66,6 @@ class PageTests(unittest.TestCase):
         self.assertEqual(page['current']['legs'], [])
         self.assertIsNone(page['book'])
         self.assertFalse(any(x['live'] for x in page['universe']['factors']))
-
-    def test_defensive_treasury_tile_and_classic_comparator_compile(self):
-        page = self.compile_page(cash=True, defensive='DEF_BIL', with_classic=True)
-        self.assertTrue(page['current']['cash'])
-        self.assertEqual(page['current']['legs'], [])
-        self.assertEqual(page['current']['defensive'], 'DEF_BIL')
-        self.assertEqual(page['current']['defensiveTicker'], 'IB01.L')
-        self.assertEqual(page['current']['defensiveIsin'], 'IE00BGSF1X88')
-        self.assertEqual(page['order'], ['strategy', 'classic', 'allworld', 'sp500', 'world'])
-        self.assertIn('classic', page['stats'])
-        self.assertEqual(page['labels']['classic'], 'Lodestar (-25%/19m)')
-        self.assertTrue(page['universe']['defensive'][0]['live'])
-        self.assertFalse(page['universe']['defensive'][1]['live'])
 
     def test_full_issuer_exposure_does_not_use_top_ten_weights(self):
         raw = {'as_at': '2026-02', 'legs': {}}

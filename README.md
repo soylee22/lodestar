@@ -5,28 +5,25 @@ A monthly factor-and-sector ETF rotation, and the page that tracks it:
 
 ## The rule
 
-1. Fifteen equity indices: eight MSCI factor indices (USA and Europe across momentum,
+1. Fifteen indices: eight MSCI factor indices (USA and Europe × momentum,
    quality, enhanced value, small cap) and seven S&P 500 GICS sector indices.
-2. At each month-end close, score every equity index by its **price return over
-   the trailing eight months**, on its own published currency levels.
-3. Check the monthly **TIP canary** using the 1-3-6-12 weighted momentum score on
-   `TIP` in USD total return (`(12 * r1 + 4 * r3 + 2 * r6 + r12) / 19`).
-4. When `TIP` sits at or below **0%**, exit both equity legs into 100% of whichever
-   London-listed UCITS US Treasury ETF scores higher on 1-3-6-12 in USD total
-   return: `IB01.L` (US Treasury 0-1yr, `BIL` twin) or `CBU0.L` (US Treasury 7-10yr, `IEF` twin).
-   Prior to `IB01.L`'s February 2019 listing, defensive short-bill months splice
-   `BIL` converted to GBP total return at zero price jump.
-5. When `TIP` is above **0%**, hold the strongest factor and strongest sector **50/50**.
-   Reset to 50/50 **only when a leg changes or on re-entering equities**. Otherwise let the split drift.
-6. Trade on the first trading day of the month.
+2. At each month-end close, score every index by its **price return over the
+   trailing eight months**, on its own published currency levels.
+3. Hold the strongest of each basket, **50/50**.
+4. Both legs go to **cash** if the S&P 500 sits more than 25% below its level
+   nineteen months earlier.
+5. Reset to 50/50 **only when a leg changes**; otherwise let the split drift.
+6. Trade on the first trading day of the month. If neither winner changed,
+   nothing trades in most months.
 
-Signals come from equity indices plus `TIP`, `IEF`, and `BIL`. Executed returns come from
-the London-listed UCITS accumulating lines in sterling on a total-return basis.
+Signals come from the indices. Returns come from the London-listed UCITS lines,
+in sterling, on a total-return basis.
 
-**Crash protection architecture.** Lodestar replaces the legacy `-25%` 19-month S&P 500 gate
-with Keller and Keuning's Hybrid Asset Allocation `TIP` 1-3-6-12 canary, implemented with
-London-listed UCITS US Treasury ETFs. The original `-25%/19m` path is computed alongside
-and plotted on the website as the `Lodestar (-25%/19m)` comparator.
+**Cash protection is an approximation.** Lodestar uses the nineteen-month rule
+above. MarketFighter's [13 October ketchup article](https://www.marketfighter.com/p/the-ketchup-rule-my-ultimate-drawdown)
+describes three proprietary checks using only twelve monthly closes. Lodestar
+does not implement that rule. The October 2026 rotation matched his later
+disclosure, but the complete strategy remains unrecovered.
 
 ## Running it
 
@@ -44,9 +41,8 @@ including delays beyond the fifth day. If a data source is down on the 1st, the
 following morning picks the month up instead of losing it. Failures alert on
 every attempt, because a month with no signal is the thing you must not miss.
 
-Half the equity universe is MSCI data (the eight factor indices). The sector leg
-uses S&P 500 GICS indices, and the crash-protection canary uses `TIP`, `IEF`, and `BIL`
-USD total-return series from Yahoo Finance. MSCI's public endpoint is intermittently
+Half the universe is MSCI data (the eight factor indices); the sector leg and the
+cash rule come from S&P 500 indices. MSCI's public endpoint is intermittently
 unreachable, so there are three layers of defence:
 
 1. `data/panel_local.csv` caches the index panel and is refreshed incrementally,
@@ -54,7 +50,7 @@ unreachable, so there are three layers of defence:
 2. If MSCI is behind for the current month, the factor leg is recomputed from
    the US-listed factor ETFs, whose unadjusted closes are price series like the
    index. Tested against the live month: same pick, momentum values within about
-   1-4pp. Any signal produced this way is flagged as such in the alert.
+   1&ndash;4pp. Any signal produced this way is flagged as such in the alert.
 3. Only if both fail does the job refuse to publish, and it then says so loudly
    and retries the next morning.
 
@@ -81,31 +77,28 @@ alert state is retained only as a fallback for older checkouts.
 
 Two things to know about the numbers. The factor leg uses the US-listed
 distributing factor ETFs, because MSCI publishes month-end levels only and there
-is no intra-month index level to read. Their momentum runs 1-4pp adrift of
-the indices, enough to reorder slots that are close together. Early in a
-month the eight-month window and `TIP` canary can swing around flat thresholds. The
+is no intra-month index level to read; their momentum runs 1&ndash;4pp adrift of
+the indices, enough to reorder slots that are close together. And early in a
+month the eight-month window has barely moved, so the read swings about. The
 signal that counts is the one computed at the month-end close.
 
 ## Layout
 
 | Path | |
 |---|---|
-| `pipeline/build.py` | fetch equity indices, `TIP`/`IEF`/`BIL` canary, and rebuild tracks |
-| `pipeline/crash_protection.py` | compute `TIP` `1-3-6-12` canary and `IB01.L`/`CBU0.L` selection |
+| `pipeline/build.py` | fetch, compute the signal, rebuild the track |
 | `build_data.py` | turn the CSVs into `data.js` for the page |
 | `run_monthly.py` | orchestrates both, then alerts (monthly) |
 | `daily.py` | provisional read between signals (weekdays) |
 | `notify.py`, `mailer.py` | Telegram and Gmail delivery |
-| `universe.py` | equity slots plus defensive Treasury sleeves (`IB01.L`, `CBU0.L`) |
-| `index.html` | the page, self-contained, no external requests |
+| `universe.py` | the fifteen slots, ISINs, and LSE/Xetra/US tickers |
+| `index.html` | the page; self-contained, no external requests |
 
 ## Caveats
 
-The historical track is a backtest before November 2026 deployment rather than a live
-broker record throughout. Under the active `TIP` 1-3-6-12 canary, defensive rotations
-hold `IB01.L` or `CBU0.L` in real shocks, with US `BIL` converted to GBP total return
-spliced prior to `IB01.L`'s February 2019 launch. Past performance is not a guide, and
-this is not financial advice.
+The record is a backtest, not a live track record. The window contains no slow
+correlated bear market, and the cash rule never fires in it, so the drawdown
+figure is untested. Not financial advice.
 
 ## Website freshness
 

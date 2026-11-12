@@ -44,13 +44,7 @@ if not (DATA_DIR / "final_tradable.csv").is_file():
     raise SystemExit(f"final_tradable.csv not found in {DATA_DIR}")
 
 sys.path.insert(0, str(TOOL_DIR))
-from universe import (  # noqa: E402
-    DEFENSIVE_NAMES,
-    DEFENSIVE_TRADABLE,
-    FACTOR_NAMES,
-    SECTOR_NAMES,
-    TRADABLE,
-)
+from universe import FACTOR_NAMES, SECTOR_NAMES, TRADABLE  # noqa: E402
 from pipeline.lookthrough import consolidate, company_domain
 from pipeline.logos import company_key, load_registry
 
@@ -61,7 +55,6 @@ STRATEGY_COL = 0
 BENCHMARKS = {"allworld": "FTSE All-World", "sp500": "S&P 500", "world": "MSCI World"}
 LABELS = {
     "strategy": "Lodestar",
-    "classic": "Lodestar (-25%/19m)",
     "allworld": "FTSE All-World",
     "sp500": "S&P 500",
     "world": "MSCI World",
@@ -380,37 +373,6 @@ def main() -> None:
         returns[key] = [r6(v) for v in col_s.to_numpy(dtype=float)]
         stats[key] = stats_for(col_s)
 
-    order = ["strategy", "allworld", "sp500", "world"]
-    classic_path = DATA_DIR / "classic_track.csv"
-    classic_s = None
-    if classic_path.is_file():
-        classic_df = pd.read_csv(classic_path, index_col=0)
-        raw_classic = classic_df.iloc[:, 0].dropna()
-        raw_classic.index = [str(i) for i in raw_classic.index]
-        classic_in_window = raw_classic.loc[[m for m in months if m in raw_classic.index]]
-        if not classic_in_window.empty:
-            classic_s = classic_in_window
-            c_stats = stats_for(classic_in_window)
-            c_rets, c_wealth, c_dd = [], [], []
-            cum, peak = 1.0, 1.0
-            for m in months:
-                if m in classic_in_window.index:
-                    v = float(classic_in_window.loc[m])
-                    cum *= (1.0 + v / 100.0)
-                    peak = max(peak, cum)
-                    c_rets.append(r6(v))
-                    c_wealth.append(r6(cum))
-                    c_dd.append(r6((cum / peak - 1.0) * 100.0))
-                else:
-                    c_rets.append(None)
-                    c_wealth.append(None)
-                    c_dd.append(None)
-            c_stats["wealth"] = c_wealth
-            c_stats["drawdown"] = c_dd
-            returns["classic"] = c_rets
-            stats["classic"] = c_stats
-            order = ["strategy", "classic", "allworld", "sp500", "world"]
-
     strat = monthly[cols["strategy"]].to_numpy(dtype=float)
     aw = monthly[cols["allworld"]].to_numpy(dtype=float)
     excess_m = strat - aw
@@ -420,12 +382,7 @@ def main() -> None:
     years = []
     for y, row in annual.iterrows():
         in_year = [m for m in months if m.startswith(f"{y}-")]
-        classic_y = None
-        if classic_s is not None:
-            c_yr_vals = classic_s.loc[[m for m in in_year if m in classic_s.index]]
-            if not c_yr_vals.empty:
-                classic_y = r6(((1.0 + c_yr_vals.to_numpy(dtype=float) / 100.0).prod() - 1.0) * 100.0)
-        y_entry = {
+        years.append({
             "year": int(y),
             "strategy": r6(row.iloc[STRATEGY_COL]),
             "allworld": r6(row[BENCHMARKS["allworld"]]),
@@ -435,29 +392,20 @@ def main() -> None:
             "monthsCovered": len(in_year),
             "partial": len(in_year) < 12,
             "span": f"{pretty(in_year[0])} – {pretty(in_year[-1])}",
-        }
-        if classic_s is not None:
-            y_entry["classic"] = classic_y
-        years.append(y_entry)
+        })
     beat_years = sum(1 for y in years if (y["excess"] or 0) > 0)
 
     # Holding book, and the run-length ribbon used by the allocation strip.
-    slot_names = {**FACTOR_NAMES, **SECTOR_NAMES, **DEFENSIVE_NAMES}
+    slot_names = {**FACTOR_NAMES, **SECTOR_NAMES}
     ret_by_month = {m: returns["strategy"][i] for i, m in enumerate(months)}
     holdings = []
     for period, row in book.iterrows():
         cash = bool(row["cash"])
-        raw_def = row.get("defensive") if cash else None
-        def_slot = None if (raw_def is None or pd.isna(raw_def) or not str(raw_def).strip()) else str(raw_def)
-        def_meta = DEFENSIVE_TRADABLE.get(def_slot) if def_slot else None
         holdings.append({
             "m": str(period),
             "factor": None if cash else str(row["factor"]),
             "sector": None if cash else str(row["sector"]),
             "cash": cash,
-            "defensive": def_slot,
-            "defensiveTicker": def_meta[2] if def_meta else None,
-            "defensiveName": DEFENSIVE_NAMES.get(def_slot) if def_slot else None,
             "ret": ret_by_month.get(str(period)),
             "priced": str(period) in observed,
             "factorSource": row.get("factor_source", "MSCI"),
@@ -474,7 +422,7 @@ def main() -> None:
         """
         out, cur = [], None
         for i, h in enumerate(holdings):
-            slot = (h["defensive"] or "CASH") if h["cash"] else h[field]
+            slot = "CASH" if h["cash"] else h[field]
             if cur and cur["slot"] == slot:
                 cur["end"] = i
                 cur["months"] += 1
@@ -488,8 +436,7 @@ def main() -> None:
             run["avgRet"] = r6(float(np.mean(vals))) if vals else None
             run["from"] = pretty(window[0]["m"])
             run["to"] = pretty(window[-1]["m"])
-            run["name"] = "Cash" if run["slot"] == "CASH" else slot_names.get(run["slot"], run["slot"])
-            run["ticker"] = DEFENSIVE_TRADABLE[run["slot"]][2] if run["slot"] in DEFENSIVE_TRADABLE else None
+            run["name"] = "Cash" if run["slot"] == "CASH" else slot_names[run["slot"]]
         return out
 
     # Months each slot was actually held, counted over the priced record only.
@@ -542,9 +489,6 @@ def main() -> None:
 
     last = {"factor": str(current_row["factor"]), "sector": str(current_row["sector"]),
             "cash": bool(current_row["cash"])}
-    raw_cur_def = current_row.get("defensive") if last["cash"] else None
-    cur_def = None if (raw_cur_def is None or pd.isna(raw_cur_def) or not str(raw_cur_def).strip()) else str(raw_cur_def)
-    cur_def_meta = DEFENSIVE_TRADABLE.get(cur_def) if cur_def else None
     signal_month = str(pd.Period(current_month, "M") - 1)
     current = {
         "asof": signal_month,
@@ -554,11 +498,7 @@ def main() -> None:
         "factorSource": current_row.get("factor_source", "MSCI"),
         "sectorSource": current_row.get("sector_source", "S&P index"),
         "cash": last["cash"],
-        "defensive": cur_def,
-        "defensiveTicker": cur_def_meta[2] if cur_def_meta else None,
-        "defensiveName": DEFENSIVE_NAMES.get(cur_def) if cur_def else None,
-        "defensiveIsin": cur_def_meta[0] if cur_def_meta else None,
-        "legs": [] if last["cash"] else [
+        "legs": [
             {"leg": "Factor", "code": last["factor"], "name": slot_names[last["factor"]],
              "isin": TRADABLE[last["factor"]][0], "lse": TRADABLE[last["factor"]][2],
              "xetra": TRADABLE[last["factor"]][1], "us": TRADABLE[last["factor"]][3],
@@ -569,6 +509,8 @@ def main() -> None:
              "weight": 50},
         ],
     }
+    if last["cash"]:
+        current["legs"] = []
 
     book = build_book(current)
 
@@ -607,14 +549,11 @@ def main() -> None:
             "builtAt": datetime.now(timezone.utc).isoformat(),
             "expectedEnd": signal_month,
             "performancePending": end < signal_month,
-            "rule": (price_status or {}).get("rule", "tip-canary-v1"),
-            "defensiveMonths": sum(1 for h in holdings if h["cash"]),
-            "preListingBilProxyMonths": (price_status or {}).get("preListingBilProxyMonths", []),
             "proxyMonths": [h["m"] for h in holdings if
                             "ETF proxy" in (h["factorSource"], h["sectorSource"])],
         },
         "labels": LABELS,
-        "order": order,
+        "order": ["strategy", "allworld", "sp500", "world"],
         "months": months,
         "monthsPretty": [pretty(m) for m in months],
         "t": t_index,
@@ -660,14 +599,6 @@ def main() -> None:
                 "held": held_priced[c], "heldAll": tenure[c],
                 "live": not last["cash"] and c == last["sector"],
             } for c in sector_slots],
-            "defensive": [{
-                "code": c, "name": DEFENSIVE_NAMES[c],
-                "isin": DEFENSIVE_TRADABLE[c][0], "lse": DEFENSIVE_TRADABLE[c][2],
-                "us": DEFENSIVE_TRADABLE[c][3],
-                "held": sum(1 for h in holdings if h["cash"] and h["priced"] and h["defensive"] == c),
-                "heldAll": sum(1 for h in holdings if h["cash"] and h["defensive"] == c),
-                "live": bool(last["cash"] and cur_def == c),
-            } for c in DEFENSIVE_NAMES],
         },
     }
 
@@ -692,12 +623,10 @@ def main() -> None:
         print(f"  {LABELS[k]:<13} CAGR {st['cagr']:.2f}%  Sharpe {st['sharpe']:.2f}  x{st['growth']:.2f}")
     print(f"  monthly wins  {wins}/{len(months)} = {wins/len(months)*100:.1f}%")
     print(f"  beat years    {beat_years}/{len(years)}")
-    print(f"  defensive mths {sum(1 for h in holdings if h['cash'])}")
-    current_desc = ((f"Defensive {current['defensiveName']} ({current['defensiveTicker']})"
-                     if current.get("defensiveTicker") else "Cash")
-                    if current["cash"]
-                    else " + ".join(f"{leg['name']} ({leg['lse']})" for leg in current["legs"]))
-    print(f"  current       {current_desc} for {current_month}, signal at {signal_month}")
+    print(f"  cash months   {sum(1 for h in holdings if h['cash'])}")
+    print("  current       " + ("Cash" if current["cash"] else
+          " + ".join(f"{leg['name']} ({leg['lse']})" for leg in current["legs"]))
+          + f" for {current_month}, signal at {signal_month}")
     if book is None:
         print("  look-through  none (data/holdings.json missing or incomplete) — section dropped")
     else:

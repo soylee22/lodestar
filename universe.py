@@ -76,14 +76,3 @@ TRADABLE = {
 
 FACTOR_SLOTS = list(FACTOR)
 SECTOR_SLOTS = list(SECTOR_YF)
-
-# HAA TIP canary defensive sleeves (London-listed USD accumulating UCITS twins).
-DEFENSIVE_NAMES = {
-    "DEF_BIL": "US Treasury 0-1yr (BIL)",
-    "DEF_IEF": "US Treasury 7-10yr (IEF)",
-}
-DEFENSIVE_TRADABLE = {
-    "DEF_BIL": ("IE00BGSF1X88", "", "IB01.L", "BIL"),
-    "DEF_IEF": ("IE00B3VWN518", "", "CBU0.L", "IEF"),
-}
-DEFENSIVE_SLOTS = list(DEFENSIVE_NAMES)

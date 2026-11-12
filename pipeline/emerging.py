@@ -1,12 +1,10 @@
 """Lodestar Emerging Next-Month Target Allocation Monitor.
 
 Evaluates 8-month momentum across all 15 indices (8 factors and 7 sectors)
-plus the TIP 1-3-6-12 canary on intra-month prices to project next month's
-target allocation if the month closed today.
+on intra-month prices to project next month's target allocation if the month closed today.
 """
 from __future__ import annotations
 import json
-import sys
 from calendar import monthrange
 from datetime import date
 from pathlib import Path
@@ -14,13 +12,6 @@ import pandas as pd
 import yfinance as yf
 
 HERE = Path(__file__).resolve().parent.parent
-if str(HERE) not in sys.path:
-    sys.path.insert(0, str(HERE))
-
-from pipeline.crash_protection import get_crash_protection_data
-from universe import DEFENSIVE_NAMES, DEFENSIVE_TRADABLE, FACTOR_NAMES, SECTOR_NAMES, TRADABLE
-
-LSE = {k: v[2] for k, v in TRADABLE.items()}
 
 FACTOR_PROXY = {
     "USA_VAL": "VLUE",
@@ -43,30 +34,44 @@ SECTOR_PROXY = {
     "MATERIALS": "XLB",
 }
 
+LSE = {
+    "USA_MOM": "IUMO.L",
+    "USA_QUAL": "IUQA.L",
+    "USA_VAL": "IUVL.L",
+    "USA_SMALL": "CUSS.L",
+    "EUR_MOM": "IEFM.L",
+    "EUR_QUAL": "IEQU.L",
+    "EUR_VAL": "IEVL.L",
+    "EUR_SMALL": "XXSC.L",
+    "CONS_DISC": "IUCD.L",
+    "CONS_STAP": "IUCS.L",
+    "ENERGY": "IUES.L",
+    "HEALTH": "IHCU.L",
+    "INDUST": "IUIS.L",
+    "INFOTECH": "IUIT.L",
+    "MATERIALS": "IUMS.L",
+}
 
-def _current_holding(now: pd.Period) -> dict:
-    """Return the latest active monthly signal driving currently held ETFs."""
-    default = {"factor": "USA_VAL", "sector": "INFOTECH", "cash": False,
-               "defensive": None, "defensive_ticker": None}
-    hist_path = HERE / "data" / "signal_history.json"
-    if not hist_path.exists():
-        return default
-    try:
-        history = json.loads(hist_path.read_text())
-    except Exception:
-        return default
-    if not isinstance(history, dict) or not history:
-        return default
-    settled = sorted(m for m in history if m <= str(now - 1))
-    key = settled[-1] if settled else sorted(history)[-1]
-    row = history.get(key) or {}
-    return {
-        "factor": row.get("factor", default["factor"]),
-        "sector": row.get("sector", default["sector"]),
-        "cash": bool(row.get("cash", False)),
-        "defensive": row.get("defensive"),
-        "defensive_ticker": row.get("defensive_ticker"),
-    }
+FACTOR_NAMES = {
+    "USA_MOM": "USA Momentum",
+    "USA_QUAL": "USA Quality",
+    "USA_VAL": "USA Value",
+    "USA_SMALL": "USA Small Cap",
+    "EUR_MOM": "Europe Momentum",
+    "EUR_QUAL": "Europe Quality",
+    "EUR_VAL": "Europe Value",
+    "EUR_SMALL": "Europe Small Cap",
+}
+
+SECTOR_NAMES = {
+    "CONS_DISC": "Consumer Discretionary",
+    "CONS_STAP": "Consumer Staples",
+    "ENERGY": "Energy",
+    "HEALTH": "Health Care",
+    "INDUST": "Industrials",
+    "INFOTECH": "Information Technology",
+    "MATERIALS": "Materials",
+}
 
 
 def compute_emerging_data() -> dict:
@@ -147,19 +152,12 @@ def compute_emerging_data() -> dict:
 
         return res, lead_summary
 
-    held = _current_holding(now)
-    held_cash = bool(held.get("cash"))
-    held_f = held.get("factor", "USA_VAL")
-    held_s = held.get("sector", "INFOTECH")
-    held_def = held.get("defensive")
+    # Current held positions (November 2026 targets)
+    held_f = "USA_VAL"
+    held_s = "INFOTECH"
 
-    factors_ranked, f_lead = _calc_leg(FACTOR_PROXY, FACTOR_NAMES, "" if held_cash else held_f)
-    sectors_ranked, s_lead = _calc_leg(SECTOR_PROXY, SECTOR_NAMES, "" if held_cash else held_s)
-
-    try:
-        crash_data = get_crash_protection_data()
-    except Exception:
-        crash_data = None
+    factors_ranked, f_lead = _calc_leg(FACTOR_PROXY, FACTOR_NAMES, held_f)
+    sectors_ranked, s_lead = _calc_leg(SECTOR_PROXY, SECTOR_NAMES, held_s)
 
     # If yfinance failed to download, try loading cached file
     if not factors_ranked or not sectors_ranked:
@@ -171,96 +169,19 @@ def compute_emerging_data() -> dict:
             except Exception:
                 pass
 
-    canary_triggered = bool(crash_data and crash_data.get("cash_triggered"))
-    def_slot = crash_data.get("defensive_slot") if crash_data else None
-    def_ticker = crash_data.get("defensive_ticker") if crash_data else None
-    def_name = crash_data.get("defensive_name") if crash_data else None
-    def_isin = crash_data.get("defensive_isin") if crash_data else None
-    tip_pct = crash_data.get("tip_score_pct") if crash_data else None
+    # Action determination
+    f_change = f_lead.get("leader_code") != held_f
+    s_change = s_lead.get("leader_code") != held_s
+    needs_trade = f_change or s_change
 
-    if held_cash:
-        held_def_slot = held_def or "DEF_BIL"
-        held_def_ticker = held.get("defensive_ticker") or DEFENSIVE_TRADABLE.get(held_def_slot, ("", "", "IB01.L", ""))[2]
-        held_def_name = DEFENSIVE_NAMES.get(held_def_slot, held_def_slot)
-        current_holdings = [
-            {"leg": "Defensive", "code": held_def_slot, "name": held_def_name, "ticker": held_def_ticker},
-        ]
-    else:
-        current_holdings = [
-            {"leg": "Factor", "code": held_f, "name": FACTOR_NAMES.get(held_f, held_f), "ticker": LSE.get(held_f, held_f)},
-            {"leg": "Sector", "code": held_s, "name": SECTOR_NAMES.get(held_s, held_s), "ticker": LSE.get(held_s, held_s)},
-        ]
-
-    if canary_triggered and def_slot:
-        same_def = held_cash and (held_def == def_slot)
-        action = "HOLD" if same_def else "DEFENSIVE"
-        action_text = "DEFENSIVE HOLD · TIP <= 0%" if same_def else "DEFENSIVE · TIP CANARY TRIGGERED"
-        action_badge_cls = "fail"
-        score_str = f"{tip_pct:+.2f}%" if tip_pct is not None else "<= 0%"
-        if same_def:
-            action_summary = f"TIP 1-3-6-12 sits at {score_str} (<= 0%). Hold 100% in {def_name} ({def_ticker}) if month closed today."
-        else:
-            action_summary = f"TIP 1-3-6-12 sits at {score_str} (<= 0%). Rotate 100% into {def_name} ({def_ticker}) if month closed today."
-        projected_holdings = [
-            {
-                "leg": "Defensive",
-                "code": def_slot,
-                "name": def_name,
-                "ticker": def_ticker,
-                "isin": def_isin,
-                "weight_pct": 100.0,
-                "status": "KEEP" if same_def else "NEW BUY",
-            }
-        ]
-    else:
-        f_code = f_lead.get("leader_code", held_f)
-        s_code = s_lead.get("leader_code", held_s)
-        f_change = held_cash or (f_code != held_f)
-        s_change = held_cash or (s_code != held_s)
-        needs_trade = f_change or s_change
-
-        action = "ROTATE" if needs_trade else "HOLD"
-        if held_cash:
-            action_text = "RE-ENTER EQUITIES · TIP > 0%"
-            action_summary = "TIP 1-3-6-12 sits above 0%. Re-enter 50/50 equities if month closed today."
-        else:
-            action_text = "ROTATE · REBALANCE PROJECTED" if needs_trade else "HOLD · ZERO TURNOVER"
-            action_summary = (
-                "Rebalance would trade new positions if month closed today."
-                if needs_trade
-                else "Both provisional leaders match currently held positions. Zero turnover projected if month closed today."
-            )
-        action_badge_cls = "fail" if needs_trade else "pass"
-        projected_holdings = [
-            {
-                "leg": "Factor",
-                "code": f_code,
-                "name": f_lead.get("leader_name", FACTOR_NAMES.get(held_f, held_f)),
-                "ticker": f_lead.get("leader_ticker", LSE.get(held_f, held_f)),
-                "weight_pct": 50.0,
-                "status": "KEEP" if not f_change else "NEW BUY",
-            },
-            {
-                "leg": "Sector",
-                "code": s_code,
-                "name": s_lead.get("leader_name", SECTOR_NAMES.get(held_s, held_s)),
-                "ticker": s_lead.get("leader_ticker", LSE.get(held_s, held_s)),
-                "weight_pct": 50.0,
-                "status": "KEEP" if not s_change else "NEW BUY",
-            },
-        ]
-
-    canary_info = {
-        "triggered": canary_triggered,
-        "tip_score_pct": tip_pct,
-        "ief_score_pct": crash_data.get("ief_score_pct") if crash_data else None,
-        "bil_score_pct": crash_data.get("bil_score_pct") if crash_data else None,
-        "defensive_slot": def_slot,
-        "defensive_ticker": def_ticker,
-        "defensive_name": def_name,
-        "defensive_isin": def_isin,
-        "asof": crash_data.get("asof") if crash_data else None,
-    }
+    action = "ROTATE" if needs_trade else "HOLD"
+    action_text = "ROTATE · REBALANCE PROJECTED" if needs_trade else "HOLD · ZERO TURNOVER"
+    action_badge_cls = "fail" if needs_trade else "pass"
+    action_summary = (
+        "Rebalance would trade new positions if month closed today."
+        if needs_trade
+        else "Both provisional leaders match currently held positions. Zero turnover projected if month closed today."
+    )
 
     out = {
         "asof": today.isoformat(),
@@ -272,9 +193,28 @@ def compute_emerging_data() -> dict:
         "action_text": action_text,
         "action_badge_cls": action_badge_cls,
         "action_summary": action_summary,
-        "canary": canary_info,
-        "current_holdings": current_holdings,
-        "projected_holdings": projected_holdings,
+        "current_holdings": [
+            {"leg": "Factor", "code": held_f, "name": FACTOR_NAMES[held_f], "ticker": LSE[held_f]},
+            {"leg": "Sector", "code": held_s, "name": SECTOR_NAMES[held_s], "ticker": LSE[held_s]},
+        ],
+        "projected_holdings": [
+            {
+                "leg": "Factor",
+                "code": f_lead.get("leader_code", held_f),
+                "name": f_lead.get("leader_name", FACTOR_NAMES[held_f]),
+                "ticker": f_lead.get("leader_ticker", LSE[held_f]),
+                "weight_pct": 50.0,
+                "status": "KEEP" if not f_change else "NEW BUY",
+            },
+            {
+                "leg": "Sector",
+                "code": s_lead.get("leader_code", held_s),
+                "name": s_lead.get("leader_name", SECTOR_NAMES[held_s]),
+                "ticker": s_lead.get("leader_ticker", LSE[held_s]),
+                "weight_pct": 50.0,
+                "status": "KEEP" if not s_change else "NEW BUY",
+            },
+        ],
         "factor_lead": f_lead,
         "sector_lead": s_lead,
         "factors": factors_ranked,
