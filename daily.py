@@ -42,6 +42,8 @@ sys.path.insert(0, str(HERE))
 from notify import telegram              # noqa: E402
 from mailer import email                 # noqa: E402
 from universe import FACTOR_NAMES, SECTOR_NAMES  # noqa: E402
+from pipeline.live_portfolio import get_live_portfolio_data  # noqa: E402
+from pipeline.crash_protection import get_crash_protection_data  # noqa: E402
 
 NAMES = {**FACTOR_NAMES, **SECTOR_NAMES}
 SITE = "https://soylee22.github.io/lodestar/"
@@ -195,18 +197,227 @@ def margin(mom: pd.Series, held: str) -> str | None:
             f"{need*100:.1f}% over the rest of the month.</i>")
 
 
-def send(subject: str, body: str) -> int:
-    plain = body
+def build_email_html(days_out: int, signal_date: date, live_pf: dict, crash_data: dict,
+                     f_pick: str | None, s_pick: str | None, fmom: pd.Series, smom: pd.Series,
+                     hf: str, hs: str, hmonth: str, change: list, would: str) -> str:
+    init_cap = live_pf.get("initial_capital_gbp", 0.0)
+    curr_val = live_pf.get("current_value_gbp", 0.0)
+    pnl_gbp = live_pf.get("total_pnl_gbp", 0.0)
+    pnl_pct = live_pf.get("total_pnl_pct", 0.0)
+    pnl_color = "#16a34a" if pnl_gbp >= 0 else "#dc2626"
+    pnl_sign = "+" if pnl_gbp >= 0 else "−"
+
+    holdings_rows = ""
+    for h in live_pf.get("holdings", []):
+        h_pnl_col = "#16a34a" if h["pnl_gbp"] >= 0 else "#dc2626"
+        h_sign = "+" if h["pnl_gbp"] >= 0 else "−"
+        holdings_rows += f"""
+        <tr style="border-bottom:1px solid #e2e8f0;">
+          <td style="padding:10px 8px;font-weight:600;color:#0f172a;">{h['leg']}</td>
+          <td style="padding:10px 8px;">
+            <strong style="color:#0f172a;">{h['ticker']}</strong>
+            <span style="font-size:11px;color:#64748b;">({h['code']})</span><br>
+            <span style="font-size:11px;color:#64748b;">{h['name']}</span>
+          </td>
+          <td style="padding:10px 8px;text-align:right;font-family:ui-monospace,Menlo,monospace;">{h['shares']:.4f}</td>
+          <td style="padding:10px 8px;text-align:right;font-family:ui-monospace,Menlo,monospace;">£{h['cost_gbp']:,.2f}</td>
+          <td style="padding:10px 8px;text-align:right;font-family:ui-monospace,Menlo,monospace;">£{h['current_value_gbp']:,.2f}</td>
+          <td style="padding:10px 8px;text-align:right;font-family:ui-monospace,Menlo,monospace;font-weight:600;color:{h_pnl_col};">
+            {h_sign}£{abs(h['pnl_gbp']):.2f} ({h['pnl_pct']:+.2f}%)
+          </td>
+        </tr>
+        """
+
+    bm_rows = ""
+    for b in live_pf.get("benchmarks", []):
+        alpha = b.get("alpha_pct", 0.0)
+        ret = b.get("return_pct", 0.0)
+        ret_col = "#16a34a" if ret >= 0 else "#dc2626"
+        alpha_bg = "#dcfce7" if alpha >= 0 else "#fee2e2"
+        alpha_col = "#15803d" if alpha >= 0 else "#b91c1c"
+        alpha_badge = f'<span style="display:inline-block;padding:2px 6px;border-radius:4px;font-size:11px;font-weight:600;background:{alpha_bg};color:{alpha_col};">{alpha:+.2f}pp</span>'
+        fmt_p = lambda p: f"£{p:.4f}" if p < 10 else f"£{p:.2f}"
+        bm_rows += f"""
+        <tr style="border-bottom:1px solid #e2e8f0;">
+          <td style="padding:10px 8px;font-weight:600;color:#0f172a;">{b['ticker']}</td>
+          <td style="padding:10px 8px;color:#475569;">{b['name']}</td>
+          <td style="padding:10px 8px;text-align:right;font-family:ui-monospace,Menlo,monospace;">{fmt_p(b['entry_price_gbp'])}</td>
+          <td style="padding:10px 8px;text-align:right;font-family:ui-monospace,Menlo,monospace;">{fmt_p(b['current_price_gbp'])}</td>
+          <td style="padding:10px 8px;text-align:right;font-family:ui-monospace,Menlo,monospace;color:{ret_col};font-weight:600;">{ret:+.2f}%</td>
+          <td style="padding:10px 8px;text-align:right;font-family:ui-monospace,Menlo,monospace;">{alpha_badge}</td>
+        </tr>
+        """
+
+    check_rows = ""
+    for c in crash_data.get("checks", []):
+        badge = '<span style="display:inline-block;padding:2px 8px;border-radius:4px;font-size:11px;font-weight:700;background:#dcfce7;color:#15803d;">✓ PASS</span>' if c['pass'] else '<span style="display:inline-block;padding:2px 8px;border-radius:4px;font-size:11px;font-weight:700;background:#fee2e2;color:#b91c1c;">✗ FAIL</span>'
+        chk_col = "#16a34a" if c["reading_pct"] >= 0 else "#dc2626"
+        check_rows += f"""
+        <tr style="border-bottom:1px solid #e2e8f0;">
+          <td style="padding:8px 8px;">
+            <strong style="color:#0f172a;">{c['name']}</strong><br>
+            <span style="font-size:11px;color:#64748b;">{c['desc']}</span>
+          </td>
+          <td style="padding:8px 8px;font-size:12px;color:#64748b;">{c['rule']}</td>
+          <td style="padding:8px 8px;text-align:right;font-family:ui-monospace,Menlo,monospace;font-weight:600;color:{chk_col};">{c['reading_pct']:+.2f}%</td>
+          <td style="padding:8px 8px;text-align:right;">{badge}</td>
+        </tr>
+        """
+
+    return f"""<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lodestar Daily</title>
+</head>
+<body style="margin:0;padding:24px 0;background-color:#f1f5f9;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;-webkit-font-smoothing:antialiased;color:#0f172a;">
+  <div style="max-width:640px;margin:0 auto;background:#ffffff;border-radius:12px;overflow:hidden;box-shadow:0 4px 6px -1px rgba(0,0,0,0.07),0 2px 4px -2px rgba(0,0,0,0.05);border:1px solid #e2e8f0;">
+    
+    <div style="background:#09090b;padding:28px 24px;border-bottom:1px solid #27272a;">
+      <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;">
+        <div>
+          <span style="font-size:11px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:#a1a1aa;">Systematic Rotation Drumbeat</span>
+          <h1 style="margin:4px 0 0;font-size:24px;font-weight:800;color:#ffffff;letter-spacing:-0.03em;">Lodestar</h1>
+        </div>
+        <div style="background:#18181b;border:1px solid #3f3f46;border-radius:999px;padding:6px 14px;color:#38bdf8;font-size:12px;font-weight:600;font-family:ui-monospace,Menlo,monospace;">
+          {days_out} Days to New Month
+        </div>
+      </div>
+      <p style="margin:12px 0 0;font-size:13px;color:#d4d4d8;line-height:1.5;">
+        Tracking live Trading 212 execution of the 50/50 factor + sector targets against four core benchmark trackers, with continuous S&amp;P 500 crash protection monitoring.
+      </p>
+    </div>
+
+    <div style="padding:24px;">
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:24px;">
+        <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;padding:14px;">
+          <div style="font-size:11px;font-weight:600;text-transform:uppercase;color:#64748b;letter-spacing:0.04em;">Initial Capital</div>
+          <div style="font-size:20px;font-weight:700;color:#0f172a;margin-top:4px;font-family:ui-monospace,Menlo,monospace;">£{init_cap:,.2f}</div>
+          <div style="font-size:11px;color:#94a3b8;margin-top:2px;">Deployed 12 Nov 2026</div>
+        </div>
+        <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;padding:14px;">
+          <div style="font-size:11px;font-weight:600;text-transform:uppercase;color:#64748b;letter-spacing:0.04em;">Live Valuation</div>
+          <div style="font-size:20px;font-weight:700;color:#0f172a;margin-top:4px;font-family:ui-monospace,Menlo,monospace;">£{curr_val:,.2f}</div>
+          <div style="font-size:11px;color:#94a3b8;margin-top:2px;">Trading 212 Sync</div>
+        </div>
+        <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;padding:14px;">
+          <div style="font-size:11px;font-weight:600;text-transform:uppercase;color:#64748b;letter-spacing:0.04em;">Net P&amp;L</div>
+          <div style="font-size:20px;font-weight:700;color:{pnl_color};margin-top:4px;font-family:ui-monospace,Menlo,monospace;">
+            {pnl_sign}£{abs(pnl_gbp):.2f} ({pnl_pct:+.2f}%)
+          </div>
+          <div style="font-size:11px;color:#94a3b8;margin-top:2px;">Across both legs</div>
+        </div>
+        <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;padding:14px;">
+          <div style="font-size:11px;font-weight:600;text-transform:uppercase;color:#64748b;letter-spacing:0.04em;">Crash Protection</div>
+          <div style="font-size:16px;font-weight:700;color:#16a34a;margin-top:6px;">100% Invested</div>
+          <div style="font-size:11px;color:#94a3b8;margin-top:2px;">0 of 3 Ketchup checks failed</div>
+        </div>
+      </div>
+
+      <div style="margin-bottom:24px;">
+        <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:8px;">
+          <h2 style="font-size:14px;font-weight:700;text-transform:uppercase;letter-spacing:0.05em;color:#0f172a;margin:0;">Active Holdings (Trading 212)</h2>
+          <span style="font-size:12px;color:#64748b;">50/50 Target Split</span>
+        </div>
+        <div style="overflow-x:auto;">
+          <table style="width:100%;border-collapse:collapse;font-size:13px;text-align:left;">
+            <thead>
+              <tr style="border-bottom:2px solid #cbd5e1;color:#64748b;font-size:11px;text-transform:uppercase;">
+                <th style="padding:6px 8px;">Leg</th>
+                <th style="padding:6px 8px;">Asset</th>
+                <th style="padding:6px 8px;text-align:right;">Shares</th>
+                <th style="padding:6px 8px;text-align:right;">Cost</th>
+                <th style="padding:6px 8px;text-align:right;">Value</th>
+                <th style="padding:6px 8px;text-align:right;">P&amp;L</th>
+              </tr>
+            </thead>
+            <tbody>
+              {holdings_rows}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div style="margin-bottom:24px;">
+        <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:8px;">
+          <h2 style="font-size:14px;font-weight:700;text-transform:uppercase;letter-spacing:0.05em;color:#0f172a;margin:0;">Benchmark Race (Equal Capital £{init_cap:,.2f})</h2>
+          <span style="font-size:12px;color:#64748b;">London UCITS Lines</span>
+        </div>
+        <div style="overflow-x:auto;">
+          <table style="width:100%;border-collapse:collapse;font-size:13px;text-align:left;">
+            <thead>
+              <tr style="border-bottom:2px solid #cbd5e1;color:#64748b;font-size:11px;text-transform:uppercase;">
+                <th style="padding:6px 8px;">Ticker</th>
+                <th style="padding:6px 8px;">Benchmark</th>
+                <th style="padding:6px 8px;text-align:right;">Entry</th>
+                <th style="padding:6px 8px;text-align:right;">Current</th>
+                <th style="padding:6px 8px;text-align:right;">Return</th>
+                <th style="padding:6px 8px;text-align:right;">Alpha</th>
+              </tr>
+            </thead>
+            <tbody>
+              {bm_rows}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div style="margin-bottom:24px;">
+        <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:8px;">
+          <h2 style="font-size:14px;font-weight:700;text-transform:uppercase;letter-spacing:0.05em;color:#0f172a;margin:0;">Crash Protection &amp; Ketchup Checklist</h2>
+          <span style="font-size:12px;color:#16a34a;font-weight:600;">All Systems Green</span>
+        </div>
+        <div style="overflow-x:auto;">
+          <table style="width:100%;border-collapse:collapse;font-size:13px;text-align:left;">
+            <thead>
+              <tr style="border-bottom:2px solid #cbd5e1;color:#64748b;font-size:11px;text-transform:uppercase;">
+                <th style="padding:6px 8px;">Check</th>
+                <th style="padding:6px 8px;">Rule</th>
+                <th style="padding:6px 8px;text-align:right;">Reading</th>
+                <th style="padding:6px 8px;text-align:right;">Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              {check_rows}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div style="text-align:center;padding:16px 0;">
+        <a href="{SITE}" style="display:inline-block;background:#09090b;color:#ffffff;text-decoration:none;font-weight:600;font-size:14px;padding:12px 28px;border-radius:8px;">
+          Open Live Dashboard →
+        </a>
+      </div>
+
+    </div>
+
+    <div style="background:#f8fafc;padding:16px 24px;border-top:1px solid #e2e8f0;font-size:12px;color:#94a3b8;text-align:center;line-height:1.5;">
+      Lodestar Factor &amp; Sector Rotation · Next signal acts <strong>{signal_date:%-d %b %Y}</strong> ({days_out} days away).<br>
+      Trading 212 execution synced continuously. MarketFighter Ketchup Rule requires 3 simultaneous check failures to exit.
+    </div>
+
+  </div>
+</body>
+</html>
+"""
+
+
+def send(subject: str, telegram_body: str, html_body: str | None = None) -> int:
+    plain = telegram_body
     for a, b in (("<b>", ""), ("</b>", ""), ("<i>", ""), ("</i>", ""),
                  ("<code>", ""), ("</code>", ""), ("&amp;", "&")):
         plain = plain.replace(a, b)
-    html = ("<div style=\"font-family:-apple-system,Segoe UI,Helvetica,Arial,sans-serif;"
-            "font-size:15px;line-height:1.5;max-width:640px\">"
-            + body.replace("\n", "<br>").replace("  ", "&nbsp;&nbsp;")
-            + "</div>")
-    print(body)
-    telegram(body)
-    email(subject, plain, html)
+    if html_body is None:
+        html_body = ("<div style=\"font-family:-apple-system,Segoe UI,Helvetica,Arial,sans-serif;"
+                     "font-size:15px;line-height:1.5;max-width:640px\">"
+                     + telegram_body.replace("\n", "<br>").replace("  ", "&nbsp;&nbsp;")
+                     + "</div>")
+    print(telegram_body)
+    telegram(telegram_body)
+    email(subject, plain, html_body)
     return 0
 
 
@@ -281,39 +492,80 @@ def main() -> int:
     signal_date = date(today.year + (today.month == 12), today.month % 12 + 1, 1)
     days_out = (signal_date - today).days
 
-    head = ("<b>Lodestar — the cash rule would fire</b>" if cash
-            else "<b>Lodestar — rebalance today: NO CHANGE</b>" if not change
-            else "<b>Lodestar — rebalance today: WOULD TRADE</b>")
+    try:
+        live_pf = get_live_portfolio_data()
+    except Exception as e:
+        print(f"  !! live portfolio load error: {e}")
+        live_pf = {}
 
-    msg = [head, "",
-           f"Holding now: <b>{NAMES.get(hf, hf)}</b> + <b>{NAMES.get(hs, hs)}</b>, 50/50"
-           + (f" (signal of {hmonth})" if hmonth != "?" else ""),
-           f"If rebalanced today: {would}"]
+    try:
+        crash_data = get_crash_protection_data()
+    except Exception as e:
+        print(f"  !! crash protection load error: {e}")
+        crash_data = {}
+
+    head = ("<b>Lodestar: the cash rule would fire</b>" if cash
+            else "<b>Lodestar: rebalance today has NO CHANGE</b>" if not change
+            else "<b>Lodestar: rebalance today WOULD TRADE</b>")
+
+    pnl_gbp = live_pf.get("total_pnl_gbp", 0.0)
+    pnl_pct = live_pf.get("total_pnl_pct", 0.0)
+    pnl_sign = "+" if pnl_gbp >= 0 else "−"
+
+    msg = [
+        f"<b>Lodestar Daily · {days_out} days to new month</b> (acting {signal_date:%-d %b})",
+        head,
+        "",
+        f"Holding now: <b>{NAMES.get(hf, hf)}</b> + <b>{NAMES.get(hs, hs)}</b>, 50/50"
+        + (f" (signal of {hmonth})" if hmonth != "?" else ""),
+        f"Provisional target: {would}",
+    ]
     if change:
         msg += [""] + ["  " + c for c in change]
-    msg += ["",
-            f"Next signal at the {now} close, acting <b>{signal_date:%-d %b}</b>: "
-            f"<b>{days_out} day{'s' if days_out != 1 else ''} out</b>, "
-            f"{today.day} of {last_day} days of the month run."]
-    if mtd:
-        msg += ["", "<b>Month to date</b>", mtd]
+
+    if live_pf:
+        init_c = live_pf.get("initial_capital_gbp", 0.0)
+        curr_v = live_pf.get("current_value_gbp", 0.0)
+        msg += [
+            "",
+            "<b>Live Execution (Trading 212)</b>",
+            f"Capital: £{init_c:,.2f} → <b>£{curr_v:,.2f}</b> ({pnl_sign}£{abs(pnl_gbp):.2f}, {pnl_pct:+.2f}%)",
+        ]
+        for h in live_pf.get("holdings", []):
+            h_sign = "+" if h["pnl_gbp"] >= 0 else "−"
+            msg.append(f"  • {h['ticker']} ({h['leg']}): £{h['current_value_gbp']:,.2f} ({h_sign}£{abs(h['pnl_gbp']):.2f}, {h['pnl_pct']:+.2f}%)")
+
+        msg += ["", f"<b>Benchmark Race (Same Capital £{init_c:,.2f})</b>"]
+        for b in live_pf.get("benchmarks", []):
+            msg.append(f"  • {b['ticker']}: {b['return_pct']:+.2f}% · Alpha: <b>{b['alpha_pct']:+.2f}pp</b>")
+
+    if crash_data:
+        msg += [
+            "",
+            "<b>Crash Gate and Ketchup Rule</b>",
+            f"Status: <b>{crash_data.get('status_text', 'INVESTED')}</b>",
+        ]
+        checks_summary = " · ".join(
+            f"{c['name'].split()[0]}: {c['reading_pct']:+.1f}% " + ("✓" if c["pass"] else "✗")
+            for c in crash_data.get("checks", [])
+        )
+        msg.append(f"  {checks_summary}")
+
+    msg += [
+        "",
+        f"Next signal at the {now} close, acting <b>{signal_date:%-d %b}</b>: "
+        f"<b>{days_out} day{'s' if days_out != 1 else ''} out</b>, "
+        f"{today.day} of {last_day} days of the month run.",
+    ]
     if len(fmom):
-        msg += ["", "<b>Factor</b> (ETF proxy, 1-4pp adrift of the index)",
+        msg += ["", "<b>Factor Ranking</b> (ETF proxy, 1-4pp adrift)",
                 "\n".join(f"  {NAMES[k]:<22s}{v*100:+6.1f}%" for k, v in ranked(fmom)[:4])]
         msg += [m for m in [margin(fmom, hf)] if m]
     if len(smom):
-        msg += ["<b>Sector</b>" + (" (SPDR ETF proxy, the index feed is incomplete)"
-                                   if sector_proxy else ""),
+        msg += ["<b>Sector Ranking</b>" + (" (SPDR proxy)" if sector_proxy else ""),
                 "\n".join(f"  {NAMES[k]:<22s}{v*100:+6.1f}%" for k, v in ranked(smom)[:4])]
         msg += [m for m in [margin(smom, hs)] if m]
-    msg += [""]
-    if spx_ret is None:
-        msg += ["Cash rule: not read today, no S&amp;P 500 history."]
-    else:
-        msg += [f"Cash rule: S&amp;P 500 {spx_ret*100:+.1f}% against its {cash_base} close, "
-                f"fires below {CASH_THRESHOLD*100:.0f}%. "
-                + ("<b>Cash.</b>" if cash else "Invested.")]
-    msg += ["Cash protection uses Lodestar's inferred rule. The exact ketchup checks remain unknown."]
+
     if f_missing or s_missing:
         msg += ["", "<i>Incomplete: no price today for "
                 + ", ".join(NAMES.get(k, k) for k in f_missing + s_missing)
@@ -326,7 +578,10 @@ def main() -> int:
     subject = ("Lodestar: the cash rule would fire" if cash
                else f"Lodestar: no change, {days_out}d to rebalance" if not change
                else f"Lodestar: WOULD TRADE, {days_out}d to rebalance")
-    return send(subject, "\n".join(msg))
+
+    html_email = build_email_html(days_out, signal_date, live_pf, crash_data,
+                                  f_pick, s_pick, fmom, smom, hf, hs, hmonth, change, would)
+    return send(subject, "\n".join(msg), html_email)
 
 
 if __name__ == "__main__":

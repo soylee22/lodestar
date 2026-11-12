@@ -28,4 +28,6 @@ jobs:
           TG_TOKEN: ${{ secrets.TG_TOKEN }}
           TG_CHAT: ${{ secrets.TG_CHAT }}
           GMAIL_APP_PASSWORD: ${{ secrets.GMAIL_APP_PASSWORD }}
+          T212_KEY_ID: ${{ secrets.T212_KEY_ID }}
+          T212_SECRET: ${{ secrets.T212_SECRET }}
         run: python daily.py

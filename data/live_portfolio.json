@@ -1,0 +1,55 @@
+{
+  "entry_date": "2026-11-12",
+  "entry_time_utc": "2026-11-12T12:19:00Z",
+  "initial_capital_gbp": 5248.14,
+  "holdings": [
+    {
+      "leg": "Sector",
+      "code": "INFOTECH",
+      "ticker": "IUIT.L",
+      "t212_ticker": "IUITl_EQ",
+      "name": "iShares S&P 500 Information Technology Sector (Acc)",
+      "isin": "IE00B3WJKG14",
+      "shares": 72.74507435,
+      "cost_gbp": 2624.07,
+      "cost_per_share_gbp": 36.071927,
+      "fill_price_usd": 47.78,
+      "weight_pct": 50.0
+    },
+    {
+      "leg": "Factor",
+      "code": "USA_VAL",
+      "ticker": "IUVL.L",
+      "t212_ticker": "IUVLl_EQ",
+      "name": "iShares Edge MSCI USA Value Factor (Acc)",
+      "isin": "IE00BD1F4M44",
+      "shares": 189.152981,
+      "cost_gbp": 2624.07,
+      "cost_per_share_gbp": 13.872739,
+      "fill_price_usd": 18.375,
+      "weight_pct": 50.0
+    }
+  ],
+  "benchmarks": {
+    "VUAG.L": {
+      "name": "Vanguard S&P 500 (Acc)",
+      "entry_price_gbp": 110.70,
+      "initial_shares": 47.408672
+    },
+    "VWRP.L": {
+      "name": "Vanguard FTSE All-World (Acc)",
+      "entry_price_gbp": 142.42,
+      "initial_shares": 36.849740
+    },
+    "VUKG.L": {
+      "name": "Vanguard FTSE 100 (Acc)",
+      "entry_price_gbp": 58.72,
+      "initial_shares": 89.375681
+    },
+    "VALL.L": {
+      "name": "Vanguard FTSE Developed World (Acc)",
+      "entry_price_gbp": 3.676,
+      "initial_shares": 1427.676823
+    }
+  }
+}

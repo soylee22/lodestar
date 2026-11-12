@@ -754,6 +754,23 @@ html{scroll-behavior:smooth; scroll-padding-top:72px}
 .hm .pending{display:grid;place-items:center;font:8px var(--mono);color:var(--ink-2);cursor:help}
 .ribbon .pending-tail{position:absolute;top:5px;height:14px;background:repeating-linear-gradient(45deg,transparent,transparent 3px,var(--axis) 3px,var(--axis) 4px);pointer-events:none;z-index:1}
 
+/* Live Portfolio & Crash Protection */
+.live-table{width:100%;border-collapse:collapse;font-size:13px}
+.live-table th{text-align:left;color:var(--muted);font-weight:600;padding:8px 12px;border-bottom:1px solid var(--rule);font-family:var(--sans)}
+.live-table td{padding:10px 12px;border-bottom:1px solid var(--rule);vertical-align:middle}
+.live-table td.num,.live-table th.num{text-align:right;font-variant-numeric:tabular-nums}
+.live-badge{display:inline-flex;align-items:center;gap:5px;padding:3px 8px;border-radius:6px;font-size:11px;font-weight:600;font-family:var(--mono)}
+.live-badge.pass{background:color-mix(in srgb,#10b981 15%,transparent);color:#10b981;border:1px solid color-mix(in srgb,#10b981 30%,transparent)}
+.live-badge.fail{background:color-mix(in srgb,#ef4444 15%,transparent);color:#ef4444;border:1px solid color-mix(in srgb,#ef4444 30%,transparent)}
+.crash-status-card{background:var(--surface);border:1px solid var(--rule);border-radius:14px;padding:18px 24px;display:flex;align-items:center;justify-content:space-between;gap:20px;flex-wrap:wrap;box-shadow:var(--shadow)}
+.crash-status-card .left{display:flex;align-items:center;gap:14px}
+.crash-pill{padding:6px 14px;border-radius:999px;font:600 12px var(--mono);text-transform:uppercase;letter-spacing:.05em}
+.crash-pill.invested{background:rgba(16,185,129,.15);color:#10b981;border:1px solid rgba(16,185,129,.3)}
+.crash-pill.cash{background:rgba(239,68,68,.15);color:#ef4444;border:1px solid rgba(239,68,68,.3)}
+.crash-status-card .desc{font-size:13px;color:var(--ink-2);line-height:1.5}
+.crash-status-card .val{font:500 22px var(--mono);color:var(--ink)}
+@media(max-width:860px){.crash-grid{grid-template-columns:1fr!important}}
+
 </style>
 </head>
 <body>
@@ -762,6 +779,8 @@ html{scroll-behavior:smooth; scroll-padding-top:72px}
   <div class="wrap">
     <div class="mark"><b>Lodestar</b></div>
     <nav class="railnav" aria-label="Sections">
+      <a href="#livePortfolioSec" id="navPortfolio">Live Portfolio</a>
+      <a href="#crashProtectionSec" id="navCrash">Crash Gate</a>
       <a href="#inside" id="navInside">Holdings</a>
       <a href="#record">Record</a>
       <a href="#growth">Growth</a>
@@ -829,6 +848,126 @@ html{scroll-behavior:smooth; scroll-padding-top:72px}
       </div>
     </div>
     <div class="bandfacts" id="bandFacts"></div>
+  </div>
+</section>
+
+<!-- ── LIVE PORTFOLIO & BENCHMARKS ──────────────────────────────────── -->
+<section class="sec wrap" id="livePortfolioSec">
+  <div class="sechd">
+    <div>
+      <div class="eyebrow">Real Execution · Trading 212 API</div>
+      <h2>Live Portfolio &amp; Benchmark Race</h2>
+    </div>
+    <p class="lede" id="livePortfolioLede">
+      Real capital deployed into the November 50/50 model targets (IUIT.L &amp; IUVL.L) via Trading 212, tracked continuously against identical capital invested simultaneously into standard buy-and-hold index trackers.
+    </p>
+  </div>
+
+  <div class="kpis" id="liveKpis" style="margin-bottom: 24px;"></div>
+
+  <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(360px, 1fr)); gap: 24px;">
+    <div class="card rise">
+      <div class="card-hd">
+        <div class="ttl">Active Holdings (Trading 212 Execution)</div>
+        <div class="sub" id="liveEntryDateSub">Entered 12 Nov 2026</div>
+      </div>
+      <div class="card-bd" style="overflow-x: auto;">
+        <table class="live-table" id="tblLiveHoldings">
+          <thead>
+            <tr>
+              <th>Leg</th>
+              <th>Asset</th>
+              <th class="num">Shares</th>
+              <th class="num">Cost</th>
+              <th class="num">Live Value</th>
+              <th class="num">P&amp;L</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="card rise">
+      <div class="card-hd">
+        <div class="ttl">Benchmark Race (Equal Capital: £5,248.14)</div>
+        <div class="sub">London UCITS Accumulating</div>
+      </div>
+      <div class="card-bd" style="overflow-x: auto;">
+        <table class="live-table" id="tblLiveBenchmarks">
+          <thead>
+            <tr>
+              <th>Tracker</th>
+              <th>Benchmark</th>
+              <th class="num">Entry</th>
+              <th class="num">Current</th>
+              <th class="num">Return</th>
+              <th class="num">Alpha</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── CRASH PROTECTION & KETCHUP RULE ──────────────────────────────── -->
+<section class="sec wrap" id="crashProtectionSec">
+  <div class="sechd">
+    <div>
+      <div class="eyebrow">Risk Architecture · S&amp;P 500 Monitor</div>
+      <h2>Crash Protection &amp; Ketchup Rule</h2>
+    </div>
+    <p class="lede">
+      MarketFighter's Ketchup Rule evaluates trailing 12-month momentum across 1M, 6M, and 12M lookbacks. If all three fail simultaneously, the system moves to cash. Lodestar pairs this with a -25% trailing 19-month catastrophe floor.
+    </p>
+  </div>
+
+  <div class="crash-status-card" id="crashStatusCard" style="margin-bottom: 24px;">
+    <div class="left">
+      <div class="crash-pill invested" id="crashPill">INVESTED</div>
+      <div>
+        <div id="crashStatusVal" style="font: 600 18px var(--mono); color: var(--ink);">All Systems Green · 100% Invested</div>
+        <div id="crashStatusDesc" style="font-size: 13px; color: var(--ink-2); margin-top: 4px;">0 of 3 Ketchup checks failed. Circuit breaker active.</div>
+      </div>
+    </div>
+    <div style="text-align: right;">
+      <div style="font-size: 11px; text-transform: uppercase; color: var(--muted); letter-spacing: .05em;">S&amp;P 500 Index Level</div>
+      <div id="crashSpPrice" style="font: 600 22px var(--mono); color: var(--ink);">—</div>
+    </div>
+  </div>
+
+  <div class="crash-grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px;">
+    <div class="card rise">
+      <div class="card-hd">
+        <div class="ttl">S&amp;P 500 Trailing Closes</div>
+        <div class="sub">24-Month Monthly Closes</div>
+      </div>
+      <div class="card-bd">
+        <div id="crashChart" style="width: 100%; min-height: 240px;" tabindex="0" role="img" aria-label="S&P 500 24-month close trend"></div>
+      </div>
+    </div>
+
+    <div class="card rise">
+      <div class="card-hd">
+        <div class="ttl">Crash Gate Checklist</div>
+        <div class="sub">Trigger requires all 3 Ketchup checks to fail</div>
+      </div>
+      <div class="card-bd" style="overflow-x: auto;">
+        <table class="live-table" id="tblCrashChecks">
+          <thead>
+            <tr>
+              <th>Check</th>
+              <th>Rule Scope</th>
+              <th class="num">Reading</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </div>
   </div>
 </section>
 
@@ -1495,6 +1634,190 @@ function glyph(key){
   }
   tick();
   setInterval(tick, 1000);
+})();
+
+/* ══════════════════════════════════════════════════════════════════════
+   LIVE PORTFOLIO & BENCHMARK RACE
+   ══════════════════════════════════════════════════════════════════════ */
+(function livePortfolio(){
+  var P = DATA.livePortfolio;
+  if (!P){
+    var s = $("#livePortfolioSec"), n = $("#navPortfolio");
+    if (s) s.hidden = true;
+    if (n) n.remove();
+    return;
+  }
+  $("#liveEntryDateSub").textContent = "Executed " + P.entry_date + " via Trading 212 API";
+
+  // KPIs
+  var kpis = $("#liveKpis");
+  kpis.innerHTML = "";
+  var pnlCls = P.total_pnl_gbp >= 0 ? "up" : "dn";
+  var items = [
+    { k:"Initial Capital", v:"£" + P.initial_capital_gbp.toLocaleString("en-GB", {minimumFractionDigits:2, maximumFractionDigits:2}), n:"Executed 12 Nov 2026" },
+    { k:"Live Valuation", v:"£" + P.current_value_gbp.toLocaleString("en-GB", {minimumFractionDigits:2, maximumFractionDigits:2}), n:"Trading 212 portfolio sync" },
+    { k:"Net Return", v:(P.total_pnl_gbp >= 0 ? "+" : "−") + "£" + Math.abs(P.total_pnl_gbp).toFixed(2) + " (" + sgn(P.total_pnl_pct) + ")", n:"Live P&L across both legs", cls:pnlCls },
+    { k:"Target Split", v:"50 / 50", n:"IUIT.L (Tech) + IUVL.L (Value)" }
+  ];
+  items.forEach(function(it){
+    var d = el("div", {class:"kpi"});
+    d.appendChild(el("div", {class:"k"}, it.k));
+    var v = el("div", {class:"v big" + (it.cls ? " " + it.cls : "")}, it.v);
+    d.appendChild(v);
+    d.appendChild(el("div", {class:"note"}, it.n));
+    kpis.appendChild(d);
+  });
+
+  // Holdings table
+  var hBody = $("#tblLiveHoldings tbody");
+  hBody.innerHTML = "";
+  P.holdings.forEach(function(h){
+    var tr = el("tr");
+    tr.appendChild(el("td", null, h.leg));
+    var tdAsset = el("td");
+    tdAsset.innerHTML = "<b>" + esc(h.ticker) + "</b> <span style=\"color:var(--muted);font-size:11px\">(" + esc(h.code) + ")</span><br><small style=\"color:var(--ink-2);font-size:11px\">" + esc(h.name) + "</small>";
+    tr.appendChild(tdAsset);
+    tr.appendChild(el("td", {class:"num"}, h.shares.toFixed(4)));
+    tr.appendChild(el("td", {class:"num"}, "£" + h.cost_gbp.toFixed(2)));
+    tr.appendChild(el("td", {class:"num"}, "£" + h.current_value_gbp.toFixed(2)));
+    var tdPnl = el("td", {class:"num " + (h.pnl_gbp >= 0 ? "up" : "dn")});
+    tdPnl.textContent = (h.pnl_gbp >= 0 ? "+" : "−") + "£" + Math.abs(h.pnl_gbp).toFixed(2) + " (" + sgn(h.pnl_pct) + ")";
+    tr.appendChild(tdPnl);
+    hBody.appendChild(tr);
+  });
+
+  // Benchmarks table
+  var bBody = $("#tblLiveBenchmarks tbody");
+  bBody.innerHTML = "";
+  P.benchmarks.forEach(function(b){
+    var tr = el("tr");
+    tr.appendChild(el("td", null, b.ticker));
+    tr.appendChild(el("td", null, b.name));
+    var fmtPrice = function(p){ return "£" + (p < 10 ? p.toFixed(4) : p.toFixed(2)); };
+    tr.appendChild(el("td", {class:"num"}, fmtPrice(b.entry_price_gbp)));
+    tr.appendChild(el("td", {class:"num"}, fmtPrice(b.current_price_gbp)));
+    var tdRet = el("td", {class:"num " + (b.return_pct >= 0 ? "up" : "dn")}, sgn(b.return_pct));
+    tr.appendChild(tdRet);
+    var tdAlpha = el("td", {class:"num"});
+    var alphaBadge = el("span", {class:"live-badge " + (b.alpha_pct >= 0 ? "pass" : "fail")}, (b.alpha_pct >= 0 ? "+" : "") + b.alpha_pct.toFixed(2) + "pp");
+    tdAlpha.appendChild(alphaBadge);
+    tr.appendChild(tdAlpha);
+    bBody.appendChild(tr);
+  });
+})();
+
+/* ══════════════════════════════════════════════════════════════════════
+   CRASH PROTECTION & KETCHUP RULE
+   ══════════════════════════════════════════════════════════════════════ */
+(function crashProtection(){
+  var C = DATA.crashProtection;
+  if (!C){
+    var s = $("#crashProtectionSec"), n = $("#navCrash");
+    if (s) s.hidden = true;
+    if (n) n.remove();
+    return;
+  }
+
+  // Pill & Status
+  var pill = $("#crashPill");
+  pill.textContent = C.status;
+  pill.className = "crash-pill " + (C.cash_triggered ? "cash" : "invested");
+  $("#crashStatusVal").textContent = C.status_text;
+  $("#crashStatusDesc").textContent = C.cash_triggered
+    ? "All 3 Ketchup checks failed simultaneously. Defensive cash activated."
+    : C.ketchup_fails + " of 3 Ketchup checks failed. Full equity exposure preserved.";
+
+  var chart = C.chart || [];
+  if (chart.length > 0){
+    var latest = chart[chart.length - 1];
+    $("#crashSpPrice").textContent = latest.price.toLocaleString("en-US", {minimumFractionDigits:2, maximumFractionDigits:2});
+  }
+
+  // Checklist
+  var cBody = $("#tblCrashChecks tbody");
+  cBody.innerHTML = "";
+  C.checks.forEach(function(ck){
+    var tr = el("tr");
+    var tdName = el("td");
+    tdName.innerHTML = "<b>" + esc(ck.name) + "</b><br><small style=\"color:var(--ink-2);font-size:11px\">" + esc(ck.desc) + "</small>";
+    tr.appendChild(tdName);
+    tr.appendChild(el("td", {style:"font-size:12px;color:var(--muted)"}, ck.rule));
+    var tdRead = el("td", {class:"num " + (ck.reading_pct >= 0 ? "up" : "dn")}, sgn(ck.reading_pct));
+    tr.appendChild(tdRead);
+    var tdStatus = el("td");
+    var badge = el("span", {class:"live-badge " + (ck.pass ? "pass" : "fail")}, ck.pass ? "✓ Pass" : "✗ Fail");
+    tdStatus.appendChild(badge);
+    tr.appendChild(tdStatus);
+    cBody.appendChild(tr);
+  });
+
+  // S&P 500 Chart
+  var node = $("#crashChart");
+  if (!node || chart.length < 2) return;
+
+  function drawCrash(root, W){
+    W = Math.max(340, W);
+    var H = 240, P = { t:20, r:20, b:30, l:50 };
+    var iw = W - P.l - P.r, ih = H - P.t - P.b;
+    var prices = chart.map(function(d){ return d.price; });
+    var minP = Math.min.apply(null, prices) * 0.96;
+    var maxP = Math.max.apply(null, prices) * 1.04;
+
+    var x = function(i){ return P.l + (i / (chart.length - 1)) * iw; };
+    var y = function(p){ return P.t + ih - ((p - minP) / (maxP - minP)) * ih; };
+
+    var svg = sv("svg", {class:"chart", viewBox:"0 0 " + W + " " + H, width:W, height:H});
+    svg.style.width = W + "px"; svg.style.height = H + "px";
+    root.innerHTML = "";
+    root.appendChild(svg);
+
+    // Grid ticks (4 horizontal ticks)
+    var step = (maxP - minP) / 4;
+    for (var k = 0; k <= 4; k++){
+      var val = minP + k * step;
+      var yPos = y(val);
+      var line = sv("line", {x1:P.l, y1:yPos, x2:W - P.r, y2:yPos, stroke:"var(--rule)", "stroke-width":"1", "stroke-dasharray":"3 3"});
+      svg.appendChild(line);
+      var txt = sv("text", {x:P.l - 6, y:yPos + 4, "text-anchor":"end", fill:"var(--muted)", "font-size":"10", "font-family":"var(--mono)"}, val.toFixed(0));
+      svg.appendChild(txt);
+    }
+
+    // Path
+    var dPath = "";
+    var dArea = "M " + x(0) + " " + (P.t + ih);
+    for (var i = 0; i < chart.length; i++){
+      var px = x(i), py = y(chart[i].price);
+      dPath += (i === 0 ? "M " : " L ") + px + " " + py;
+      dArea += " L " + px + " " + py;
+    }
+    dArea += " L " + x(chart.length - 1) + " " + (P.t + ih) + " Z";
+
+    // Area fill
+    var area = sv("path", {d:dArea, fill:"color-mix(in srgb, #10b981 10%, transparent)"});
+    svg.appendChild(area);
+
+    // Line stroke
+    var path = sv("path", {d:dPath, fill:"none", stroke:"#10b981", "stroke-width":"2"});
+    svg.appendChild(path);
+
+    // Points
+    for (var j = 0; j < chart.length; j++){
+      var cx = x(j), cy = y(chart[j].price);
+      var dot = sv("circle", {cx:cx, cy:cy, r:(j === chart.length - 1 ? "4" : "2.5"), fill:"#10b981", stroke:"var(--surface)", "stroke-width":"1.5"});
+      svg.appendChild(dot);
+    }
+
+    // X axis labels (first, middle, last)
+    var idxs = [0, Math.floor(chart.length / 2), chart.length - 1];
+    idxs.forEach(function(idx){
+      var item = chart[idx];
+      var tx = x(idx);
+      var txt = sv("text", {x:tx, y:H - 8, "text-anchor":(idx === 0 ? "start" : idx === chart.length - 1 ? "end" : "middle"), fill:"var(--muted)", "font-size":"10", "font-family":"var(--mono)"}, item.month);
+      svg.appendChild(txt);
+    });
+  }
+
+  register(node, drawCrash, 320);
 })();
 
 /* ══════════════════════════════════════════════════════════════════════

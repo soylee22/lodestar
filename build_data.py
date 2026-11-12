@@ -30,6 +30,9 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 
+from pipeline.live_portfolio import get_live_portfolio_data
+from pipeline.crash_protection import get_crash_protection_data
+
 HERE = Path(__file__).resolve().parent
 SOURCE = (sys.argv[1] if len(sys.argv) > 1 else os.environ.get("LODESTAR_DATA", "")).strip()
 if not SOURCE:
@@ -510,6 +513,18 @@ def main() -> None:
 
     book = build_book(current)
 
+    try:
+        live_portfolio = get_live_portfolio_data()
+    except Exception as e:
+        print(f"Warning: live portfolio fetch failed: {e}")
+        live_portfolio = {}
+
+    try:
+        crash_protection = get_crash_protection_data()
+    except Exception as e:
+        print(f"Warning: crash protection fetch failed: {e}")
+        crash_protection = {}
+
     payload = {
         "meta": {
             "name": "Lodestar",
@@ -555,6 +570,8 @@ def main() -> None:
         "holdings": holdings,
         "lanes": lanes,
         "current": current,
+        "livePortfolio": live_portfolio,
+        "crashProtection": crash_protection,
         "priceStatus": price_status,
         "book": book,
         "universe": {
