@@ -32,3 +32,17 @@ class CloudOperationTests(unittest.TestCase):
         with patch.object(broker, 'request', return_value=payload):
             with self.assertRaisesRegex(RuntimeError, 'GBP'):
                 broker.positions()
+
+    def test_stale_pullback_scan_alerts(self):
+        from datetime import datetime, timezone
+        with patch.object(cloud_alerts, 'deliver') as send:
+            cloud_alerts.scan_health({'generated': '2026-11-09T21:30:00Z', 'failed': []}, {},
+                                     datetime(2026, 11, 12, 19, tzinfo=timezone.utc))
+            send.assert_called_once()
+
+    def test_weekend_gap_does_not_alert(self):
+        from datetime import datetime, timezone
+        with patch.object(cloud_alerts, 'deliver') as send:
+            cloud_alerts.scan_health({'generated': '2026-11-14T08:00:00Z', 'failed': []}, {},
+                                     datetime(2026, 11, 16, 10, tzinfo=timezone.utc))
+            send.assert_not_called()

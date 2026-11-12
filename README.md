@@ -145,7 +145,8 @@ at 16:45 and 21:30, plus Saturdays at 08:00. Lodestar checks its published journ
 hourly at minute 20. New confirmed events go to Telegram and email. A persisted
 receipt prevents repeat delivery to a channel that already accepted that event.
 The first pass establishes a baseline without repeating historical events.
-Unchanged scans stay quiet. This coverage does not scan the full broker catalogue.
+Unchanged healthy scans stay quiet. Overdue scans and incomplete coverage
+request one warning per day, allowing for the weekend gap. This coverage does not scan the full broker catalogue.
 
 Failed jobs request Telegram and email alerts. Both delivery helpers retry
 transient errors. Telegram messages request normal audible notifications.

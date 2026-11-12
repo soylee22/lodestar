@@ -32,10 +32,25 @@ def deliver(subject, body, key=None, state=None):
         raise RuntimeError('Notification delivery incomplete')
 
 
+def scan_health(scan, state, now=None):
+    now = now or datetime.now(timezone.utc)
+    generated = datetime.fromisoformat(scan['generated'].replace('Z', '+00:00'))
+    # Allow the weekend gap before Monday's first scheduled close scan.
+    limit_hours = 80 if now.weekday() in (5, 6) or (now.weekday() == 0 and now.hour < 18) else 30
+    stale = (now - generated).total_seconds() > limit_hours * 3600
+    failures = len(scan.get('failed', []))
+    if stale or failures:
+        reason = 'Published scan is overdue.' if stale else f'{failures} instruments failed in the latest scan.'
+        deliver('Pullback scan needs attention',
+                '<b>Pullback scan needs attention</b>\n' + reason + '\n' + SITE,
+                'scan-health:' + now.date().isoformat(), state)
+
+
 def pullback():
     scan = fetch('scan.json')
     journal = fetch('journal.json')
     state = json.loads(STATE.read_text()) if STATE.exists() else {'deliveries': {}}
+    scan_health(scan, state)
     entries = journal.get('entries', [])
     known = set(state.get('known', []))
     current = {f"{r['symbol']}:{r['date']}:{r['type']}:{r['version']}": r for r in entries}
