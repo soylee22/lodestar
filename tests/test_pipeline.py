@@ -124,6 +124,46 @@ class PipelineTests(unittest.TestCase):
                 result, _ = build.gbp_panel({'USA_VAL': 'IUVL.L'})
             self.assertEqual(result.loc['2026-08', 'USA_VAL'], 12.)
 
+    def test_msci_uses_today_end_date_instead_of_2099(self):
+        import io
+        import json
+        from unittest.mock import MagicMock
+        payload = json.dumps({'indexes': {'INDEX_LEVELS': [
+            {'calc_date': 19981231, 'level_eod': 100.0},
+            {'calc_date': 20261030, 'level_eod': 500.0},
+        ]}}).encode('utf-8')
+        seen = {}
+        def fake_open(req, timeout=25):
+            seen['url'] = req.full_url
+            resp = MagicMock()
+            resp.read.return_value = payload
+            return resp
+        with patch.object(build.urllib.request, 'urlopen', side_effect=fake_open):
+            res = build.msci('704892', 'USD')
+        today_str = pd.Timestamp.today().strftime('%Y%m%d')
+        self.assertIn(f'end_date={today_str}', seen['url'])
+        self.assertNotIn('end_date=2099', seen['url'])
+        self.assertEqual(str(res.index[0]), '1998-12')
+        self.assertEqual(str(res.index[-1]), '2026-10')
+
+    def test_merge_long_track_preserves_continuity_and_appends_new_months(self):
+        import tempfile
+        from pathlib import Path
+        with tempfile.TemporaryDirectory() as folder:
+            path = Path(folder) / 'final_index_tr.csv'
+            pd.DataFrame(
+                {'Lodestar (Index TR, GBP)': [1.5, 2.5]},
+                index=['2001-01', '2001-02'],
+            ).to_csv(path)
+            fresh = pd.DataFrame(
+                {'Lodestar': [9.0, 9.0, 3.0, 4.0]},
+                index=pd.PeriodIndex(['2001-01', '2001-02', '2001-03', '2001-05'], freq='M'),
+            )
+            merged = build._merge_long_track(path, fresh, 'Lodestar (Index TR, GBP)')
+            self.assertEqual(list(merged.index.astype(str)), ['2001-01', '2001-02', '2001-03'])
+            self.assertEqual(merged.loc['2001-02', 'Lodestar (Index TR, GBP)'], 2.5)
+            self.assertEqual(merged.loc['2001-03', 'Lodestar (Index TR, GBP)'], 3.0)
+
 
 if __name__ == '__main__':
     unittest.main()

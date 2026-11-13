@@ -113,6 +113,59 @@ class PageTests(unittest.TestCase):
                 page = self.compile_page(holdings=raw, company_logos=registry)
                 self.assertEqual(page['book']['consolidated']['holdings'][0]['logo'], expected)
 
+    def test_multi_record_compilation_with_cash_slots(self):
+        with tempfile.TemporaryDirectory() as folder:
+            root = Path(folder)
+            data = root / 'data'
+            data.mkdir()
+            for name in ['build_data.py', 'universe.py']:
+                shutil.copy(ROOT / name, root / name)
+            shutil.copytree(ROOT / 'pipeline', root / 'pipeline')
+
+            tradable_months = pd.period_range('2024-01', '2026-02', freq='M').astype(str)
+            tradable_vals = np.sin(np.arange(len(tradable_months))) * 2 + 0.5
+            pd.DataFrame({
+                'Lodestar': tradable_vals, 'FTSE All-World': tradable_vals * .8,
+                'S&P 500': tradable_vals * .7, 'MSCI World': tradable_vals * .6}, index=tradable_months).to_csv(data / 'final_tradable.csv')
+            annual = pd.DataFrame({
+                'Lodestar': [5.0, 6.0, 2.0], 'FTSE All-World': [4.0, 5.0, 1.0],
+                'S&P 500': [4.5, 5.5, 1.2], 'MSCI World': [3.8, 4.8, 1.1]}, index=['2024', '2025', '2026'])
+            annual['vs All-World'] = annual['Lodestar'] - annual['FTSE All-World']
+            annual.to_csv(data / 'final_tradable_annual.csv')
+
+            long_months = pd.period_range('2023-01', '2026-02', freq='M').astype(str)
+            long_vals = np.sin(np.arange(len(long_months))) * 2 + 0.5
+            for filename, col in [('final_index_tr.csv', 'Lodestar (Index TR, GBP)'), ('final_index_price.csv', 'Lodestar (Price Index, GBP)')]:
+                df = pd.DataFrame({
+                    col: long_vals, 'MSCI ACWI': long_vals * .8, 'S&P 500': long_vals * .7, 'MSCI World': long_vals * .6,
+                }, index=long_months)
+                df.loc[['2023-03', '2023-04'], col] = 0.0
+                df.to_csv(data / filename)
+
+            book_months = pd.period_range('2023-01', '2026-03', freq='M').astype(str)
+            book = pd.DataFrame({
+                'factor': 'USA_VAL', 'sector': 'ENERGY', 'cash': False,
+                'factor_source': 'ETF proxy', 'sector_source': 'ETF proxy',
+            }, index=book_months)
+            book.loc[['2023-03', '2023-04'], ['factor', 'sector']] = 'CASH'
+            book.loc[['2023-03', '2023-04'], 'cash'] = True
+            book.loc['2026-03', 'sector'] = 'INFOTECH'
+            book.to_csv(data / 'final_book.csv')
+
+            result = subprocess.run([sys.executable, str(root / 'build_data.py'), str(data)], capture_output=True, text=True)
+            self.assertEqual(result.returncode, 0, result.stderr)
+            text = (root / 'data.js').read_text()
+            page = json.loads(text[text.index('{'):].strip().rstrip(';'))
+
+            self.assertEqual(page['recordOrder'], ['tradable', 'index_tr', 'index_price'])
+            self.assertEqual(page['records']['tradable']['labels']['allworld'], 'FTSE All-World')
+            self.assertEqual(page['records']['index_tr']['labels']['allworld'], 'MSCI ACWI')
+            self.assertEqual(page['records']['index_tr']['meta']['cashMonths'], 2)
+            self.assertEqual(page['records']['index_price']['universe']['cashHeld'], 2)
+            factor_slots = {s['code']: s for s in page['records']['index_tr']['lanes'][0]['slots']}
+            self.assertEqual(factor_slots['CASH']['months'], 2)
+            self.assertNotIn('CASH', {s['code'] for s in page['records']['tradable']['lanes'][0]['slots']})
+
 
 if __name__ == '__main__':
     unittest.main()
