@@ -734,7 +734,7 @@ def main() -> None:
             "calendar", "allocationCalendar", "returns", "stats", "excess",
             "years", "heatmap", "holdings", "lanes", "universe"
         )},
-        "recordOrder": [k for k in ("tradable", "index_tr", "index_price") if k in records],
+        "recordOrder": [k for k in ("index_price", "index_tr", "tradable") if k in records],
         "records": records,
         "current": current,
         "livePortfolio": live_portfolio,

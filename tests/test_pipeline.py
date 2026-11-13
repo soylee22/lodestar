@@ -187,6 +187,37 @@ class PipelineTests(unittest.TestCase):
         self.assertEqual(result.loc['2026-08', 'FTSE 100'], 0.6)
         self.assertEqual(result.loc['2026-09', 'FTSE 100'], 0.7)
 
+    def test_merge_long_track_recovers_1999_anchor_from_archive_if_missing_or_truncated(self):
+        import tempfile
+        from pathlib import Path
+        with tempfile.TemporaryDirectory() as folder:
+            root = Path(folder)
+            archive = root / 'archive_index_price_1999.csv'
+            live = root / 'final_index_price.csv'
+            pd.DataFrame(
+                {'Lodestar (Price Index, GBP)': [-3.39, -1.45, 10.92]},
+                index=['1999-09', '1999-10', '1999-11'],
+            ).to_csv(archive)
+            fresh = pd.DataFrame(
+                {'Lodestar': [1.0, 2.0]},
+                index=pd.PeriodIndex(['2015-12', '2016-01'], freq='M'),
+            )
+            merged = build._merge_long_track(
+                live, fresh, 'Lodestar (Price Index, GBP)',
+                anchor_start='1999-09', archive_path=archive,
+            )
+            self.assertEqual(str(merged.index[0]), '1999-09')
+            self.assertTrue(live.exists())
+
+            # Refusing overwrite if both live and archive fail the 1999-09 anchor
+            archive.unlink()
+            live.unlink()
+            with self.assertRaisesRegex(RuntimeError, 'expected <= 1999-09'):
+                build._merge_long_track(
+                    live, fresh, 'Lodestar (Price Index, GBP)',
+                    anchor_start='1999-09', archive_path=archive,
+                )
+
 
 if __name__ == '__main__':
     unittest.main()

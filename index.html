@@ -1179,6 +1179,10 @@ html{scroll-behavior:smooth; scroll-padding-top:72px}
     </div>
     <p class="lede" id="growthLede"></p>
   </div>
+  <div class="recbar" id="growthRecordBar" style="margin-top:0;margin-bottom:16px" hidden>
+    <span class="rec-lbl">History window</span>
+    <div class="seg" role="group" aria-label="Growth history window" data-record-group></div>
+  </div>
   <div class="card rise">
     <div class="card-hd">
       <div class="legend" id="growthLegend"></div>
@@ -1457,7 +1461,7 @@ function grow(x){
   return (p > 0 ? "+" : p < 0 ? MINUS : "") + body + "%";
 }
 
-var RECORD_KEY = (DATA.recordOrder && DATA.recordOrder.indexOf("tradable") > -1) ? "tradable" : ((DATA.recordOrder && DATA.recordOrder[0]) || "tradable");
+var RECORD_KEY = (DATA.recordOrder && DATA.recordOrder.indexOf("index_price") > -1) ? "index_price" : ((DATA.recordOrder && DATA.recordOrder[0]) || "tradable");
 var RDATA = (DATA.records && DATA.records[RECORD_KEY]) || DATA;
 var M  = RDATA.meta;
 var ST = RDATA.stats;
@@ -1495,6 +1499,7 @@ function initRecordSwitcher(){
   if (orderList.length < 2 || !DATA.records) return;
   $("#heroRecordBar").hidden = false;
   $("#sectionRecordBar").hidden = false;
+  if ($("#growthRecordBar")) $("#growthRecordBar").hidden = false;
   document.querySelectorAll("[data-record-group]").forEach(function(grp){
     grp.textContent = "";
     orderList.forEach(function(key){

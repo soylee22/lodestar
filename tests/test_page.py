@@ -157,7 +157,7 @@ class PageTests(unittest.TestCase):
             text = (root / 'data.js').read_text()
             page = json.loads(text[text.index('{'):].strip().rstrip(';'))
 
-            self.assertEqual(page['recordOrder'], ['tradable', 'index_tr', 'index_price'])
+            self.assertEqual(page['recordOrder'], ['index_price', 'index_tr', 'tradable'])
             self.assertEqual(page['records']['tradable']['labels']['allworld'], 'FTSE All-World')
             self.assertEqual(page['records']['index_tr']['labels']['allworld'], 'MSCI ACWI')
             self.assertEqual(page['records']['index_tr']['meta']['cashMonths'], 2)
@@ -224,6 +224,20 @@ class PageTests(unittest.TestCase):
                 self.assertIn('ftse100', rec['returns'])
                 self.assertIn('ftse100', rec['years'][0])
                 self.assertGreater(rec['stats']['ftse100']['growth'], 0)
+
+    def test_1999_price_index_backtest_is_hardcoded_and_default_view(self):
+        archive = ROOT / 'data' / 'archive_index_price_1999.csv'
+        live_csv = ROOT / 'data' / 'final_index_price.csv'
+        self.assertTrue(archive.exists())
+        self.assertTrue(live_csv.exists())
+        live_df = pd.read_csv(live_csv, index_col=0)
+        self.assertEqual(str(live_df.index[0]), '1999-09')
+        self.assertGreaterEqual(len(live_df), 324)
+
+        html = (ROOT / 'index.html').read_text()
+        self.assertIn('DATA.recordOrder.indexOf("index_price")', html)
+        self.assertIn('id="growthRecordBar"', html)
+        self.assertEqual(html.count('id="growthRecordBar"'), 1)
 
 
 if __name__ == '__main__':

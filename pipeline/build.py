@@ -384,14 +384,32 @@ def append_track(recorded, fresh):
     return pd.concat([recorded, fresh.loc[additions]]).sort_index()
 
 
-def _merge_long_track(path, fresh, strat_col):
+def _merge_long_track(path, fresh, strat_col, anchor_start=None, archive_path=None):
+    """Merge long-horizon monthly returns without ever losing anchored history."""
     fresh = fresh.rename(columns={"Lodestar": strat_col})
+    recorded = None
     if path.exists():
         recorded = pd.read_csv(path, index_col=0)
         recorded.index = pd.PeriodIndex(recorded.index, freq="M")
+    elif archive_path and archive_path.exists():
+        recorded = pd.read_csv(archive_path, index_col=0)
+        recorded.index = pd.PeriodIndex(recorded.index, freq="M")
+
+    if recorded is not None and not recorded.empty:
+        if anchor_start and archive_path and archive_path.exists():
+            anchor = pd.Period(anchor_start, freq="M")
+            if recorded.index.min() > anchor:
+                archived = pd.read_csv(archive_path, index_col=0)
+                archived.index = pd.PeriodIndex(archived.index, freq="M")
+                recorded = pd.concat([archived[archived.index < recorded.index.min()], recorded]).sort_index()
         out = append_track(recorded, fresh)
     else:
         out = fresh
+
+    if anchor_start and out.index.min() > pd.Period(anchor_start, freq="M"):
+        raise RuntimeError(
+            f"Refusing to overwrite {path.name}: history starts at {out.index.min()}, expected <= {anchor_start}"
+        )
     out.to_csv(path)
     return out
 
@@ -447,7 +465,13 @@ def build_long_tracks(book, raw, spx_usd):
     })
     track_px = build_track(book, pd.DataFrame(px_panel), bench_px)
     if not track_px.empty:
-        _merge_long_track(DATA / "final_index_price.csv", track_px, "Lodestar (Price Index, GBP)")
+        _merge_long_track(
+            DATA / "final_index_price.csv",
+            track_px,
+            "Lodestar (Price Index, GBP)",
+            anchor_start="1999-09",
+            archive_path=DATA / "archive_index_price_1999.csv",
+        )
         print(f"  index_price: {track_px.index.min()} .. {track_px.index.max()} ({len(track_px)}m)")
 
 
