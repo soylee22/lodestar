@@ -73,9 +73,10 @@ jobs:
           for p in data.js data/live_portfolio.json data/emerging.json data/crash_protection.json \
                    data/panel_local.csv data/last_alert.json data/holdings.json data/signal_history.json \
                    data/fund_prices_gbp.csv data/track_record.csv data/price_status.json data/company_logos.json \
-                   data/final_book.csv data/final_tradable.csv data/final_tradable_annual.csv \
                    data/final_index_tr.csv data/final_index_price.csv assets/company-logos; do
-            [ -e "$p" ] && git add "$p"
+            if [ -e "$p" ] && ! git check-ignore -q "$p"; then
+              git add "$p"
+            fi
           done
           if git diff --staged --quiet; then
             echo "nothing changed"
