@@ -1,6 +1,6 @@
 {
   "as_at": "2026-10",
-  "fetched_at": "2026-11-13T15:45:11.063285+00:00",
+  "fetched_at": "2026-11-13T15:48:40.717148+00:00",
   "snapshot_date": "2026-10-30",
   "source": "iShares dated equity holdings",
   "legs": {
@@ -17,13 +17,13 @@
           "company": "Micron Technology, Inc.",
           "website": "https://www.micron.com",
           "industry": "Semiconductors",
-          "market_cap": 862399037440.0,
-          "pe": 10.254607,
-          "forward_pe": 3.668768,
+          "market_cap": 858979368960.0,
+          "pe": 10.213944,
+          "forward_pe": 3.65422,
           "revenue_growth": 3.793,
           "earnings_growth": 10.595,
           "profit_margin": 0.63796,
-          "dividend_yield": 0.07871691429695955
+          "dividend_yield": 0.07903029824058798
         },
         {
           "symbol": "CSCO",
@@ -34,13 +34,13 @@
           "company": "Cisco Systems, Inc.",
           "website": "https://www.cisco.com",
           "industry": "Communication Equipment",
-          "market_cap": 380183642112.0,
-          "pe": 25.646276,
-          "forward_pe": 16.444239,
+          "market_cap": 379631697920.0,
+          "pe": 25.609043,
+          "forward_pe": 16.433872,
           "revenue_growth": 0.176,
           "earnings_growth": 0.521,
           "profit_margin": 0.20951,
-          "dividend_yield": 1.7421964119050086
+          "dividend_yield": 1.744729463080278
         },
         {
           "symbol": "GM",
@@ -51,13 +51,13 @@
           "company": "General Motors Company",
           "website": "https://www.gm.com",
           "industry": "Auto Manufacturers",
-          "market_cap": 73110429696.0,
-          "pe": 18.964989,
-          "forward_pe": 5.890893,
+          "market_cap": 73156820992.0,
+          "pe": 18.977022,
+          "forward_pe": 5.8946314,
           "revenue_growth": 0.029,
           "earnings_growth": 1.763,
           "profit_margin": 0.021170001,
-          "dividend_yield": 0.8307372793354102
+          "dividend_yield": 0.8302104352839436
         },
         {
           "symbol": "VZ",
@@ -68,13 +68,13 @@
           "company": "Verizon Communications Inc.",
           "website": "https://www.verizon.com",
           "industry": "Telecom Services",
-          "market_cap": 192827441152.0,
-          "pe": 11.868623,
-          "forward_pe": 8.768095,
+          "market_cap": 192868876288.0,
+          "pe": 11.871173,
+          "forward_pe": 8.7699795,
           "revenue_growth": 0.015,
           "earnings_growth": 0.068,
           "profit_margin": 0.1178,
-          "dividend_yield": 6.082751209027405
+          "dividend_yield": 6.081444074352638
         },
         {
           "symbol": "T",
@@ -85,13 +85,13 @@
           "company": "AT&T Inc.",
           "website": "https://www.att.com",
           "industry": "Telecom Services",
-          "market_cap": 149414985728.0,
-          "pe": 11.860963,
-          "forward_pe": 8.544573,
+          "market_cap": 149482356736.0,
+          "pe": 11.86631,
+          "forward_pe": 8.548425,
           "revenue_growth": 0.053,
           "earnings_growth": -0.904,
           "profit_margin": 0.101940006,
-          "dividend_yield": 5.004508566275924
+          "dividend_yield": 5.002253267237494
         },
         {
           "symbol": "PFE",
@@ -102,13 +102,13 @@
           "company": "Pfizer Inc.",
           "website": "https://www.pfizer.com",
           "industry": "Drug Manufacturers - General",
-          "market_cap": 163614310400.0,
-          "pe": 41.007145,
-          "forward_pe": 9.736152,
+          "market_cap": 164070293504.0,
+          "pe": 41.12143,
+          "forward_pe": 9.763286,
           "revenue_growth": -0.004,
           "earnings_growth": -0.097,
           "profit_margin": 0.06339,
-          "dividend_yield": 5.9919874586309
+          "dividend_yield": 5.975334375542817
         },
         {
           "symbol": "HPE",
@@ -119,13 +119,13 @@
           "company": "Hewlett Packard Enterprise Company",
           "website": "https://www.hpe.com",
           "industry": "Communication Equipment",
-          "market_cap": 63061217280.0,
-          "pe": 24.487114,
-          "forward_pe": 10.031993,
+          "market_cap": 63054577664.0,
+          "pe": 24.484535,
+          "forward_pe": 10.030937,
           "revenue_growth": 0.337,
           "earnings_growth": 4.102,
           "profit_margin": 0.06666,
-          "dividend_yield": 1.1997474215954536
+          "dividend_yield": 1.2
         },
         {
           "symbol": "BAC",
@@ -136,13 +136,13 @@
           "company": "Bank of America Corporation",
           "website": "https://www.bankofamerica.com",
           "industry": "Banks - Diversified",
-          "market_cap": 349116104704.0,
-          "pe": 12.075179,
-          "forward_pe": 9.767186,
+          "market_cap": 349840605184.0,
+          "pe": 12.100239,
+          "forward_pe": 9.7874565,
           "revenue_growth": 0.034,
           "earnings_growth": -0.125,
           "profit_margin": 0.28064,
-          "dividend_yield": 2.5298942583259216
+          "dividend_yield": 2.52465483234714
         },
         {
           "symbol": "F",
@@ -153,13 +153,13 @@
           "company": "Ford Motor Company",
           "website": "https://www.ford.com",
           "industry": "Auto Manufacturers",
-          "market_cap": 47698980864.0,
+          "market_cap": 47679016960.0,
           "pe": null,
-          "forward_pe": 6.3994727,
+          "forward_pe": 6.396794,
           "revenue_growth": -0.02,
           "earnings_growth": -0.167,
           "profit_margin": -0.041690003,
-          "dividend_yield": 5.02302218501465
+          "dividend_yield": 5.025125628140704
         },
         {
           "symbol": "DIS",
@@ -170,13 +170,13 @@
           "company": "The Walt Disney Company",
           "website": "https://thewaltdisneycompany.com",
           "industry": "Entertainment",
-          "market_cap": 205527531520.0,
-          "pe": 24.542269,
-          "forward_pe": 15.886744,
+          "market_cap": 205734739968.0,
+          "pe": 24.56701,
+          "forward_pe": 15.9027605,
           "revenue_growth": 0.068,
           "earnings_growth": -0.483,
           "profit_margin": 0.086990006,
-          "dividend_yield": 1.2601865076031253
+          "dividend_yield": 1.258917331095258
         }
       ],
       "yield_unit": "percent. Annual dividend rate / quote price",
@@ -1370,7 +1370,7 @@
       "disclosure_rounding_tolerance": 0.007601,
       "source": "iShares dated equity holdings",
       "fundamentals_source": "Yahoo Finance",
-      "fundamentals_fetched_at": "2026-11-13T15:45:11.063285+00:00"
+      "fundamentals_fetched_at": "2026-11-13T15:48:40.717148+00:00"
     },
     "sector": {
       "slot": "INFOTECH",
@@ -1385,13 +1385,13 @@
           "company": "Apple Inc.",
           "website": "https://www.apple.com",
           "industry": "Consumer Electronics",
-          "market_cap": 5209207603200.0,
-          "pe": 39.91761,
-          "forward_pe": 33.99189,
+          "market_cap": 5219233038336.0,
+          "pe": 39.994434,
+          "forward_pe": 34.057312,
           "revenue_growth": 0.117,
           "earnings_growth": 0.141,
           "profit_margin": 0.27604,
-          "dividend_yield": 0.30128876268237387
+          "dividend_yield": 0.3007100097452318
         },
         {
           "symbol": "NVDA",
@@ -1402,13 +1402,13 @@
           "company": "NVIDIA Corporation",
           "website": "https://www.nvidia.com",
           "industry": "Semiconductors",
-          "market_cap": 3863278518272.0,
-          "pe": 20.226297,
-          "forward_pe": 10.094242,
+          "market_cap": 3859415040000.0,
+          "pe": 20.206068,
+          "forward_pe": 10.0841465,
           "revenue_growth": 1.059,
           "earnings_growth": 1.278,
           "profit_margin": 0.63663,
-          "dividend_yield": 0.6250390649415588
+          "dividend_yield": 0.6256647688168679
         },
         {
           "symbol": "MSFT",
@@ -1419,13 +1419,13 @@
           "company": "Microsoft Corporation",
           "website": "https://www.microsoft.com",
           "industry": "Software - Infrastructure",
-          "market_cap": 3885087588352.0,
-          "pe": 27.3048,
-          "forward_pe": 21.622032,
+          "market_cap": 3892217118720.0,
+          "pe": 27.354906,
+          "forward_pe": 21.661709,
           "revenue_growth": 0.188,
           "earnings_growth": 0.323,
           "profit_margin": 0.41169998,
-          "dividend_yield": 0.7491066139234459
+          "dividend_yield": 0.7479203235900176
         },
         {
           "symbol": "AVGO",
@@ -1436,13 +1436,13 @@
           "company": "Broadcom Inc.",
           "website": "https://www.broadcom.com",
           "industry": "Semiconductors",
-          "market_cap": 1628285173760.0,
-          "pe": 43.56322,
-          "forward_pe": 17.569805,
+          "market_cap": 1624544641024.0,
+          "pe": 43.463142,
+          "forward_pe": 17.48344,
           "revenue_growth": 0.855,
           "earnings_growth": 2.153,
           "profit_margin": 0.42944,
-          "dividend_yield": 0.7622398123717384
+          "dividend_yield": 0.7639980606203076
         },
         {
           "symbol": "MU",
@@ -1453,13 +1453,13 @@
           "company": "Micron Technology, Inc.",
           "website": "https://www.micron.com",
           "industry": "Semiconductors",
-          "market_cap": 862212390912.0,
-          "pe": 10.252388,
-          "forward_pe": 3.6679738,
+          "market_cap": 858178846720.0,
+          "pe": 10.204426,
+          "forward_pe": 3.6508145,
           "revenue_growth": 3.793,
           "earnings_growth": 10.595,
           "profit_margin": 0.63796,
-          "dividend_yield": 0.07873395795606646
+          "dividend_yield": 0.07910401518797092
         },
         {
           "symbol": "AMD",
@@ -1470,9 +1470,9 @@
           "company": "Advanced Micro Devices, Inc.",
           "website": "https://www.amd.com",
           "industry": "Semiconductors",
-          "market_cap": 870919176192.0,
-          "pe": 113.46582,
-          "forward_pe": 30.016937,
+          "market_cap": 867852222464.0,
+          "pe": 113.066246,
+          "forward_pe": 29.911232,
           "revenue_growth": 0.447,
           "earnings_growth": 0.938,
           "profit_margin": 0.16769,
@@ -1487,9 +1487,9 @@
           "company": "Palantir Technologies Inc.",
           "website": "https://www.palantir.com",
           "industry": "Software - Infrastructure",
-          "market_cap": 402867978240.0,
-          "pe": 117.74648,
-          "forward_pe": 65.858665,
+          "market_cap": 403036667904.0,
+          "pe": 117.795784,
+          "forward_pe": 65.9785,
           "revenue_growth": 0.959,
           "earnings_growth": 1.444,
           "profit_margin": 0.50343,
@@ -1504,13 +1504,13 @@
           "company": "Cisco Systems, Inc.",
           "website": "https://www.cisco.com",
           "industry": "Communication Equipment",
-          "market_cap": 380065382400.0,
-          "pe": 25.638298,
-          "forward_pe": 16.439123,
+          "market_cap": 379434565632.0,
+          "pe": 25.595745,
+          "forward_pe": 16.425339,
           "revenue_growth": 0.176,
           "earnings_growth": 0.521,
           "profit_margin": 0.20951,
-          "dividend_yield": 1.742738589211618
+          "dividend_yield": 1.7456359102244388
         },
         {
           "symbol": "INTC",
@@ -1521,9 +1521,9 @@
           "company": "Intel Corporation",
           "website": "https://www.intel.com",
           "industry": "Semiconductors",
-          "market_cap": 306118459392.0,
+          "market_cap": 305293590528.0,
           "pe": null,
-          "forward_pe": 32.167824,
+          "forward_pe": 32.081142,
           "revenue_growth": 0.209,
           "earnings_growth": -0.327,
           "profit_margin": -0.20089,
@@ -1538,13 +1538,13 @@
           "company": "Applied Materials, Inc.",
           "website": "https://www.appliedmaterials.com",
           "industry": "Semiconductor Equipment & Materials",
-          "market_cap": 282576257024.0,
-          "pe": 28.214739,
-          "forward_pe": 14.721539,
+          "market_cap": 280838275072.0,
+          "pe": 28.041204,
+          "forward_pe": 14.630995,
           "revenue_growth": 0.531,
           "earnings_growth": 0.431,
           "profit_margin": 0.29286,
-          "dividend_yield": 0.5953885471957762
+          "dividend_yield": 0.5990731321351871
         }
       ],
       "yield_unit": "percent. Annual dividend rate / quote price",
@@ -2160,7 +2160,7 @@
       "disclosure_rounding_tolerance": 0.0041010000000000005,
       "source": "iShares dated equity holdings",
       "fundamentals_source": "Yahoo Finance",
-      "fundamentals_fetched_at": "2026-11-13T15:45:11.063285+00:00"
+      "fundamentals_fetched_at": "2026-11-13T15:48:40.717148+00:00"
     }
   }
 }
