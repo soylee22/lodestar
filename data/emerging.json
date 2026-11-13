@@ -1,9 +1,9 @@
 {
-  "asof": "2026-11-12",
+  "asof": "2026-11-13",
   "month": "2026-11",
-  "days_out": 19,
+  "days_out": 18,
   "next_action_date": "1 Dec 2026",
-  "days_run": "12 of 30 days",
+  "days_run": "13 of 30 days",
   "action": "HOLD",
   "action_text": "HOLD \u00b7 ZERO TURNOVER",
   "action_badge_cls": "pass",
