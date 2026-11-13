@@ -1,7 +1,7 @@
 {
   "asof": "2026-11-13",
-  "computed_at": "2026-11-13 17:13 UTC",
-  "latest_price": 7529.6,
+  "computed_at": "2026-11-13 17:17 UTC",
+  "latest_price": 7529.24,
   "history": [
     {
       "month": "2024-12",
@@ -97,7 +97,7 @@
     },
     {
       "month": "2026-11",
-      "price": 7529.6
+      "price": 7529.24
     }
   ],
   "chart": [
@@ -195,7 +195,7 @@
     },
     {
       "month": "2026-11",
-      "price": 7529.6
+      "price": 7529.24
     }
   ],
   "checks": [
@@ -219,7 +219,7 @@
       "id": "m12",
       "name": "12-Month Momentum",
       "desc": "Latest close vs 12 months earlier",
-      "reading_pct": 9.94,
+      "reading_pct": 9.93,
       "pass": true,
       "rule": "Research Check 3"
     },
