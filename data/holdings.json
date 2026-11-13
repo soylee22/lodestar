@@ -1,6 +1,6 @@
 {
   "as_at": "2026-10",
-  "fetched_at": "2026-11-13T00:11:25.911964+00:00",
+  "fetched_at": "2026-11-13T14:26:33.913802+00:00",
   "snapshot_date": "2026-10-30",
   "source": "iShares dated equity holdings",
   "legs": {
@@ -35,8 +35,8 @@
           "website": "https://www.cisco.com",
           "industry": "Communication Equipment",
           "market_cap": 402183290880.0,
-          "pe": 30.633635,
-          "forward_pe": 18.138466,
+          "pe": 27.13032,
+          "forward_pe": 17.410109,
           "revenue_growth": 0.176,
           "earnings_growth": 0.521,
           "profit_margin": 0.20951,
@@ -1370,7 +1370,7 @@
       "disclosure_rounding_tolerance": 0.007601,
       "source": "iShares dated equity holdings",
       "fundamentals_source": "Yahoo Finance",
-      "fundamentals_fetched_at": "2026-11-13T00:11:25.911964+00:00"
+      "fundamentals_fetched_at": "2026-11-13T14:26:33.913802+00:00"
     },
     "sector": {
       "slot": "INFOTECH",
@@ -1404,7 +1404,7 @@
           "industry": "Semiconductors",
           "market_cap": 4012989743104.0,
           "pe": 21.010115,
-          "forward_pe": 10.494079,
+          "forward_pe": 10.485418,
           "revenue_growth": 1.059,
           "earnings_growth": 1.278,
           "profit_margin": 0.63663,
@@ -1505,8 +1505,8 @@
           "website": "https://www.cisco.com",
           "industry": "Communication Equipment",
           "market_cap": 402183290880.0,
-          "pe": 30.633635,
-          "forward_pe": 18.138466,
+          "pe": 27.13032,
+          "forward_pe": 17.410109,
           "revenue_growth": 0.176,
           "earnings_growth": 0.521,
           "profit_margin": 0.20951,
@@ -1539,11 +1539,11 @@
           "website": "https://www.appliedmaterials.com",
           "industry": "Semiconductor Equipment & Materials",
           "market_cap": 302320943104.0,
-          "pe": 32.868855,
-          "forward_pe": 15.84983,
-          "revenue_growth": 0.248,
-          "earnings_growth": 0.428,
-          "profit_margin": 0.30052,
+          "pe": 30.186214,
+          "forward_pe": 15.750191,
+          "revenue_growth": 0.531,
+          "earnings_growth": 0.431,
+          "profit_margin": 0.29286,
           "dividend_yield": 0.5565034781467385
         }
       ],
@@ -2160,7 +2160,7 @@
       "disclosure_rounding_tolerance": 0.0041010000000000005,
       "source": "iShares dated equity holdings",
       "fundamentals_source": "Yahoo Finance",
-      "fundamentals_fetched_at": "2026-11-13T00:11:25.911964+00:00"
+      "fundamentals_fetched_at": "2026-11-13T14:26:33.913802+00:00"
     }
   }
 }
