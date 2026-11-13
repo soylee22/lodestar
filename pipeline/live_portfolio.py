@@ -8,9 +8,11 @@ Compares performance directly against VUAG.L, VWRP.L, VUKG.L, and VALL.L.
 from __future__ import annotations
 import base64
 import json
+import math
 import os
 import urllib.request
 from pathlib import Path
+import pandas as pd
 import yfinance as yf
 
 HERE = Path(__file__).resolve().parent
@@ -47,6 +49,30 @@ def load_t212_credentials() -> tuple[str | None, str | None, str]:
     return key, secret, base
 
 
+def _last_valid_quotes(all_symbols: list[str]) -> dict[str, float]:
+    """Take the latest finite positive close per symbol so 24h FX never yields NaN for closed LSE lines."""
+    if not all_symbols:
+        return {}
+    raw = yf.download(all_symbols, period="5d", progress=False, auto_adjust=False)
+    close = raw["Close"] if "Close" in raw else raw
+    out: dict[str, float] = {}
+    if isinstance(close, pd.Series):
+        s = close.dropna()
+        if not s.empty:
+            val = float(s.iloc[-1])
+            if math.isfinite(val) and val > 0:
+                out[all_symbols[0]] = val
+        return out
+    for sym in all_symbols:
+        if sym in close.columns:
+            s = close[sym].dropna()
+            if not s.empty:
+                val = float(s.iloc[-1])
+                if math.isfinite(val) and val > 0:
+                    out[sym] = val
+    return out
+
+
 def get_live_portfolio_data(broker: bool = False) -> dict:
     cfg_path = DATA_DIR / "live_portfolio.json"
     if not cfg_path.exists():
@@ -73,7 +99,7 @@ def get_live_portfolio_data(broker: bool = False) -> dict:
     holding_symbols = [h["ticker"] for h in cfg.get("holdings", [])]
     all_symbols = bm_symbols + holding_symbols + ["GBPUSD=X"]
     try:
-        quotes = yf.download(all_symbols, period="2d", progress=False, auto_adjust=False)["Close"].iloc[-1]
+        quotes = _last_valid_quotes(all_symbols)
     except Exception:
         quotes = {}
 
