@@ -15,9 +15,9 @@ on:
       - 'notify.py'
       - 'mailer.py'
   schedule:
-    # Refresh daily so delayed month-end prices are picked up after the 5th too.
-    # Signals are archived. Alerts remain once per signal month.
-    - cron: '0 6 * * *'
+    # Refresh daily off the top-of-hour queue spike so delayed month-end prices
+    # and monthly signal transitions are caught cleanly before daily reports.
+    - cron: '23 6 * * *'
   workflow_dispatch:
     inputs:
       send_alerts:
@@ -70,7 +70,13 @@ jobs:
         run: |
           git config user.name  "soylee22"
           git config user.email "leeslater1992@gmail.com"
-          git add data.js data/live_portfolio.json data/emerging.json data/panel_local.csv data/last_alert.json data/holdings.json data/signal_history.json data/fund_prices_gbp.csv data/track_record.csv data/price_status.json data/company_logos.json assets/company-logos
+          for p in data.js data/live_portfolio.json data/emerging.json data/crash_protection.json \
+                   data/panel_local.csv data/last_alert.json data/holdings.json data/signal_history.json \
+                   data/fund_prices_gbp.csv data/track_record.csv data/price_status.json data/company_logos.json \
+                   data/final_book.csv data/final_tradable.csv data/final_tradable_annual.csv \
+                   data/final_index_tr.csv data/final_index_price.csv assets/company-logos; do
+            [ -e "$p" ] && git add "$p"
+          done
           if git diff --staged --quiet; then
             echo "nothing changed"
           else

@@ -1,0 +1,244 @@
+{
+  "asof": "2026-11-13",
+  "computed_at": "2026-11-13 15:38 UTC",
+  "latest_price": 7516.63,
+  "history": [
+    {
+      "month": "2024-12",
+      "price": 5881.63
+    },
+    {
+      "month": "2025-01",
+      "price": 6040.53
+    },
+    {
+      "month": "2025-02",
+      "price": 5954.5
+    },
+    {
+      "month": "2025-03",
+      "price": 5611.85
+    },
+    {
+      "month": "2025-04",
+      "price": 5569.06
+    },
+    {
+      "month": "2025-05",
+      "price": 5911.69
+    },
+    {
+      "month": "2025-06",
+      "price": 6204.95
+    },
+    {
+      "month": "2025-07",
+      "price": 6339.39
+    },
+    {
+      "month": "2025-08",
+      "price": 6460.26
+    },
+    {
+      "month": "2025-09",
+      "price": 6688.46
+    },
+    {
+      "month": "2025-10",
+      "price": 6840.2
+    },
+    {
+      "month": "2025-11",
+      "price": 6849.09
+    },
+    {
+      "month": "2025-12",
+      "price": 6845.5
+    },
+    {
+      "month": "2026-01",
+      "price": 6939.03
+    },
+    {
+      "month": "2026-02",
+      "price": 6878.88
+    },
+    {
+      "month": "2026-03",
+      "price": 6528.52
+    },
+    {
+      "month": "2026-04",
+      "price": 7209.01
+    },
+    {
+      "month": "2026-05",
+      "price": 7580.06
+    },
+    {
+      "month": "2026-06",
+      "price": 7499.36
+    },
+    {
+      "month": "2026-07",
+      "price": 7489.72
+    },
+    {
+      "month": "2026-08",
+      "price": 7686.14
+    },
+    {
+      "month": "2026-09",
+      "price": 7651.54
+    },
+    {
+      "month": "2026-10",
+      "price": 7580.07
+    },
+    {
+      "month": "2026-11",
+      "price": 7516.63
+    }
+  ],
+  "chart": [
+    {
+      "month": "2024-12",
+      "price": 5881.63
+    },
+    {
+      "month": "2025-01",
+      "price": 6040.53
+    },
+    {
+      "month": "2025-02",
+      "price": 5954.5
+    },
+    {
+      "month": "2025-03",
+      "price": 5611.85
+    },
+    {
+      "month": "2025-04",
+      "price": 5569.06
+    },
+    {
+      "month": "2025-05",
+      "price": 5911.69
+    },
+    {
+      "month": "2025-06",
+      "price": 6204.95
+    },
+    {
+      "month": "2025-07",
+      "price": 6339.39
+    },
+    {
+      "month": "2025-08",
+      "price": 6460.26
+    },
+    {
+      "month": "2025-09",
+      "price": 6688.46
+    },
+    {
+      "month": "2025-10",
+      "price": 6840.2
+    },
+    {
+      "month": "2025-11",
+      "price": 6849.09
+    },
+    {
+      "month": "2025-12",
+      "price": 6845.5
+    },
+    {
+      "month": "2026-01",
+      "price": 6939.03
+    },
+    {
+      "month": "2026-02",
+      "price": 6878.88
+    },
+    {
+      "month": "2026-03",
+      "price": 6528.52
+    },
+    {
+      "month": "2026-04",
+      "price": 7209.01
+    },
+    {
+      "month": "2026-05",
+      "price": 7580.06
+    },
+    {
+      "month": "2026-06",
+      "price": 7499.36
+    },
+    {
+      "month": "2026-07",
+      "price": 7489.72
+    },
+    {
+      "month": "2026-08",
+      "price": 7686.14
+    },
+    {
+      "month": "2026-09",
+      "price": 7651.54
+    },
+    {
+      "month": "2026-10",
+      "price": 7580.07
+    },
+    {
+      "month": "2026-11",
+      "price": 7516.63
+    }
+  ],
+  "checks": [
+    {
+      "id": "m1",
+      "name": "1-Month Momentum",
+      "desc": "Latest close vs previous month-end",
+      "reading_pct": -0.84,
+      "pass": false,
+      "rule": "Research Check 1"
+    },
+    {
+      "id": "m6",
+      "name": "6-Month Momentum",
+      "desc": "Latest close vs 6 months earlier",
+      "reading_pct": -0.84,
+      "pass": false,
+      "rule": "Research Check 2"
+    },
+    {
+      "id": "m12",
+      "name": "12-Month Momentum",
+      "desc": "Latest close vs 12 months earlier",
+      "reading_pct": 9.75,
+      "pass": true,
+      "rule": "Research Check 3"
+    },
+    {
+      "id": "floor19",
+      "name": "19-Month Crash Floor",
+      "desc": "Return vs 19 months earlier (threshold: -25%)",
+      "reading_pct": 34.97,
+      "pass": true,
+      "rule": "Lodestar Circuit Breaker"
+    }
+  ],
+  "ketchup_fails": 2,
+  "research_cash_triggered": false,
+  "method_note": "The three research checks do not recover the proprietary MarketFighter rule. The production gate uses the 19-month floor.",
+  "cash_triggered": false,
+  "m19_pct": 34.97,
+  "base_month_19m": "2025-04",
+  "status": "INVESTED",
+  "status_text": "19M Floor Intact \u00b7 100% Invested",
+  "status_tone": "pass"
+}

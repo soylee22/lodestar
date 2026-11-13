@@ -8,7 +8,7 @@ import pandas as pd
 import exchange_calendars as xcals
 
 # Product identities verified against the issuer's ISIN listings.
-PRODUCTS = {'IUVL.L': 285207, 'IUIT.L': 280510}
+PRODUCTS = {'IUVF.L': 285207, 'IUVL.L': 285207, 'IITU.L': 280510, 'IUIT.L': 280510}
 
 
 def parse_csv(text, expected_date=None):

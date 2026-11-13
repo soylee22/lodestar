@@ -54,25 +54,76 @@ SECTOR_NAMES = {
     "INFOTECH": "Information Technology", "MATERIALS": "Materials",
 }
 
-# The tradable London/Xetra lines for each slot (post 07 gives Xetra + US;
-# the .L column is the same ISIN listed in London).
+# The tradable GBP-denominated London lines for each slot (post 07 gives
+# Xetra + US; the .L column is the same ISIN listed in sterling on LSE).
 TRADABLE = {
-    "USA_MOM":   ("IE00BD1F4N50", "QDVA.DE", "IUMO.L",  "MTUM"),
-    "USA_QUAL":  ("IE00BD1F4L37", "QDVB.DE", "IUQA.L",  "QUAL"),
-    "USA_VAL":   ("IE00BD1F4M44", "QDVI.DE", "IUVL.L",  "VLUE"),
-    "USA_SMALL": ("IE00B3VWM098", "SXRG.DE", "CUSS.L",  "SMLF"),
+    "USA_MOM":   ("IE00BD1F4N50", "QDVA.DE", "IUMF.L",  "MTUM"),
+    "USA_QUAL":  ("IE00BD1F4L37", "QDVB.DE", "IUQF.L",  "QUAL"),
+    "USA_VAL":   ("IE00BD1F4M44", "QDVI.DE", "IUVF.L",  "VLUE"),
+    "USA_SMALL": ("IE00B3VWM098", "SXRG.DE", "CUS1.L",  "SMLF"),
     "EUR_MOM":   ("IE00BQN1K786", "CEMR.DE", "IEFM.L",  "IMTM"),
-    "EUR_QUAL":  ("IE00BQN1K562", "CEMQ.DE", "IEQU.L",  "IQLT"),
-    "EUR_VAL":   ("IE00BQN1K901", "CEMS.DE", "IEVL.L",  "IVLU"),
+    "EUR_QUAL":  ("IE00BQN1K562", "CEMQ.DE", "IEFQ.L",  "IQLT"),
+    "EUR_VAL":   ("IE00BQN1K901", "CEMS.DE", "IEFV.L",  "IVLU"),
     "EUR_SMALL": ("LU0322253906", "XXSC.DE", "XXSC.L",  "IEUS"),
-    "CONS_DISC": ("IE00B4MCHD36", "QDVK.DE", "IUCD.L",  "XLY"),
-    "CONS_STAP": ("IE00B40B8R38", "2B7D.DE", "IUCS.L",  "XLP"),
-    "ENERGY":    ("IE00B42NKQ00", "QDVF.DE", "IUES.L",  "XLE"),
+    "CONS_DISC": ("IE00B4MCHD36", "QDVK.DE", "ICDU.L",  "XLY"),
+    "CONS_STAP": ("IE00B40B8R38", "2B7D.DE", "ICSU.L",  "XLP"),
+    "ENERGY":    ("IE00B42NKQ00", "QDVF.DE", "IESU.L",  "XLE"),
     "HEALTH":    ("IE00B43HR379", "QDVG.DE", "IHCU.L",  "XLV"),
-    "INDUST":    ("IE00B4LN9N13", "2B7C.DE", "IUIS.L",  "XLI"),
-    "INFOTECH":  ("IE00B3WJKG14", "QDVE.DE", "IUIT.L",  "XLK"),
-    "MATERIALS": ("IE00B4MKCJ84", "2B7B.DE", "IUMS.L",  "XLB"),
+    "INDUST":    ("IE00B4LN9N13", "2B7C.DE", "IISU.L",  "XLI"),
+    "INFOTECH":  ("IE00B3WJKG14", "QDVE.DE", "IITU.L",  "XLK"),
+    "MATERIALS": ("IE00B4MKCJ84", "2B7B.DE", "IMSU.L",  "XLB"),
 }
 
 FACTOR_SLOTS = list(FACTOR)
 SECTOR_SLOTS = list(SECTOR_YF)
+
+NAMES = {**FACTOR_NAMES, **SECTOR_NAMES}
+LSE = {slot: row[2] for slot, row in TRADABLE.items()}
+FACTOR_PROXY = {slot: row[3] for slot, row in TRADABLE.items() if slot in FACTOR}
+SECTOR_PROXY = {slot: row[3] for slot, row in TRADABLE.items() if slot in SECTOR_YF}
+
+
+def held_now(root=None, today=None) -> tuple[str, str, str]:
+    """Return (factor_slot, sector_slot, signal_month) from the archived book."""
+    import json
+    from datetime import date as _date
+    from pathlib import Path
+    import pandas as pd
+
+    base_dir = Path(root) if root is not None else Path(__file__).resolve().parent
+    ref_day = today if today is not None else _date.today()
+    data_dir = base_dir / "data"
+
+    history_path = data_dir / "signal_history.json"
+    if history_path.exists():
+        history = json.loads(history_path.read_text())
+        expected = str(pd.Timestamp(ref_day).to_period("M") - 1)
+        eligible = sorted(month for month in history if month <= expected)
+        if eligible:
+            month = eligible[-1]
+            row = history[month]
+            if row.get("cash"):
+                return "CASH", "CASH", month
+            return row["factor"], row["sector"], month
+
+    last_alert = data_dir / "last_alert.json"
+    if last_alert.exists():
+        state = json.loads(last_alert.read_text())
+        picks = state.get("picks", "")
+        if picks == "CASH":
+            return "CASH", "CASH", state.get("month", "?")
+        f, _, s = picks.partition("+")
+        if f and s:
+            return f, s, state.get("month", "?")
+
+    book_csv = data_dir / "final_book.csv"
+    if book_csv.exists():
+        book = pd.read_csv(book_csv, index_col=0)
+        if not book.empty:
+            month = str(book.index[-1])
+            row = book.iloc[-1]
+            if bool(row.get("cash", False)):
+                return "CASH", "CASH", month
+            return str(row["factor"]), str(row["sector"]), month
+
+    raise RuntimeError("No archived current holding found in data/")

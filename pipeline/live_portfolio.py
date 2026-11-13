@@ -73,6 +73,44 @@ def _last_valid_quotes(all_symbols: list[str]) -> dict[str, float]:
     return out
 
 
+def _holding_currency(holding: dict) -> str:
+    cur = holding.get("currency")
+    if cur:
+        return str(cur)
+    if "fill_price_usd" in holding:
+        return "USD"
+    if "fill_price_eur" in holding:
+        return "EUR"
+    if "fill_price_gbp" in holding or "fill_price_gbx" in holding:
+        return "GBp"
+    return "GBp"
+
+
+def _fallback_price_gbp(holding: dict, quotes: dict[str, float], fx_gbp_usd: float, fx_eur_gbp: float) -> float:
+    """Convert a Yahoo market quote or stored fill price into GBP pounds."""
+    ticker = holding["ticker"]
+    cur = _holding_currency(holding)
+    if ticker in quotes:
+        px_raw = float(quotes[ticker])
+        if cur in ("GBp", "GBX"):
+            return px_raw / 100.0
+        if cur == "GBP":
+            return px_raw
+        if cur == "EUR":
+            return px_raw * fx_eur_gbp
+        return px_raw / fx_gbp_usd
+    if "fill_price_gbp" in holding:
+        return float(holding["fill_price_gbp"])
+    if "fill_price_gbx" in holding:
+        return float(holding["fill_price_gbx"]) / 100.0
+    if "fill_price_usd" in holding:
+        return float(holding["fill_price_usd"]) / fx_gbp_usd
+    if "fill_price_eur" in holding:
+        return float(holding["fill_price_eur"]) * fx_eur_gbp
+    shares = float(holding["shares"])
+    return float(holding["cost_gbp"]) / shares if shares else 0.0
+
+
 def get_live_portfolio_data(broker: bool = False) -> dict:
     cfg_path = DATA_DIR / "live_portfolio.json"
     if not cfg_path.exists():
@@ -97,13 +135,21 @@ def get_live_portfolio_data(broker: bool = False) -> dict:
     # 2. Fetch live quotes via yfinance for fallback and benchmarks
     bm_symbols = list(cfg.get("benchmarks", {}).keys())
     holding_symbols = [h["ticker"] for h in cfg.get("holdings", [])]
-    all_symbols = bm_symbols + holding_symbols + ["GBPUSD=X"]
+    currencies = {_holding_currency(h) for h in cfg.get("holdings", [])}
+    fx_symbols = []
+    if "USD" in currencies:
+        fx_symbols.append("GBPUSD=X")
+    if "EUR" in currencies:
+        fx_symbols.append("EURGBP=X")
+    all_symbols = bm_symbols + holding_symbols + fx_symbols
     try:
-        quotes = _last_valid_quotes(all_symbols)
+        raw_quotes = _last_valid_quotes(all_symbols)
     except Exception:
-        quotes = {}
+        raw_quotes = {}
+    quotes = raw_quotes if hasattr(raw_quotes, "get") else {}
 
-    fx_gbp_usd = float(quotes.get("GBPUSD=X", 1.3265)) if hasattr(quotes, "get") else 1.3265
+    fx_gbp_usd = float(quotes.get("GBPUSD=X", 1.3265))
+    fx_eur_gbp = float(quotes.get("EURGBP=X", 0.85))
 
     # 3. Calculate holdings current value and P&L
     holdings_out = []
@@ -122,9 +168,8 @@ def get_live_portfolio_data(broker: bool = False) -> dict:
             val_gbp = shares * t212_match["value_gbp"] / t212_match["quantity"]
             pnl_gbp = val_gbp - cost_gbp
         else:
-            px_raw = float(quotes.get(ticker, h["fill_price_usd"])) if hasattr(quotes, "get") else h["fill_price_usd"]
-            # IUIT.L and IUVL.L trade in USD on LSE
-            val_gbp = (shares * px_raw) / fx_gbp_usd
+            px_gbp = _fallback_price_gbp(h, quotes, fx_gbp_usd, fx_eur_gbp)
+            val_gbp = shares * px_gbp
             pnl_gbp = val_gbp - cost_gbp
 
         pnl_pct = (pnl_gbp / cost_gbp * 100.0) if cost_gbp else 0.0

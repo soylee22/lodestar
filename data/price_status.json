@@ -3,25 +3,25 @@
   "performanceThrough": "2026-10",
   "inputs": [
     {
-      "ticker": "IUVL.L",
+      "ticker": "IUVF.L",
       "month": "2026-09",
       "available": true,
       "basis": "GBP adjusted close"
     },
     {
-      "ticker": "IUVL.L",
+      "ticker": "IUVF.L",
       "month": "2026-10",
       "available": true,
       "basis": "GBP adjusted close"
     },
     {
-      "ticker": "IUIT.L",
+      "ticker": "IITU.L",
       "month": "2026-09",
       "available": true,
       "basis": "GBP adjusted close"
     },
     {
-      "ticker": "IUIT.L",
+      "ticker": "IITU.L",
       "month": "2026-10",
       "available": true,
       "basis": "GBP adjusted close"

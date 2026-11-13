@@ -13,7 +13,7 @@ The rule, in full:
   * Signals come from the indices. Returns come from the London-listed UCITS
     lines, in sterling, total return.
 """
-import json, time, urllib.request
+import json, sys, time, urllib.request
 from functools import lru_cache
 from pathlib import Path
 import numpy as np
@@ -24,23 +24,15 @@ import exchange_calendars as xcals
 HERE = Path(__file__).resolve().parent
 DATA = HERE.parent / "data"
 DATA.mkdir(exist_ok=True)
+if str(HERE.parent) not in sys.path:
+    sys.path.insert(0, str(HERE.parent))
+from universe import FACTOR, LSE, SECTOR_YF
+
 UA = {"User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7)"}
 
 LOOKBACK, SKIP = 8, 0
 # Inferred substitute, not MarketFighter's proprietary twelve-close ketchup rule.
 CASH_LOOKBACK, CASH_THRESHOLD = 19, -0.25
-
-FACTOR = {"USA_MOM": "703025", "USA_QUAL": "702789", "USA_VAL": "705973",
-          "USA_SMALL": "106229", "EUR_MOM": "703764", "EUR_QUAL": "702790",
-          "EUR_VAL": "705382", "EUR_SMALL": "106233"}
-SECTOR_YF = {"CONS_DISC": "^SP500-25", "CONS_STAP": "^SP500-30", "ENERGY": "^GSPE",
-             "HEALTH": "^SP500-35", "INDUST": "^SP500-20", "INFOTECH": "^SP500-45",
-             "MATERIALS": "^SP500-15"}
-LSE = {"USA_MOM": "IUMO.L", "USA_QUAL": "IUQA.L", "USA_VAL": "IUVL.L",
-       "USA_SMALL": "CUSS.L", "EUR_MOM": "IEFM.L", "EUR_QUAL": "IEQU.L",
-       "EUR_VAL": "IEVL.L", "EUR_SMALL": "XXSC.L", "CONS_DISC": "IUCD.L",
-       "CONS_STAP": "IUCS.L", "ENERGY": "IUES.L", "HEALTH": "IHCU.L",
-       "INDUST": "IUIS.L", "INFOTECH": "IUIT.L", "MATERIALS": "IUMS.L"}
 BENCH = {"FTSE All-World": ("VWRL.L", "GBP"), "S&P 500": ("VUSA.L", "GBP"),
          "MSCI World": ("IWDA.L", "USD")}
 
@@ -78,11 +70,12 @@ def _retry(fn, n=2, wait=3):
     raise RuntimeError(f"failed after {n} attempts: {last}")
 
 
-def msci(code, currency):
+def msci(code, currency, variant="STRD", start_date="19981231"):
     def go():
+        end_date = pd.Timestamp.today().strftime("%Y%m%d")
         url = ("https://app2.msci.com/products/service/index/indexmaster/getLevelDataForGraph"
-               f"?currency_symbol={currency}&index_variant=STRD&start_date=19981231"
-               f"&end_date=20991231&data_frequency=END_OF_MONTH&index_codes={code}")
+               f"?currency_symbol={currency}&index_variant={variant}&start_date={start_date}"
+               f"&end_date={end_date}&data_frequency=END_OF_MONTH&index_codes={code}")
         raw = urllib.request.urlopen(urllib.request.Request(url, headers=UA), timeout=25).read()
         lv = json.loads(raw)["indexes"]["INDEX_LEVELS"]
         if not lv:
@@ -383,6 +376,69 @@ def append_track(recorded, fresh):
     return pd.concat([recorded, fresh.loc[additions]]).sort_index()
 
 
+def _merge_long_track(path, fresh, strat_col):
+    fresh = fresh.rename(columns={"Lodestar": strat_col})
+    if path.exists():
+        recorded = pd.read_csv(path, index_col=0)
+        recorded.index = pd.PeriodIndex(recorded.index, freq="M")
+        out = append_track(recorded, fresh)
+    else:
+        out = fresh
+    out.to_csv(path)
+    return out
+
+
+def build_long_tracks(book, raw, spx_usd):
+    """Build long-horizon GBP Total Return (2001-) and Price Index (1999-) tracks."""
+    print("building long-horizon index tracks...")
+    w_gbp_strd = msci("990100", "GBP", variant="STRD")
+    w_usd_strd = msci("990100", "USD", variant="STRD")
+    usdgbp = (w_gbp_strd / w_usd_strd).dropna()
+
+    # 1) Total Return Index + SPDR Sector TR (2001-01 .. present, zero gaps)
+    tr_panel = {}
+    for slot, code in FACTOR.items():
+        tr_panel[slot] = msci(code, "GBP", variant="NETR")
+    for slot, sym in SECTOR_PROXY.items():
+        m = yahoo_monthly(sym, adjusted=True, start="1998-11-01")
+        tr_panel[slot] = (m * usdgbp.reindex(m.index)).dropna()
+
+    acwi_netr = msci("892400", "GBP", variant="NETR")
+    world_netr = msci("990100", "GBP", variant="NETR")
+    spx_tr_usd = yahoo_monthly("^SP500TR", adjusted=False, start="1998-11-01")
+    spx_tr_gbp = (spx_tr_usd * usdgbp.reindex(spx_tr_usd.index)).dropna()
+
+    bench_tr = pd.DataFrame({
+        "MSCI ACWI": acwi_netr.pct_change(fill_method=None) * 100,
+        "S&P 500": spx_tr_gbp.pct_change(fill_method=None) * 100,
+        "MSCI World": world_netr.pct_change(fill_method=None) * 100,
+    })
+    track_tr = build_track(book, pd.DataFrame(tr_panel), bench_tr)
+    if not track_tr.empty:
+        _merge_long_track(DATA / "final_index_tr.csv", track_tr, "Lodestar (Index TR, GBP)")
+        print(f"  index_tr   : {track_tr.index.min()} .. {track_tr.index.max()} ({len(track_tr)}m)")
+
+    # 2) Pure Price Index (1999-09 .. present, zero ETFs)
+    px_panel = {}
+    for slot, code in FACTOR.items():
+        px_panel[slot] = msci(code, "GBP", variant="STRD")
+    for slot in SECTOR_SLOTS:
+        if slot in raw:
+            px_panel[slot] = (raw[slot].dropna() * usdgbp.reindex(raw[slot].dropna().index)).dropna()
+
+    acwi_strd = msci("892400", "GBP", variant="STRD")
+    spx_px_gbp = (spx_usd * usdgbp.reindex(spx_usd.index)).dropna()
+    bench_px = pd.DataFrame({
+        "MSCI ACWI": acwi_strd.pct_change(fill_method=None) * 100,
+        "S&P 500": spx_px_gbp.pct_change(fill_method=None) * 100,
+        "MSCI World": w_gbp_strd.pct_change(fill_method=None) * 100,
+    })
+    track_px = build_track(book, pd.DataFrame(px_panel), bench_px)
+    if not track_px.empty:
+        _merge_long_track(DATA / "final_index_price.csv", track_px, "Lodestar (Price Index, GBP)")
+        print(f"  index_price: {track_px.index.min()} .. {track_px.index.max()} ({len(track_px)}m)")
+
+
 def main():
     print("fetching signal panel...")
     _, raw, failures = build_signal_panel()
@@ -442,6 +498,11 @@ def main():
                         for c in out.columns})
     ann["vs All-World"] = ann[out.columns[0]] - ann["FTSE All-World"]
     ann.to_csv(DATA / "final_tradable_annual.csv")
+
+    try:
+        build_long_tracks(book, raw, spx)
+    except Exception as exc:
+        print(f"  !! long-horizon index tracks skipped ({exc}); using cached CSVs if present")
 
     row = history[str(expected)]
     held = book.loc[expected]

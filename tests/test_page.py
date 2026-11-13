@@ -89,7 +89,7 @@ class PageTests(unittest.TestCase):
     def test_same_fund_with_old_month_or_wrong_identity_is_not_shown(self):
         for fault in ['month', 'date', 'ticker']:
             raw = {'as_at': '2026-02', 'legs': {}}
-            for key, slot, ticker in [('factor', 'USA_VAL', 'IUVL.L'), ('sector', 'INFOTECH', 'IUIT.L')]:
+            for key, slot, ticker in [('factor', 'USA_VAL', 'IUVF.L'), ('sector', 'INFOTECH', 'IITU.L')]:
                 raw['legs'][key] = {'slot': slot, 'ticker': ticker,
                     'snapshot_date': '2026-02-27',
                     'holdings': [{'symbol': 'MU', 'name': 'Micron', 'weight': .2}]}

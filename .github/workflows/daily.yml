@@ -2,11 +2,18 @@ name: Lodestar performance update
 
 on:
   schedule:
-    # 07:00 UTC on weekdays. An hour after the monthly job, so on the 1st the
-    # new signal is already recorded before the daily read describes it.
-    # Weekends are skipped: no session, no new prices, nothing to say.
-    - cron: '0 7 * * 1-5'
+    # 07:17 UTC on weekdays (off the top-of-hour queue spike). Rebuilds the
+    # public page first and then dispatches Telegram and HTML email from the
+    # exact same snapshot so all three channels stay synchronised.
+    - cron: '17 7 * * 1-5'
   workflow_dispatch:
+
+concurrency:
+  group: lodestar-refresh
+  cancel-in-progress: false
+
+permissions:
+  contents: write
 
 jobs:
   read:
@@ -15,6 +22,9 @@ jobs:
       TZ: Europe/London
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
 
       - uses: actions/setup-python@v5
         with:
@@ -22,6 +32,31 @@ jobs:
           cache: pip
 
       - run: pip install -r requirements.txt
+
+      - name: Run unit tests
+        run: python -m unittest discover -s tests
+
+      - name: Rebuild public page and shared signal snapshot
+        run: python run_monthly.py --build-only
+
+      - name: Push synchronised public data
+        run: |
+          git config user.name  "soylee22"
+          git config user.email "leeslater1992@gmail.com"
+          for p in data.js data/live_portfolio.json data/emerging.json data/crash_protection.json \
+                   data/panel_local.csv data/last_alert.json data/holdings.json data/signal_history.json \
+                   data/fund_prices_gbp.csv data/track_record.csv data/price_status.json data/company_logos.json \
+                   data/final_book.csv data/final_tradable.csv data/final_tradable_annual.csv \
+                   data/final_index_tr.csv data/final_index_price.csv assets/company-logos; do
+            [ -e "$p" ] && git add "$p"
+          done
+          if git diff --staged --quiet; then
+            echo "nothing changed"
+          else
+            git commit -m "refresh: $(date +%Y-%m-%d)"
+            git pull --rebase origin main
+            git push
+          fi
 
       - name: Verify private broker connection
         env:
@@ -36,7 +71,7 @@ jobs:
           GMAIL_APP_PASSWORD: ${{ secrets.GMAIL_APP_PASSWORD }}
           T212_KEY_ID: ${{ secrets.T212_KEY_ID }}
           T212_SECRET: ${{ secrets.T212_SECRET }}
-        run: python daily.py
+        run: python daily.py --snapshot
 
       - name: Notify job failure
         if: failure()

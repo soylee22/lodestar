@@ -339,67 +339,93 @@ def ordinal(period: str) -> int:
     return int(y) * 12 + int(m) - 1
 
 
-def main() -> None:
-    price_status_path = DATA_DIR / "price_status.json"
-    price_status = json.loads(price_status_path.read_text()) if price_status_path.exists() else None
-    monthly = pd.read_csv(DATA_DIR / "final_tradable.csv", index_col=0)
-    annual = pd.read_csv(DATA_DIR / "final_tradable_annual.csv", index_col=0)
-    book = pd.read_csv(DATA_DIR / "final_book.csv", index_col=0)
+def _annual_from_monthly(monthly: pd.DataFrame, col_map: dict[str, str]) -> pd.DataFrame:
+    """Compound monthly percentage returns into calendar-year returns."""
+    yr = pd.Series([int(str(i)[:4]) for i in monthly.index], index=monthly.index)
+    out = pd.DataFrame({
+        col: monthly[col].groupby(yr).apply(lambda s: ((1.0 + s / 100.0).prod() - 1.0) * 100.0)
+        for col in col_map.values()
+    })
+    out["vs All-World"] = out[col_map["strategy"]] - out[col_map["allworld"]]
+    return out
+
+
+def _compile_record(
+    key: str,
+    title: str,
+    short_label: str,
+    monthly: pd.DataFrame,
+    book: pd.DataFrame,
+    allworld_col: str,
+    allworld_label: str,
+    basis_text: str,
+    gap_note: str,
+    annual: pd.DataFrame | None = None,
+) -> dict:
+    """Compile one monthly return CSV + aligned book into the full chart payload."""
     current_month = str(book.index[-1])
     current_row = book.iloc[-1]
-
+    signal_month = str(pd.Period(current_month, "M") - 1)
     months = [str(i) for i in monthly.index]
     start, end = months[0], months[-1]
 
-    # The tradable record is not contiguous: a month is dropped when either leg held
-    # that month had no London price history yet. Keep the calendar separate from the
-    # observed months so charts sit on a true time axis and the gap is visible.
     calendar = [f"{o // 12}-{o % 12 + 1:02d}" for o in range(ordinal(start), ordinal(end) + 1)]
     observed = set(months)
     gaps = [m for m in calendar if m not in observed]
     t_index = [ordinal(m) - ordinal(start) for m in months]
 
     allocation_calendar = [str(m) for m in pd.period_range(start, current_month, freq="M")]
-    book = book.loc[start:current_month]
-    if [str(i) for i in book.index] != allocation_calendar:
-        raise SystemExit(f"book/calendar mismatch: {len(book)} vs {len(calendar)}")
+    book_slice = book.loc[start:current_month]
+    if [str(i) for i in book_slice.index] != allocation_calendar:
+        raise SystemExit(f"book/calendar mismatch ({key}): {len(book_slice)} vs {len(allocation_calendar)}")
 
-    cols = {"strategy": monthly.columns[STRATEGY_COL]}
-    cols.update(BENCHMARKS)
+    cols = {
+        "strategy": monthly.columns[STRATEGY_COL],
+        "allworld": allworld_col,
+        "sp500": BENCHMARKS["sp500"],
+        "world": BENCHMARKS["world"],
+    }
+    labels = {
+        "strategy": "Lodestar",
+        "allworld": allworld_label,
+        "sp500": "S&P 500",
+        "world": "MSCI World",
+    }
 
     returns, stats = {}, {}
-    for key, col in cols.items():
+    for s_key, col in cols.items():
         col_s = monthly[col]
-        returns[key] = [r6(v) for v in col_s.to_numpy(dtype=float)]
-        stats[key] = stats_for(col_s)
+        returns[s_key] = [r6(v) for v in col_s.to_numpy(dtype=float)]
+        stats[s_key] = stats_for(col_s)
 
     strat = monthly[cols["strategy"]].to_numpy(dtype=float)
     aw = monthly[cols["allworld"]].to_numpy(dtype=float)
     excess_m = strat - aw
     wins = int((strat > aw).sum())
 
-    # Calendar years. 2015 is Dec only; the final year runs to the last month held.
+    ann_df = annual if annual is not None else _annual_from_monthly(monthly, cols)
     years = []
-    for y, row in annual.iterrows():
+    for y, row in ann_df.iterrows():
         in_year = [m for m in months if m.startswith(f"{y}-")]
+        if not in_year:
+            continue
         years.append({
             "year": int(y),
-            "strategy": r6(row.iloc[STRATEGY_COL]),
-            "allworld": r6(row[BENCHMARKS["allworld"]]),
-            "sp500": r6(row[BENCHMARKS["sp500"]]),
-            "world": r6(row[BENCHMARKS["world"]]),
+            "strategy": r6(row[cols["strategy"]]),
+            "allworld": r6(row[cols["allworld"]]),
+            "sp500": r6(row[cols["sp500"]]),
+            "world": r6(row[cols["world"]]),
             "excess": r6(row["vs All-World"]),
             "monthsCovered": len(in_year),
             "partial": len(in_year) < 12,
-            "span": f"{pretty(in_year[0])} – {pretty(in_year[-1])}",
+            "span": f"{pretty(in_year[0])} - {pretty(in_year[-1])}",
         })
     beat_years = sum(1 for y in years if (y["excess"] or 0) > 0)
 
-    # Holding book, and the run-length ribbon used by the allocation strip.
     slot_names = {**FACTOR_NAMES, **SECTOR_NAMES}
     ret_by_month = {m: returns["strategy"][i] for i, m in enumerate(months)}
     holdings = []
-    for period, row in book.iterrows():
+    for period, row in book_slice.iterrows():
         cash = bool(row["cash"])
         holdings.append({
             "m": str(period),
@@ -413,13 +439,6 @@ def main() -> None:
         })
 
     def runs(field):
-        """Merge consecutive months with the same holding into a single bar.
-
-        Each run also carries the strategy's mean monthly return while that pick was
-        in the book, so the ribbon can shade by outcome as well as show tenure.
-        (The strategy holds both legs 50/50, so this is the whole book's return during
-        the run, not an attribution to the one leg.)
-        """
         out, cur = [], None
         for i, h in enumerate(holdings):
             slot = "CASH" if h["cash"] else h[field]
@@ -439,44 +458,61 @@ def main() -> None:
             run["name"] = "Cash" if run["slot"] == "CASH" else slot_names[run["slot"]]
         return out
 
-    # Months each slot was actually held, counted over the priced record only.
     held_priced = {c: 0 for c in list(FACTOR_NAMES) + list(SECTOR_NAMES)}
+    cash_priced = 0
     for h in holdings:
-        if h["cash"] or not h["priced"]:
+        if not h["priced"]:
             continue
-        held_priced[h["factor"]] += 1
-        held_priced[h["sector"]] += 1
+        if h["cash"]:
+            cash_priced += 1
+        else:
+            held_priced[h["factor"]] += 1
+            held_priced[h["sector"]] += 1
 
     factor_slots = list(FACTOR_NAMES.keys())
     sector_slots = list(SECTOR_NAMES.keys())
     tenure = {s: 0 for s in factor_slots + sector_slots}
+    cash_tenure = 0
     for h in holdings:
         if h["cash"]:
-            continue
-        tenure[h["factor"]] += 1
-        tenure[h["sector"]] += 1
+            cash_tenure += 1
+        else:
+            tenure[h["factor"]] += 1
+            tenure[h["sector"]] += 1
+
+    factor_slot_list = [
+        {"code": c, "name": FACTOR_NAMES[c], "ticker": TRADABLE[c][2],
+         "isin": TRADABLE[c][0], "months": tenure[c]}
+        for c in factor_slots
+    ]
+    sector_slot_list = [
+        {"code": c, "name": SECTOR_NAMES[c], "ticker": TRADABLE[c][2],
+         "isin": TRADABLE[c][0], "months": tenure[c]}
+        for c in sector_slots
+    ]
+    if cash_tenure > 0:
+        cash_slot = {"code": "CASH", "name": "Cash (crash filter)", "ticker": "CASH",
+                     "isin": "S&P 500 < -25% / 19m", "months": cash_tenure}
+        factor_slot_list.append(cash_slot)
+        sector_slot_list.append(cash_slot)
 
     lanes = [
         {
             "id": "factor",
             "title": "Factor leg",
             "subtitle": "8 MSCI factor indices",
-            "slots": [{"code": c, "name": FACTOR_NAMES[c], "ticker": TRADABLE[c][2],
-                       "isin": TRADABLE[c][0], "months": tenure[c]} for c in factor_slots],
+            "slots": factor_slot_list,
             "runs": runs("factor"),
         },
         {
             "id": "sector",
             "title": "Sector leg",
             "subtitle": "7 S&P 500 sector indices",
-            "slots": [{"code": c, "name": SECTOR_NAMES[c], "ticker": TRADABLE[c][2],
-                       "isin": TRADABLE[c][0], "months": tenure[c]} for c in sector_slots],
+            "slots": sector_slot_list,
             "runs": runs("sector"),
         },
     ]
 
-    # Monthly returns heatmap: one row per calendar year, 12 columns.
-    signal_month = str(pd.Period(current_month, "M") - 1)
     grid, ylist = [], list(range(int(start[:4]), int(signal_month[:4]) + 1))
     lookup = {m: returns["strategy"][i] for i, m in enumerate(months)}
     for y in ylist:
@@ -487,9 +523,160 @@ def main() -> None:
             ytd = r6((np.prod([1 + c / 100 for c in present]) - 1) * 100)
         grid.append({"year": y, "cells": cells, "ytd": ytd})
 
+    last_cash = bool(current_row["cash"])
+    last_factor = str(current_row["factor"])
+    last_sector = str(current_row["sector"])
+    cash_months_list = [h["m"] for h in holdings if h["cash"] and h["priced"]]
+
+    return {
+        "key": key,
+        "title": title,
+        "shortLabel": short_label,
+        "meta": {
+            "name": "Lodestar",
+            "strapline": "Factor and sector rotation",
+            "recordKey": key,
+            "recordTitle": title,
+            "start": start,
+            "end": end,
+            "startPretty": pretty(start),
+            "endPretty": pretty(end),
+            "months": len(months),
+            "calendarMonths": len(calendar),
+            "gaps": gaps,
+            "gapNote": gap_note,
+            "cashMonths": len(cash_months_list),
+            "cashTotalMonths": cash_tenure,
+            "cashSpanNote": (
+                f"{pretty(cash_months_list[0])} to {pretty(cash_months_list[-1])}"
+                if cash_months_list else ""
+            ),
+            "riskFree": RISK_FREE * 100,
+            "currency": "GBP",
+            "basis": basis_text,
+            "builtAt": datetime.now(timezone.utc).isoformat(),
+            "expectedEnd": signal_month,
+            "performancePending": end < signal_month,
+            "proxyMonths": [h["m"] for h in holdings if
+                            "ETF proxy" in (h["factorSource"], h["sectorSource"])],
+        },
+        "labels": labels,
+        "order": ["strategy", "allworld", "sp500", "world"],
+        "months": months,
+        "monthsPretty": [pretty(m) for m in months],
+        "t": t_index,
+        "span": len(calendar) - 1,
+        "calendar": calendar,
+        "allocationCalendar": allocation_calendar,
+        "returns": returns,
+        "stats": stats,
+        "excess": {
+            "monthly": [r6(v) for v in excess_m],
+            "wins": wins,
+            "losses": len(months) - wins,
+            "winRate": r6(wins / len(months) * 100.0),
+            "beatYears": beat_years,
+            "totalYears": len(years),
+            "avgMonthly": r6(float(excess_m.mean())),
+        },
+        "years": years,
+        "heatmap": {
+            "years": grid,
+            "monthLabels": MONTH_ABBR,
+            "pending": [str(m) for m in pd.period_range(end, signal_month, freq="M") if str(m) > end],
+        },
+        "holdings": holdings,
+        "lanes": lanes,
+        "universe": {
+            "pricedMonths": len(months),
+            "maxHeld": max(list(held_priced.values()) + [1]),
+            "cashHeld": cash_priced,
+            "styles": [{"key": k, "name": n} for k, n in STYLES],
+            "factors": [{
+                "code": c, "name": FACTOR_NAMES[c],
+                "style": c.split("_", 1)[1], "region": REGION[c.split("_", 1)[0]],
+                "isin": TRADABLE[c][0], "lse": TRADABLE[c][2], "xetra": TRADABLE[c][1],
+                "held": held_priced[c], "heldAll": tenure[c],
+                "live": not last_cash and c == last_factor,
+            } for c in factor_slots],
+            "sectors": [{
+                "code": c, "name": SECTOR_NAMES[c],
+                "isin": TRADABLE[c][0], "lse": TRADABLE[c][2], "xetra": TRADABLE[c][1],
+                "held": held_priced[c], "heldAll": tenure[c],
+                "live": not last_cash and c == last_sector,
+            } for c in sector_slots],
+        },
+    }
+
+
+def main() -> None:
+    price_status_path = DATA_DIR / "price_status.json"
+    price_status = json.loads(price_status_path.read_text()) if price_status_path.exists() else None
+    monthly = pd.read_csv(DATA_DIR / "final_tradable.csv", index_col=0)
+    annual = pd.read_csv(DATA_DIR / "final_tradable_annual.csv", index_col=0)
+    book = pd.read_csv(DATA_DIR / "final_book.csv", index_col=0)
+    current_month = str(book.index[-1])
+    current_row = book.iloc[-1]
+    signal_month = str(pd.Period(current_month, "M") - 1)
+    slot_names = {**FACTOR_NAMES, **SECTOR_NAMES}
+
+    records = {}
+    records["tradable"] = _compile_record(
+        key="tradable",
+        title="Tradable London UCITS ETFs",
+        short_label="UCITS ETFs (2015-)",
+        monthly=monthly,
+        book=book,
+        allworld_col=BENCHMARKS["allworld"],
+        allworld_label="FTSE All-World",
+        basis_text="Total return, net of fund fees, gross of dealing costs and spread.",
+        gap_note="Nine months in 2016 lack priced London lines because the US factor UCITS ETFs did not list in London until October 2016.",
+        annual=annual,
+    )
+
+    tr_path = DATA_DIR / "final_index_tr.csv"
+    if tr_path.is_file():
+        tr_monthly = pd.read_csv(tr_path, index_col=0)
+        if not tr_monthly.empty:
+            records["index_tr"] = _compile_record(
+                key="index_tr",
+                title="Index Total Return (MSCI Net TR + SPDR TR)",
+                short_label="Index TR (2001-)",
+                monthly=tr_monthly,
+                book=book,
+                allworld_col="MSCI ACWI",
+                allworld_label="MSCI ACWI",
+                basis_text="Sterling total return from MSCI GBP Net TR factor indices and Select Sector SPDR ETFs converted at MSCI month-end FX, with 0% during cash months. Gross of UCITS fund OCF and dealing costs.",
+                gap_note="Continuous monthly total-return record starting January 2001, when MSCI Small Cap Net TR series begin, covering both the 2001-2003 bear market and the 2008-2009 financial crisis.",
+            )
+
+    px_path = DATA_DIR / "final_index_price.csv"
+    if px_path.is_file():
+        px_monthly = pd.read_csv(px_path, index_col=0)
+        if not px_monthly.empty:
+            records["index_price"] = _compile_record(
+                key="index_price",
+                title="Pure Price Index (MSCI STRD + S&P 500 Sectors)",
+                short_label="Price Index (1999-)",
+                monthly=px_monthly,
+                book=book,
+                allworld_col="MSCI ACWI",
+                allworld_label="MSCI ACWI",
+                basis_text="Sterling price return from MSCI STRD factor indices and S&P 500 sector price indices converted at MSCI month-end FX, excluding dividends and with 0% during cash months. Zero ETFs.",
+                gap_note="Runs directly from strategy start in September 1999 with zero ETF proxies. Gaps reflect months where Yahoo's S&P 500 sector feed stopped returning historical index closes.",
+            )
+
+    primary = records["tradable"]
+    months = primary["months"]
+    start, end = primary["meta"]["start"], primary["meta"]["end"]
+    stats = primary["stats"]
+    years = primary["years"]
+    holdings = primary["holdings"]
+    wins = primary["excess"]["wins"]
+    beat_years = primary["excess"]["beatYears"]
+
     last = {"factor": str(current_row["factor"]), "sector": str(current_row["sector"]),
             "cash": bool(current_row["cash"])}
-    signal_month = str(pd.Period(current_month, "M") - 1)
     current = {
         "asof": signal_month,
         "asofPretty": pretty(signal_month),
@@ -512,7 +699,7 @@ def main() -> None:
     if last["cash"]:
         current["legs"] = []
 
-    book = build_book(current)
+    book_payload = build_book(current)
 
     try:
         live_portfolio = get_live_portfolio_data()
@@ -521,85 +708,31 @@ def main() -> None:
         live_portfolio = {}
 
     try:
-        crash_protection = get_crash_protection_data()
+        crash_protection = get_crash_protection_data(use_cache=True)
     except Exception as e:
         print(f"Warning: crash protection fetch failed: {e}")
         crash_protection = {}
 
     try:
-        emerging = compute_emerging_data()
+        emerging = compute_emerging_data(crash_data=crash_protection or {})
     except Exception as e:
         print(f"Warning: emerging data fetch failed: {e}")
         emerging = {}
 
     payload = {
-        "meta": {
-            "name": "Lodestar",
-            "strapline": "Factor and sector rotation",
-            "start": start,
-            "end": end,
-            "startPretty": pretty(start),
-            "endPretty": pretty(end),
-            "months": len(months),
-            "calendarMonths": len(calendar),
-            "gaps": gaps,
-            "riskFree": RISK_FREE * 100,
-            "currency": "GBP",
-            "basis": "Total return, net of index-level costs, gross of dealing costs and spread.",
-            "builtAt": datetime.now(timezone.utc).isoformat(),
-            "expectedEnd": signal_month,
-            "performancePending": end < signal_month,
-            "proxyMonths": [h["m"] for h in holdings if
-                            "ETF proxy" in (h["factorSource"], h["sectorSource"])],
-        },
-        "labels": LABELS,
-        "order": ["strategy", "allworld", "sp500", "world"],
-        "months": months,
-        "monthsPretty": [pretty(m) for m in months],
-        "t": t_index,
-        "span": len(calendar) - 1,
-        "calendar": calendar,
-        "allocationCalendar": allocation_calendar,
-        "returns": returns,
-        "stats": stats,
-        "excess": {
-            "monthly": [r6(v) for v in excess_m],
-            "wins": wins,
-            "losses": len(months) - wins,
-            "winRate": r6(wins / len(months) * 100.0),
-            "beatYears": beat_years,
-            "totalYears": len(years),
-            "avgMonthly": r6(float(excess_m.mean())),
-        },
-        "years": years,
-        "heatmap": {"years": grid, "monthLabels": MONTH_ABBR,
-                    "pending": [str(m) for m in pd.period_range(end, signal_month, freq="M") if str(m) > end]},
-        "holdings": holdings,
-        "lanes": lanes,
+        **{k: primary[k] for k in (
+            "meta", "labels", "order", "months", "monthsPretty", "t", "span",
+            "calendar", "allocationCalendar", "returns", "stats", "excess",
+            "years", "heatmap", "holdings", "lanes", "universe"
+        )},
+        "recordOrder": [k for k in ("tradable", "index_tr", "index_price") if k in records],
+        "records": records,
         "current": current,
         "livePortfolio": live_portfolio,
         "crashProtection": crash_protection,
         "emerging": emerging,
         "priceStatus": price_status,
-        "book": book,
-        "universe": {
-            "pricedMonths": len(months),
-            "maxHeld": max(held_priced.values()),
-            "styles": [{"key": k, "name": n} for k, n in STYLES],
-            "factors": [{
-                "code": c, "name": FACTOR_NAMES[c],
-                "style": c.split("_", 1)[1], "region": REGION[c.split("_", 1)[0]],
-                "isin": TRADABLE[c][0], "lse": TRADABLE[c][2], "xetra": TRADABLE[c][1],
-                "held": held_priced[c], "heldAll": tenure[c],
-                "live": not last["cash"] and c == last["factor"],
-            } for c in factor_slots],
-            "sectors": [{
-                "code": c, "name": SECTOR_NAMES[c],
-                "isin": TRADABLE[c][0], "lse": TRADABLE[c][2], "xetra": TRADABLE[c][1],
-                "held": held_priced[c], "heldAll": tenure[c],
-                "live": not last["cash"] and c == last["sector"],
-            } for c in sector_slots],
-        },
+        "book": book_payload,
     }
 
     body = json.dumps(payload, separators=(",", ":"), allow_nan=False)
@@ -627,16 +760,16 @@ def main() -> None:
     print("  current       " + ("Cash" if current["cash"] else
           " + ".join(f"{leg['name']} ({leg['lse']})" for leg in current["legs"]))
           + f" for {current_month}, signal at {signal_month}")
-    if book is None:
-        print("  look-through  none (data/holdings.json missing or incomplete) — section dropped")
+    if book_payload is None:
+        print("  look-through  none (data/holdings.json missing or incomplete) - section dropped")
     else:
-        print(f"  look-through  as at {book['asOfPretty']}"
-              + ("  !! STALE: holdings do not match the current legs" if book["stale"] else ""))
-        for leg in book["legs"]:
+        print(f"  look-through  as at {book_payload['asOfPretty']}"
+              + ("  !! STALE: holdings do not match the current legs" if book_payload["stale"] else ""))
+        for leg in book_payload["legs"]:
             print(f"    {leg['leg']:<7} {leg['ticker']:<8} top10 {leg['top10']:.1f}% of fund, "
                   f"{leg['top10Book']:.1f}% of book")
-        print("    " + " + ".join(f"{h['sym']} {h['bw']:.1f}%" for h in book["named"])
-              + f" = {book['namedBook']:.1f}% of the book")
+        print("    " + " + ".join(f"{h['sym']} {h['bw']:.1f}%" for h in book_payload["named"])
+              + f" = {book_payload['namedBook']:.1f}% of the book")
 
 
 if __name__ == "__main__":
