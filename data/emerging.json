@@ -1,6 +1,6 @@
 {
   "asof": "2026-11-13",
-  "computed_at": "2026-11-13 16:57 UTC",
+  "computed_at": "2026-11-13 17:03 UTC",
   "factor_asof": "2026-11-13",
   "sector_asof": "2026-11-13",
   "month": "2026-11",
@@ -62,12 +62,12 @@
     "leader_code": "USA_VAL",
     "leader_name": "USA Value",
     "leader_ticker": "IUVF.L",
-    "momentum_pct": 31.84,
+    "momentum_pct": 31.88,
     "is_held": true,
     "runner_up_code": "USA_QUAL",
     "runner_up_name": "USA Quality",
     "runner_up_ticker": "IUQF.L",
-    "runner_up_momentum_pct": 16.37,
+    "runner_up_momentum_pct": 16.41,
     "gap_pp": 15.47,
     "giveback_pct": 11.7,
     "held_code": "USA_VAL",
@@ -79,13 +79,13 @@
     "leader_code": "HEALTH",
     "leader_name": "Health Care",
     "leader_ticker": "IHCU.L",
-    "momentum_pct": 28.14,
+    "momentum_pct": 28.19,
     "is_held": false,
     "runner_up_code": "INFOTECH",
     "runner_up_name": "Information Technology",
     "runner_up_ticker": "IITU.L",
-    "runner_up_momentum_pct": 26.99,
-    "gap_pp": 1.15,
+    "runner_up_momentum_pct": 27.01,
+    "gap_pp": 1.18,
     "giveback_pct": 0.9,
     "held_code": "INFOTECH",
     "held_name": "Information Technology",
@@ -98,7 +98,7 @@
       "name": "USA Value",
       "ticker": "IUVF.L",
       "proxy": "VLUE",
-      "momentum_pct": 31.84,
+      "momentum_pct": 31.88,
       "is_held": true,
       "rank": 1,
       "lead_margin": "+15.5pp"
@@ -108,7 +108,7 @@
       "name": "USA Quality",
       "ticker": "IUQF.L",
       "proxy": "QUAL",
-      "momentum_pct": 16.37,
+      "momentum_pct": 16.41,
       "is_held": false,
       "rank": 2,
       "lead_margin": "-15.5pp"
@@ -118,17 +118,17 @@
       "name": "USA Small Cap",
       "ticker": "CUS1.L",
       "proxy": "SMLF",
-      "momentum_pct": 12.45,
+      "momentum_pct": 12.37,
       "is_held": false,
       "rank": 3,
-      "lead_margin": "-19.4pp"
+      "lead_margin": "-19.5pp"
     },
     {
       "code": "USA_MOM",
       "name": "USA Momentum",
       "ticker": "IUMF.L",
       "proxy": "MTUM",
-      "momentum_pct": 12.06,
+      "momentum_pct": 12.12,
       "is_held": false,
       "rank": 4,
       "lead_margin": "-19.8pp"
@@ -138,10 +138,10 @@
       "name": "Europe Quality",
       "ticker": "IEFQ.L",
       "proxy": "IQLT",
-      "momentum_pct": 8.62,
+      "momentum_pct": 8.61,
       "is_held": false,
       "rank": 5,
-      "lead_margin": "-23.2pp"
+      "lead_margin": "-23.3pp"
     },
     {
       "code": "EUR_VAL",
@@ -168,10 +168,10 @@
       "name": "Europe Momentum",
       "ticker": "IEFM.L",
       "proxy": "IMTM",
-      "momentum_pct": 4.0,
+      "momentum_pct": 3.98,
       "is_held": false,
       "rank": 8,
-      "lead_margin": "-27.8pp"
+      "lead_margin": "-27.9pp"
     }
   ],
   "sectors": [
@@ -180,17 +180,17 @@
       "name": "Health Care",
       "ticker": "IHCU.L",
       "proxy": "XLV",
-      "momentum_pct": 28.14,
+      "momentum_pct": 28.19,
       "is_held": false,
       "rank": 1,
-      "lead_margin": "+1.1pp"
+      "lead_margin": "+1.2pp"
     },
     {
       "code": "INFOTECH",
       "name": "Information Technology",
       "ticker": "IITU.L",
       "proxy": "XLK",
-      "momentum_pct": 26.99,
+      "momentum_pct": 27.01,
       "is_held": true,
       "rank": 2,
       "lead_margin": "-1.2pp"
@@ -200,7 +200,7 @@
       "name": "Consumer Staples",
       "ticker": "ICSU.L",
       "proxy": "XLP",
-      "momentum_pct": 12.26,
+      "momentum_pct": 12.34,
       "is_held": false,
       "rank": 3,
       "lead_margin": "-15.9pp"
@@ -210,7 +210,7 @@
       "name": "Consumer Discretionary",
       "ticker": "ICDU.L",
       "proxy": "XLY",
-      "momentum_pct": 9.96,
+      "momentum_pct": 9.95,
       "is_held": false,
       "rank": 4,
       "lead_margin": "-18.2pp"
@@ -220,7 +220,7 @@
       "name": "Energy",
       "ticker": "IESU.L",
       "proxy": "XLE",
-      "momentum_pct": 5.04,
+      "momentum_pct": 5.1,
       "is_held": false,
       "rank": 5,
       "lead_margin": "-23.1pp"
@@ -230,10 +230,10 @@
       "name": "Materials",
       "ticker": "IMSU.L",
       "proxy": "XLB",
-      "momentum_pct": 4.29,
+      "momentum_pct": 4.37,
       "is_held": false,
       "rank": 6,
-      "lead_margin": "-23.9pp"
+      "lead_margin": "-23.8pp"
     },
     {
       "code": "INDUST",
@@ -243,7 +243,7 @@
       "momentum_pct": 3.9,
       "is_held": false,
       "rank": 7,
-      "lead_margin": "-24.2pp"
+      "lead_margin": "-24.3pp"
     }
   ],
   "factor_chart": {
@@ -419,7 +419,7 @@
         "ticker": "IUVF.L",
         "proxy": "VLUE",
         "is_held": true,
-        "latest_pct": 31.84,
+        "latest_pct": 31.88,
         "values": [
           0.0,
           1.81,
@@ -579,7 +579,7 @@
           31.44,
           35.31,
           33.88,
-          31.84
+          31.88
         ]
       },
       {
@@ -589,7 +589,7 @@
         "ticker": "IUQF.L",
         "proxy": "QUAL",
         "is_held": false,
-        "latest_pct": 16.37,
+        "latest_pct": 16.41,
         "values": [
           0.0,
           0.5,
@@ -749,7 +749,7 @@
           16.47,
           17.6,
           16.89,
-          16.37
+          16.41
         ]
       },
       {
@@ -759,7 +759,7 @@
         "ticker": "CUS1.L",
         "proxy": "SMLF",
         "is_held": false,
-        "latest_pct": 12.45,
+        "latest_pct": 12.37,
         "values": [
           0.0,
           0.73,
@@ -919,7 +919,7 @@
           13.64,
           14.66,
           13.17,
-          12.45
+          12.37
         ]
       },
       {
@@ -929,7 +929,7 @@
         "ticker": "IUMF.L",
         "proxy": "MTUM",
         "is_held": false,
-        "latest_pct": 12.06,
+        "latest_pct": 12.12,
         "values": [
           0.0,
           2.19,
@@ -1089,7 +1089,7 @@
           11.22,
           15.44,
           15.6,
-          12.06
+          12.12
         ]
       },
       {
@@ -1099,7 +1099,7 @@
         "ticker": "IEFQ.L",
         "proxy": "IQLT",
         "is_held": false,
-        "latest_pct": 8.62,
+        "latest_pct": 8.61,
         "values": [
           0.0,
           1.38,
@@ -1259,7 +1259,7 @@
           9.28,
           9.58,
           8.7,
-          8.62
+          8.61
         ]
       },
       {
@@ -1609,7 +1609,7 @@
         "ticker": "IEFM.L",
         "proxy": "IMTM",
         "is_held": false,
-        "latest_pct": 4.0,
+        "latest_pct": 3.98,
         "values": [
           0.0,
           2.71,
@@ -1769,7 +1769,7 @@
           4.08,
           5.44,
           4.58,
-          4.0
+          3.98
         ]
       }
     ]
@@ -1947,7 +1947,7 @@
         "ticker": "IHCU.L",
         "proxy": "XLV",
         "is_held": false,
-        "latest_pct": 28.14,
+        "latest_pct": 28.19,
         "values": [
           0.0,
           0.76,
@@ -2107,7 +2107,7 @@
           28.83,
           28.88,
           28.12,
-          28.14
+          28.19
         ]
       },
       {
@@ -2117,7 +2117,7 @@
         "ticker": "IITU.L",
         "proxy": "XLK",
         "is_held": true,
-        "latest_pct": 26.99,
+        "latest_pct": 27.01,
         "values": [
           0.0,
           1.51,
@@ -2277,7 +2277,7 @@
           27.1,
           31.2,
           30.75,
-          26.99
+          27.01
         ]
       },
       {
@@ -2287,7 +2287,7 @@
         "ticker": "ICSU.L",
         "proxy": "XLP",
         "is_held": false,
-        "latest_pct": 12.26,
+        "latest_pct": 12.34,
         "values": [
           0.0,
           -0.63,
@@ -2447,7 +2447,7 @@
           11.04,
           11.55,
           11.08,
-          12.26
+          12.34
         ]
       },
       {
@@ -2457,7 +2457,7 @@
         "ticker": "ICDU.L",
         "proxy": "XLY",
         "is_held": false,
-        "latest_pct": 9.96,
+        "latest_pct": 9.95,
         "values": [
           0.0,
           0.75,
@@ -2617,7 +2617,7 @@
           11.08,
           11.02,
           10.53,
-          9.96
+          9.95
         ]
       },
       {
@@ -2627,7 +2627,7 @@
         "ticker": "IESU.L",
         "proxy": "XLE",
         "is_held": false,
-        "latest_pct": 5.04,
+        "latest_pct": 5.1,
         "values": [
           0.0,
           -3.74,
@@ -2787,7 +2787,7 @@
           1.55,
           3.44,
           5.01,
-          5.04
+          5.1
         ]
       },
       {
@@ -2797,7 +2797,7 @@
         "ticker": "IMSU.L",
         "proxy": "XLB",
         "is_held": false,
-        "latest_pct": 4.29,
+        "latest_pct": 4.37,
         "values": [
           0.0,
           0.98,
@@ -2957,7 +2957,7 @@
           5.76,
           6.1,
           4.74,
-          4.29
+          4.37
         ]
       },
       {
