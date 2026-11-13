@@ -61,6 +61,18 @@
       "month": "2026-10",
       "available": true,
       "basis": "GBP adjusted close"
+    },
+    {
+      "ticker": "CUKX.L",
+      "month": "2026-09",
+      "available": true,
+      "basis": "GBP adjusted close"
+    },
+    {
+      "ticker": "CUKX.L",
+      "month": "2026-10",
+      "available": true,
+      "basis": "GBP adjusted close"
     }
   ],
   "missing": []

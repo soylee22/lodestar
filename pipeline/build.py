@@ -34,7 +34,7 @@ LOOKBACK, SKIP = 8, 0
 # Inferred substitute, not MarketFighter's proprietary twelve-close ketchup rule.
 CASH_LOOKBACK, CASH_THRESHOLD = 19, -0.25
 BENCH = {"FTSE All-World": ("VWRL.L", "GBP"), "S&P 500": ("VUSA.L", "GBP"),
-         "MSCI World": ("IWDA.L", "USD")}
+         "MSCI World": ("IWDA.L", "USD"), "FTSE 100": ("CUKX.L", "GBP")}
 
 # Fallback for the factor leg when MSCI's endpoint is unreachable. These are the
 # US-listed, DISTRIBUTING factor funds, so their unadjusted close is a price
@@ -105,7 +105,7 @@ def completed_months(d, sym, today=None):
             # FX has no single stock-exchange calendar. Only accept a weekday close.
             last = pd.bdate_range(month.start_time, month.end_time)[-1]
         else:
-            cal = exchange_calendar("XLON" if sym.endswith(".L") else "XNYS")
+            cal = exchange_calendar("XLON" if (sym.endswith(".L") or sym == "^FTSE") else "XNYS")
             last = cal.sessions_in_range(month.start_time.normalize(), month.end_time.normalize())[-1]
         if prices.index[-1] == last:
             rows[month] = float(prices.iloc[-1])
@@ -366,6 +366,14 @@ def build_track(book, funds, bench_rets):
 
 def append_track(recorded, fresh):
     """Append consecutive complete months. Keep published history and gaps fixed."""
+    recorded = recorded.copy()
+    for col in fresh.columns:
+        if col not in recorded.columns:
+            recorded[col] = fresh[col].reindex(recorded.index)
+    cols = [c for c in fresh.columns if c in recorded.columns] + [
+        c for c in recorded.columns if c not in fresh.columns
+    ]
+    recorded = recorded[cols]
     expected = recorded.index.max() + 1
     additions = []
     for month in fresh.index[fresh.index > recorded.index.max()]:
@@ -407,11 +415,14 @@ def build_long_tracks(book, raw, spx_usd):
     world_netr = msci("990100", "GBP", variant="NETR")
     spx_tr_usd = yahoo_monthly("^SP500TR", adjusted=False, start="1998-11-01")
     spx_tr_gbp = (spx_tr_usd * usdgbp.reindex(spx_tr_usd.index)).dropna()
+    ftse_px = yahoo_monthly("^FTSE", adjusted=False, start="1998-11-01")
+    ftse_ret = ftse_px.pct_change(fill_method=None) * 100
 
     bench_tr = pd.DataFrame({
         "MSCI ACWI": acwi_netr.pct_change(fill_method=None) * 100,
         "S&P 500": spx_tr_gbp.pct_change(fill_method=None) * 100,
         "MSCI World": world_netr.pct_change(fill_method=None) * 100,
+        "FTSE 100 (price)": ftse_ret,
     })
     track_tr = build_track(book, pd.DataFrame(tr_panel), bench_tr)
     if not track_tr.empty:
@@ -432,6 +443,7 @@ def build_long_tracks(book, raw, spx_usd):
         "MSCI ACWI": acwi_strd.pct_change(fill_method=None) * 100,
         "S&P 500": spx_px_gbp.pct_change(fill_method=None) * 100,
         "MSCI World": w_gbp_strd.pct_change(fill_method=None) * 100,
+        "FTSE 100": ftse_ret,
     })
     track_px = build_track(book, pd.DataFrame(px_panel), bench_px)
     if not track_px.empty:

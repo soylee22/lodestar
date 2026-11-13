@@ -225,6 +225,48 @@ class DailyTests(unittest.TestCase):
             self.assertIn('15:30 UTC', captured['html'])
             self.assertIn('Health Care', captured['html'])
 
+    def test_emerging_builds_normalised_8m_lookback_charts(self):
+        from pipeline import emerging
+        with tempfile.TemporaryDirectory() as folder:
+            root = Path(folder)
+            (root / 'data').mkdir()
+            (root / 'data' / 'signal_history.json').write_text(json.dumps({
+                '2026-10': {'factor': 'USA_VAL', 'sector': 'INFOTECH', 'cash': False}
+            }))
+            dates = pd.to_datetime(['2026-03-31', '2026-07-15', '2026-11-12'])
+            f_px = pd.DataFrame({
+                'USA_VAL': [100.0, 110.0, 125.0],
+                'USA_QUAL': [200.0, 190.0, 210.0],
+            }, index=dates)
+            s_px = pd.DataFrame({
+                'INFOTECH': [50.0, 55.0, 60.0],
+                'HEALTH': [80.0, 76.0, 72.0],
+            }, index=dates)
+
+            em = emerging.compute_emerging_data(
+                today=date(2026, 11, 13),
+                root=root,
+                crash_data={'cash_triggered': False, 'status': 'INVESTED', 'status_text': 'All Systems Green', 'status_tone': 'pass', 'checks': []},
+                use_cache=False,
+                factor_px=f_px,
+                sector_px=s_px,
+                sector_is_proxy=True,
+            )
+            f_chart = em['factor_chart']
+            s_chart = em['sector_chart']
+            self.assertEqual(f_chart['base_month'], '2026-03')
+            self.assertEqual(f_chart['base_date'], '2026-03-31')
+            self.assertEqual(f_chart['dates'], ['2026-03-31', '2026-07-15', '2026-11-12'])
+            self.assertEqual([s['code'] for s in f_chart['series']], ['USA_VAL', 'USA_QUAL'])
+            self.assertEqual(f_chart['series'][0]['values'], [0.0, 10.0, 25.0])
+            self.assertEqual(f_chart['series'][1]['values'], [0.0, -5.0, 5.0])
+            self.assertEqual(f_chart['series'][0]['latest_pct'], em['factors'][0]['momentum_pct'])
+
+            self.assertEqual([s['code'] for s in s_chart['series']], ['INFOTECH', 'HEALTH'])
+            self.assertEqual(s_chart['series'][0]['values'], [0.0, 10.0, 20.0])
+            self.assertEqual(s_chart['series'][1]['values'], [0.0, -5.0, -10.0])
+            self.assertEqual(s_chart['series'][1]['latest_pct'], em['sectors'][1]['momentum_pct'])
+
 
 if __name__=='__main__':
     unittest.main()

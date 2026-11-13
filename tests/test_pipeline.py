@@ -164,6 +164,29 @@ class PipelineTests(unittest.TestCase):
             self.assertEqual(merged.loc['2001-02', 'Lodestar (Index TR, GBP)'], 2.5)
             self.assertEqual(merged.loc['2001-03', 'Lodestar (Index TR, GBP)'], 3.0)
 
+    def test_ftse_uses_london_calendar_on_uk_bank_holiday_month_end(self):
+        # 2026-08-31 was a UK Summer Bank Holiday: XLON closed on 2026-08-28, XNYS traded on 2026-08-31.
+        prices = pd.Series([8300.0], index=pd.to_datetime(['2026-08-28']))
+        ftse_months = build.completed_months(prices, '^FTSE', '2026-09-02')
+        spx_months = build.completed_months(prices, '^GSPC', '2026-09-02')
+        self.assertEqual(list(ftse_months.index.astype(str)), ['2026-08'])
+        self.assertTrue(spx_months.empty)
+
+    def test_append_track_backfills_new_column_without_altering_existing(self):
+        recorded = pd.DataFrame(
+            {'Lodestar': [1.0, 2.0]},
+            index=pd.PeriodIndex(['2026-07', '2026-08'], freq='M'),
+        )
+        fresh = pd.DataFrame(
+            {'Lodestar': [9.0, 9.0, 3.0], 'FTSE 100': [0.5, 0.6, 0.7]},
+            index=pd.PeriodIndex(['2026-07', '2026-08', '2026-09'], freq='M'),
+        )
+        result = build.append_track(recorded, fresh)
+        self.assertEqual(list(result.index.astype(str)), ['2026-07', '2026-08', '2026-09'])
+        self.assertEqual(result.loc['2026-07', 'Lodestar'], 1.0)
+        self.assertEqual(result.loc['2026-08', 'FTSE 100'], 0.6)
+        self.assertEqual(result.loc['2026-09', 'FTSE 100'], 0.7)
+
 
 if __name__ == '__main__':
     unittest.main()

@@ -215,6 +215,63 @@ def _format_leg(
     return rows, lead_summary
 
 
+def _build_lookback_chart(
+    px: pd.DataFrame,
+    ordered_rows: list[dict],
+    base: pd.Period,
+) -> dict:
+    """Build daily percentage curves normalised to 0% at the trailing 8-month base close."""
+    if px.empty or not ordered_rows:
+        return {}
+    lvl = month_end_level(px, base)
+    if lvl.empty:
+        return {}
+    px_filled = px.sort_index().ffill()
+    base_rows = px_filled[px_filled.index.to_period("M") == base]
+    if base_rows.empty:
+        return {}
+    base_date = base_rows.index[-1]
+    sub = px_filled.loc[px_filled.index >= base_date]
+    if len(sub) < 2:
+        return {}
+
+    dates = [pd.Timestamp(d).date().isoformat() for d in sub.index]
+    series_list = []
+    for row in ordered_rows:
+        code = row["code"]
+        if code not in lvl.index or code not in sub.columns:
+            continue
+        denom = float(lvl[code])
+        if not denom or pd.isna(denom):
+            continue
+        vals = [
+            round((float(v) / denom - 1.0) * 100.0, 2) if pd.notna(v) else None
+            for v in sub[code]
+        ]
+        series_list.append(
+            {
+                "code": code,
+                "rank": row["rank"],
+                "name": row["name"],
+                "ticker": row["ticker"],
+                "proxy": row["proxy"],
+                "is_held": row["is_held"],
+                "latest_pct": row["momentum_pct"],
+                "values": vals,
+            }
+        )
+
+    if not series_list:
+        return {}
+    return {
+        "base_month": str(base),
+        "base_date": pd.Timestamp(base_date).date().isoformat(),
+        "asof": dates[-1],
+        "dates": dates,
+        "series": series_list,
+    }
+
+
 def compute_emerging_data(
     today: date | None = None,
     root: Path | None = None,
@@ -397,6 +454,9 @@ def compute_emerging_data(
             },
         ]
 
+    factor_chart = _build_lookback_chart(factor_px, factors_ranked, base)
+    sector_chart = _build_lookback_chart(sector_px, sectors_ranked, base)
+
     out = {
         "asof": asof_date,
         "computed_at": datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M UTC"),
@@ -422,6 +482,8 @@ def compute_emerging_data(
         "sector_lead": s_lead,
         "factors": factors_ranked,
         "sectors": sectors_ranked,
+        "factor_chart": factor_chart,
+        "sector_chart": sector_chart,
         "factor_missing": sorted(set(f_missing)),
         "sector_missing": sorted(set(s_missing)),
         "sector_proxy": used_sector_proxy,

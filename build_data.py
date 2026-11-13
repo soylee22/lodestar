@@ -379,6 +379,7 @@ def _compile_record(
     if [str(i) for i in book_slice.index] != allocation_calendar:
         raise SystemExit(f"book/calendar mismatch ({key}): {len(book_slice)} vs {len(allocation_calendar)}")
 
+    ftse_col = next((c for c in ("FTSE 100", "FTSE 100 (price)") if c in monthly.columns), None)
     cols = {
         "strategy": monthly.columns[STRATEGY_COL],
         "allworld": allworld_col,
@@ -391,6 +392,11 @@ def _compile_record(
         "sp500": "S&P 500",
         "world": "MSCI World",
     }
+    order = ["strategy", "allworld", "sp500", "world"]
+    if ftse_col is not None:
+        cols["ftse100"] = ftse_col
+        labels["ftse100"] = ftse_col
+        order.append("ftse100")
 
     returns, stats = {}, {}
     for s_key, col in cols.items():
@@ -409,7 +415,7 @@ def _compile_record(
         in_year = [m for m in months if m.startswith(f"{y}-")]
         if not in_year:
             continue
-        years.append({
+        yr_item = {
             "year": int(y),
             "strategy": r6(row[cols["strategy"]]),
             "allworld": r6(row[cols["allworld"]]),
@@ -419,7 +425,10 @@ def _compile_record(
             "monthsCovered": len(in_year),
             "partial": len(in_year) < 12,
             "span": f"{pretty(in_year[0])} - {pretty(in_year[-1])}",
-        })
+        }
+        if "ftse100" in cols and cols["ftse100"] in row.index:
+            yr_item["ftse100"] = r6(row[cols["ftse100"]])
+        years.append(yr_item)
     beat_years = sum(1 for y in years if (y["excess"] or 0) > 0)
 
     slot_names = {**FACTOR_NAMES, **SECTOR_NAMES}
@@ -561,7 +570,7 @@ def _compile_record(
                             "ETF proxy" in (h["factorSource"], h["sectorSource"])],
         },
         "labels": labels,
-        "order": ["strategy", "allworld", "sp500", "world"],
+        "order": order,
         "months": months,
         "monthsPretty": [pretty(m) for m in months],
         "t": t_index,
@@ -751,9 +760,11 @@ def main() -> None:
           f"Sortino {s['sortino']:.2f}  maxDD {s['maxdd']:.2f}%  x{s['growth']:.2f}")
     print(f"  all-world     CAGR {a['cagr']:.2f}%  vol {a['vol']:.2f}%  Sharpe {a['sharpe']:.2f}  "
           f"maxDD {a['maxdd']:.2f}%  x{a['growth']:.2f}")
-    for k in ("sp500", "world"):
+    for k in primary["order"]:
+        if k in ("strategy", "allworld"):
+            continue
         st = stats[k]
-        print(f"  {LABELS[k]:<13} CAGR {st['cagr']:.2f}%  Sharpe {st['sharpe']:.2f}  x{st['growth']:.2f}")
+        print(f"  {primary['labels'][k]:<13} CAGR {st['cagr']:.2f}%  Sharpe {st['sharpe']:.2f}  x{st['growth']:.2f}")
     print(f"  monthly wins  {wins}/{len(months)} = {wins/len(months)*100:.1f}%")
     print(f"  beat years    {beat_years}/{len(years)}")
     print(f"  cash months   {sum(1 for h in holdings if h['cash'])}")
