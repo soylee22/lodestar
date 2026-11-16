@@ -1,0 +1,78 @@
+name: Site refresh
+
+on:
+  schedule:
+    # Staggered weekday runs across UK/US sessions and post-close windows
+    # (off :00/:30 spikes) plus Saturday late morning after Friday US close.
+    # Multiple slots absorb GitHub Actions cron delays without sending alerts.
+    - cron: '37 1,4,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22 * * 1-5'
+    - cron: '37 11 * * 6'
+  workflow_dispatch:
+
+concurrency:
+  group: lodestar-refresh
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    env:
+      TZ: Europe/London
+    steps:
+      - name: Defer pre-08:00 UTC on the 1st to monthly signal job
+        id: guard
+        run: |
+          if [ "${{ github.event_name }}" = "schedule" ] && [ "$(date -u +%d)" = "01" ] && [ "$(date -u +%-H)" -lt 8 ]; then
+            echo "skip=true" >> "$GITHUB_OUTPUT"
+            echo "Deferring 1st-of-month early refresh until after 08:00 UTC."
+          else
+            echo "skip=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - uses: actions/checkout@v4
+        if: steps.guard.outputs.skip != 'true'
+        with:
+          ref: main
+          fetch-depth: 0
+
+      - uses: actions/setup-python@v5
+        if: steps.guard.outputs.skip != 'true'
+        with:
+          python-version: '3.12'
+          cache: pip
+
+      - if: steps.guard.outputs.skip != 'true'
+        run: pip install -r requirements.txt
+
+      - name: Run unit tests
+        if: steps.guard.outputs.skip != 'true'
+        run: python -m unittest discover -s tests
+
+      - name: Rebuild public page and shared signal snapshot
+        if: steps.guard.outputs.skip != 'true'
+        run: python run_monthly.py --build-only
+
+      - name: Push synchronised public data
+        if: steps.guard.outputs.skip != 'true'
+        run: |
+          git config user.name  "soylee22"
+          git config user.email "leeslater1992@gmail.com"
+          for p in data.js data/live_portfolio.json data/emerging.json data/crash_protection.json \
+                   data/panel_local.csv data/last_alert.json data/last_daily.json data/holdings.json \
+                   data/signal_history.json data/fund_prices_gbp.csv data/track_record.csv \
+                   data/price_status.json data/company_logos.json data/final_index_tr.csv \
+                   data/final_index_price.csv assets/company-logos; do
+            if [ -e "$p" ] && ! git check-ignore -q "$p"; then
+              git add "$p"
+            fi
+          done
+          if git diff --staged --quiet; then
+            echo "nothing changed"
+          else
+            git commit -m "refresh: $(date +%Y-%m-%d)"
+            git pull --rebase origin main
+            git push
+          fi

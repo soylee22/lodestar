@@ -1779,7 +1779,8 @@ function glyph(key){
     "London lines shown. Weights are the targets at a change of holding. ")
     + sources + " Performance through " + DATA.meta.endPretty + "."
     + (DATA.meta.performancePending ? " The next completed month's fund prices are not yet available." : "")
-    + (DATA.meta.proxyMonths.length ? " ETF fallback signals are included in the performance record and labelled below." : "");
+    + (DATA.meta.proxyMonths.length ? " ETF fallback signals are included in the performance record and labelled below." : "")
+    + (DATA.meta.builtAt ? " Page built " + DATA.meta.builtAt.slice(0, 16).replace("T", " ") + " UTC." : "");
 
   renderHeroSummary();
   recordRefreshers.push(renderHeroSummary);
@@ -2275,7 +2276,9 @@ function glyph(key){
     if (n) n.remove();
     return;
   }
-  $("#liveEntryDateSub").textContent = "Executed " + P.entry_date + " via Trading 212 API";
+  $("#liveEntryDateSub").textContent = "Executed " + P.entry_date
+    + (P.asof ? " · Quotes to " + P.asof : "")
+    + (P.computed_at ? " (" + P.computed_at + ")" : "");
 
   // KPIs
   var kpis = $("#liveKpis");
@@ -2284,9 +2287,12 @@ function glyph(key){
   var targetSplitNote = (P.holdings && P.holdings.length)
     ? P.holdings.map(function(h){ return h.ticker + " (" + h.leg + ")"; }).join(" + ")
     : "Factor + Sector legs";
+  var liveQuoteNote = P.sync_source === "trading212"
+    ? "Trading 212 portfolio sync"
+    : (P.asof ? "Market quotes to " + P.asof : "Scheduled market quotes");
   var items = [
     { k:"Initial Capital", v:"£" + P.initial_capital_gbp.toLocaleString("en-GB", {minimumFractionDigits:2, maximumFractionDigits:2}), n:"Executed 12 Nov 2026" },
-    { k:"Live Valuation", v:"£" + P.current_value_gbp.toLocaleString("en-GB", {minimumFractionDigits:2, maximumFractionDigits:2}), n:"Trading 212 portfolio sync" },
+    { k:"Live Valuation", v:"£" + P.current_value_gbp.toLocaleString("en-GB", {minimumFractionDigits:2, maximumFractionDigits:2}), n:liveQuoteNote },
     { k:"Net Return", v:(P.total_pnl_gbp >= 0 ? "+" : "−") + "£" + Math.abs(P.total_pnl_gbp).toFixed(2) + " (" + sgn(P.total_pnl_pct) + ")", n:"Live P&L across both legs", cls:pnlCls },
     { k:"Target Split", v:"50 / 50", n:targetSplitNote }
   ];
@@ -2441,9 +2447,12 @@ function glyph(key){
         }
       });
 
+      var labelStep = Math.max(1, Math.ceil(ftChart.dates.length / 6));
       ftChart.dates.forEach(function(dStr, i){
+        var isLast = i === ftChart.dates.length - 1;
+        if (ftChart.dates.length > 6 && i !== 0 && !isLast && (i % labelStep !== 0 || ftChart.dates.length - 1 - i < labelStep * 0.6)) return;
         var tx = x(i);
-        var align = (i === 0 ? "start" : i === ftChart.dates.length - 1 ? "end" : "middle");
+        var align = (i === 0 ? "start" : isLast ? "end" : "middle");
         var txt = sv("text", {x:tx, y:H - 10, "text-anchor":align, fill:"var(--muted)", "font-size":"11", "font-family":"var(--mono)"}, dStr);
         svg.appendChild(txt);
       });

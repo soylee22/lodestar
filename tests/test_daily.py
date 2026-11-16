@@ -267,6 +267,94 @@ class DailyTests(unittest.TestCase):
             self.assertEqual(s_chart['series'][1]['values'], [0.0, -5.0, -10.0])
             self.assertEqual(s_chart['series'][1]['latest_pct'], em['sectors'][1]['momentum_pct'])
 
+    def test_live_portfolio_builds_multiday_chart_and_quote_asof(self):
+        with tempfile.TemporaryDirectory() as folder:
+            root = Path(folder)
+            cfg = {
+                'entry_date': '2026-11-12',
+                'initial_capital_gbp': 2000.0,
+                'holdings': [
+                    {'leg': 'Factor', 'code': 'USA_VAL', 'ticker': 'IUVL.L', 'name': 'USA Value', 'shares': 10.0, 'cost_gbp': 1000.0, 'fill_price_usd': 130.0},
+                    {'leg': 'Sector', 'code': 'INFOTECH', 'ticker': 'IUIT.L', 'name': 'Info Tech', 'shares': 10.0, 'cost_gbp': 1000.0, 'fill_price_usd': 130.0},
+                ],
+                'benchmarks': {
+                    'VUAG.L': {'name': 'Vanguard S&P 500', 'entry_price_gbp': 100.0, 'initial_shares': 20.0},
+                },
+            }
+            (root / 'live_portfolio.json').write_text(json.dumps(cfg))
+            idx = pd.to_datetime(['2026-11-12', '2026-11-13', '2026-11-16'])
+            close = pd.DataFrame({
+                'IUVL.L': [130.0, 132.0, 135.0],
+                'IUIT.L': [130.0, 128.0, 131.0],
+                'VUAG.L': [100.0, 101.0, 102.0],
+                'GBPUSD=X': [1.30, 1.32, 1.33],
+            }, index=idx)
+            with patch.object(live_portfolio, 'DATA_DIR', root), \
+                 patch.object(live_portfolio.yf, 'download', return_value={'Close': close}):
+                pf = live_portfolio.get_live_portfolio_data(broker=False)
+            self.assertEqual(pf['asof'], '2026-11-16')
+            self.assertIn('UTC', pf['computed_at'])
+            self.assertEqual(pf['benchmarkChart']['dates'], ['12 Nov (Fill)', '13 Nov', '16 Nov (Live)'])
+            self.assertEqual(pf['benchmarkChart']['series'][0]['values'][0], 2000.0)
+            self.assertAlmostEqual(pf['benchmarkChart']['series'][0]['values'][1], 1969.70)
+            self.assertAlmostEqual(pf['benchmarkChart']['series'][0]['values'][2], pf['current_value_gbp'])
+            self.assertEqual(pf['benchmarkChart']['series'][1]['values'], [2000.0, 2020.0, 2040.0])
+
+    def test_daily_once_today_deduplicates_scheduled_runs(self):
+        with tempfile.TemporaryDirectory() as folder:
+            root = Path(folder)
+            (root / 'data').mkdir()
+            em = {
+                'asof': '2026-11-16',
+                'computed_at': '2026-11-16 07:00 UTC',
+                'month': '2026-11',
+                'holding_month': '2026-10',
+                'days_out': 15,
+                'next_action_date': '1 Dec 2026',
+                'days_run': '16 of 30 days',
+                'cash_triggered': False,
+                'action': 'HOLD',
+                'action_text': 'HOLD · ZERO TURNOVER',
+                'action_summary': 'No change.',
+                'changes': [],
+                'current_holdings': [{'leg': 'Factor', 'code': 'USA_VAL', 'name': 'USA Value', 'ticker': 'IUVF.L'}],
+                'projected_holdings': [{'leg': 'Factor', 'code': 'USA_VAL', 'name': 'USA Value', 'ticker': 'IUVF.L'}],
+                'factors': [{'rank': 1, 'code': 'USA_VAL', 'name': 'USA Value', 'ticker': 'IUVF.L', 'momentum_pct': 20.0, 'lead_margin': '+5.0pp', 'is_held': True}],
+                'sectors': [{'rank': 1, 'code': 'INFOTECH', 'name': 'Information Technology', 'ticker': 'IITU.L', 'momentum_pct': 20.0, 'lead_margin': '+5.0pp', 'is_held': True}],
+                'stale_cache': False,
+            }
+            cp = {'asof': '2026-11-16', 'latest_price': 7500.0, 'cash_triggered': False, 'status': 'INVESTED', 'status_text': 'All Systems Green', 'status_tone': 'pass', 'm19_pct': 20.0, 'checks': []}
+            (root / 'data' / 'emerging.json').write_text(json.dumps(em))
+            (root / 'data' / 'crash_protection.json').write_text(json.dumps(cp))
+            pf = {'initial_capital_gbp': 1000.0, 'current_value_gbp': 1010.0, 'total_pnl_gbp': 10.0, 'total_pnl_pct': 1.0, 'holdings': [], 'benchmarks': []}
+
+            send_calls = []
+            def fake_send(subject, tg_body, html_body=None):
+                send_calls.append(subject)
+                return 0
+
+            with patch.object(daily, 'HERE', root), \
+                 patch.object(daily, 'date') as clock, \
+                 patch.object(daily, 'get_live_portfolio_data', return_value=pf), \
+                 patch.object(daily, 'send', side_effect=fake_send):
+                clock.today.return_value = date(2026, 11, 16)
+                self.assertEqual(daily.main(['--snapshot', '--once-today']), 0)
+                self.assertEqual(len(send_calls), 1)
+                self.assertTrue(daily.already_sent_today(date(2026, 11, 16)))
+
+                # Repeat scheduled run on the same day skips sending.
+                self.assertEqual(daily.main(['--snapshot', '--once-today']), 0)
+                self.assertEqual(len(send_calls), 1)
+
+                # Manual run without --once-today still dispatches on demand.
+                self.assertEqual(daily.main(['--snapshot']), 0)
+                self.assertEqual(len(send_calls), 2)
+
+                # Next weekday sends again.
+                clock.today.return_value = date(2026, 11, 17)
+                self.assertEqual(daily.main(['--snapshot', '--once-today']), 0)
+                self.assertEqual(len(send_calls), 3)
+
 
 if __name__=='__main__':
     unittest.main()

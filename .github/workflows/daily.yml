@@ -2,10 +2,10 @@ name: Lodestar performance update
 
 on:
   schedule:
-    # 07:17 UTC on weekdays (off the top-of-hour queue spike). Rebuilds the
-    # public page first and then dispatches Telegram and HTML email from the
-    # exact same snapshot so all three channels stay synchronised.
+    # Off-peak morning trigger plus midday fallbacks; --once-today skips repeat sends.
+    - cron: '41 4 * * 1-5'
     - cron: '17 7 * * 1-5'
+    - cron: '41 10 * * 1-5'
   workflow_dispatch:
 
 concurrency:
@@ -44,7 +44,7 @@ jobs:
           git config user.name  "soylee22"
           git config user.email "leeslater1992@gmail.com"
           for p in data.js data/live_portfolio.json data/emerging.json data/crash_protection.json \
-                   data/panel_local.csv data/last_alert.json data/holdings.json data/signal_history.json \
+                   data/panel_local.csv data/last_alert.json data/last_daily.json data/holdings.json data/signal_history.json \
                    data/fund_prices_gbp.csv data/track_record.csv data/price_status.json data/company_logos.json \
                    data/final_index_tr.csv data/final_index_price.csv assets/company-logos; do
             if [ -e "$p" ] && ! git check-ignore -q "$p"; then
@@ -59,20 +59,53 @@ jobs:
             git push
           fi
 
+      - name: Check whether scheduled daily report already sent today
+        id: daily_gate
+        run: |
+          if [ "${{ github.event_name }}" = "schedule" ] && python -c "import daily, sys; sys.exit(0 if daily.already_sent_today() else 1)"; then
+            echo "skip=true" >> "$GITHUB_OUTPUT"
+            echo "Daily report already sent today; skipping broker check and repeat send."
+          else
+            echo "skip=false" >> "$GITHUB_OUTPUT"
+          fi
+
       - name: Verify private broker connection
+        if: steps.daily_gate.outputs.skip != 'true'
         env:
           T212_KEY_ID: ${{ secrets.T212_KEY_ID }}
           T212_SECRET: ${{ secrets.T212_SECRET }}
         run: python -m pipeline.broker
 
       - name: Private performance and signal report
+        if: steps.daily_gate.outputs.skip != 'true'
         env:
           TG_TOKEN: ${{ secrets.TG_TOKEN }}
           TG_CHAT: ${{ secrets.TG_CHAT }}
           GMAIL_APP_PASSWORD: ${{ secrets.GMAIL_APP_PASSWORD }}
           T212_KEY_ID: ${{ secrets.T212_KEY_ID }}
           T212_SECRET: ${{ secrets.T212_SECRET }}
-        run: python daily.py --snapshot
+        run: |
+          ARGS="--snapshot"
+          if [ "${{ github.event_name }}" = "schedule" ]; then
+            ARGS="$ARGS --once-today"
+          fi
+          python daily.py $ARGS
+
+      - name: Record daily report dispatch
+        if: steps.daily_gate.outputs.skip != 'true'
+        run: |
+          git config user.name  "soylee22"
+          git config user.email "leeslater1992@gmail.com"
+          if [ -e "data/last_daily.json" ] && ! git check-ignore -q "data/last_daily.json"; then
+            git add data/last_daily.json
+          fi
+          if git diff --staged --quiet; then
+            echo "daily state unchanged"
+          else
+            git commit -m "daily: $(date +%Y-%m-%d)"
+            git pull --rebase origin main
+            git push
+          fi
 
       - name: Notify job failure
         if: failure()

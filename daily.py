@@ -558,6 +558,28 @@ def send(subject: str, telegram_body: str, html_body: str | None = None) -> int:
     return 0 if telegram_ok and email_ok else 1
 
 
+def already_sent_today(today: date | None = None) -> bool:
+    """True if today's scheduled daily report has already been delivered."""
+    target = (today or date.today()).isoformat()
+    state_path = HERE / "data" / "last_daily.json"
+    if not state_path.is_file():
+        return False
+    try:
+        prev = json.loads(state_path.read_text(encoding="utf-8"))
+    except Exception:
+        return False
+    return prev.get("date") == target
+
+
+def record_daily_sent(today: date | None = None) -> None:
+    state_path = HERE / "data" / "last_daily.json"
+    state_path.parent.mkdir(parents=True, exist_ok=True)
+    state_path.write_text(
+        json.dumps({"date": (today or date.today()).isoformat()}, indent=2) + "\n",
+        encoding="utf-8",
+    )
+
+
 def _load_snapshot(today: date) -> tuple[dict, dict] | None:
     em_path = HERE / "data" / "emerging.json"
     cp_path = HERE / "data" / "crash_protection.json"
@@ -585,9 +607,17 @@ def main(argv: list[str] | None = None) -> int:
         action="store_true",
         help="Reuse data/emerging.json and data/crash_protection.json just built for the website.",
     )
+    parser.add_argument(
+        "--once-today",
+        action="store_true",
+        help="Skip sending if data/last_daily.json already records today's date.",
+    )
     args = parser.parse_args(argv)
 
     today = date.today()
+    if args.once_today and already_sent_today(today):
+        print(f"Daily report already sent for {today.isoformat()}; skipping repeat dispatch.")
+        return 0
     snap = _load_snapshot(today) if args.snapshot else None
     if snap is not None:
         emerging, crash_data = snap
@@ -635,7 +665,11 @@ def main(argv: list[str] | None = None) -> int:
 
     html_email = None if live_pf.get("sync_error") else build_email_html(emerging, live_pf, crash_data)
     delivery = send(subject, tg_body, html_email)
-    return 1 if live_pf.get("sync_error") else delivery
+    if live_pf.get("sync_error"):
+        return 1
+    if delivery == 0:
+        record_daily_sent(today)
+    return delivery
 
 
 if __name__ == "__main__":

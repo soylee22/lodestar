@@ -130,7 +130,7 @@ Issuer listing: https://www.ishares.com/ch/professionals/en/products/272019/isha
 ## GitHub operation and private reports
 
 GitHub hosts the jobs. The computer can be switched off. Schedules use UTC.
-The website refreshes daily at 06:00. Private reports run weekdays at 07:00.
+`site-refresh.yml` rebuilds the public page through the day on weekdays (`01:37`, `04:37`, and hourly `07:37` to `22:37` UTC) plus Saturday `11:37` UTC without sending alerts. `monthly.yml` runs daily (`05:13` and `18:43` UTC) for month-end signals. `daily.yml` dispatches private weekday reports (`04:41`, `07:17`, and `10:41` UTC), gated by `--once-today` and `data/last_daily.json` so at most one scheduled report sends per weekday.
 Monthly alerts are sent once per signal month after a scheduled refresh.
 
 Encrypted repository secrets hold `T212_KEY_ID`, `T212_SECRET`, `TG_TOKEN`,

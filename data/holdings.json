@@ -1,6 +1,6 @@
 {
   "as_at": "2026-10",
-  "fetched_at": "2026-11-15T14:02:27.269669+00:00",
+  "fetched_at": "2026-11-16T11:46:40.699926+00:00",
   "snapshot_date": "2026-10-30",
   "source": "iShares dated equity holdings",
   "legs": {
@@ -172,7 +172,7 @@
           "industry": "Entertainment",
           "market_cap": 205423935488.0,
           "pe": 24.529898,
-          "forward_pe": 15.878736,
+          "forward_pe": 15.888258,
           "revenue_growth": 0.068,
           "earnings_growth": -0.483,
           "profit_margin": 0.086990006,
@@ -1370,7 +1370,7 @@
       "disclosure_rounding_tolerance": 0.007601,
       "source": "iShares dated equity holdings",
       "fundamentals_source": "Yahoo Finance",
-      "fundamentals_fetched_at": "2026-11-15T14:02:27.269669+00:00"
+      "fundamentals_fetched_at": "2026-11-16T11:46:40.699926+00:00"
     },
     "sector": {
       "slot": "INFOTECH",
@@ -1404,7 +1404,7 @@
           "industry": "Semiconductors",
           "market_cap": 3932339044352.0,
           "pe": 20.587864,
-          "forward_pe": 10.272057,
+          "forward_pe": 10.281584,
           "revenue_growth": 1.059,
           "earnings_growth": 1.278,
           "profit_margin": 0.63663,
@@ -1540,7 +1540,7 @@
           "industry": "Semiconductor Equipment & Materials",
           "market_cap": 294027853824.0,
           "pe": 29.358162,
-          "forward_pe": 14.995149,
+          "forward_pe": 14.996751,
           "revenue_growth": 0.531,
           "earnings_growth": 0.431,
           "profit_margin": 0.29286,
@@ -2160,7 +2160,7 @@
       "disclosure_rounding_tolerance": 0.0041010000000000005,
       "source": "iShares dated equity holdings",
       "fundamentals_source": "Yahoo Finance",
-      "fundamentals_fetched_at": "2026-11-15T14:02:27.269669+00:00"
+      "fundamentals_fetched_at": "2026-11-16T11:46:40.699926+00:00"
     }
   }
 }

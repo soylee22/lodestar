@@ -7,6 +7,7 @@ Compares performance directly against VUAG.L, VWRP.L, VUKG.L, and VALL.L.
 """
 from __future__ import annotations
 import base64
+from datetime import datetime, timezone
 import json
 import math
 import os
@@ -49,27 +50,56 @@ def load_t212_credentials() -> tuple[str | None, str | None, str]:
     return key, secret, base
 
 
-def _last_valid_quotes(all_symbols: list[str]) -> dict[str, float]:
+class _QuoteDict(dict):
+    """Dictionary of latest quotes carrying the source close frame and asset date."""
+
+    def __init__(self, *args, frame: pd.DataFrame | None = None, asof: str | None = None, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.frame = frame
+        self.asof = asof
+
+
+def _normalize_close_frame(raw, all_symbols: list[str]) -> pd.DataFrame:
+    if raw is None:
+        return pd.DataFrame()
+    close = raw["Close"] if "Close" in raw else raw
+    if isinstance(close, pd.Series):
+        if not all_symbols:
+            return pd.DataFrame()
+        close = close.to_frame(name=all_symbols[0])
+    if close is None or close.empty:
+        return pd.DataFrame()
+    df = close.copy()
+    df.index = pd.to_datetime(df.index).tz_localize(None).normalize()
+    df = df.groupby(level=0).last().sort_index()
+    return df.dropna(how="all")
+
+
+def _last_valid_quotes(all_symbols: list[str], start: str | None = None) -> dict[str, float]:
     """Take the latest finite positive close per symbol so 24h FX never yields NaN for closed LSE lines."""
     if not all_symbols:
-        return {}
-    raw = yf.download(all_symbols, period="5d", progress=False, auto_adjust=False)
-    close = raw["Close"] if "Close" in raw else raw
-    out: dict[str, float] = {}
-    if isinstance(close, pd.Series):
-        s = close.dropna()
-        if not s.empty:
-            val = float(s.iloc[-1])
-            if math.isfinite(val) and val > 0:
-                out[all_symbols[0]] = val
+        return _QuoteDict()
+    kwargs = {"progress": False, "auto_adjust": False}
+    if start:
+        kwargs["start"] = start
+    else:
+        kwargs["period"] = "5d"
+    raw = yf.download(all_symbols, **kwargs)
+    df = _normalize_close_frame(raw, all_symbols)
+    out = _QuoteDict(frame=df)
+    if df.empty:
         return out
+    latest_dates: list[pd.Timestamp] = []
     for sym in all_symbols:
-        if sym in close.columns:
-            s = close[sym].dropna()
+        if sym in df.columns:
+            s = pd.to_numeric(df[sym], errors="coerce").dropna()
+            s = s[s.map(lambda v: math.isfinite(float(v)) and float(v) > 0)]
             if not s.empty:
-                val = float(s.iloc[-1])
-                if math.isfinite(val) and val > 0:
-                    out[sym] = val
+                out[sym] = float(s.iloc[-1])
+                if not sym.endswith("=X"):
+                    latest_dates.append(pd.Timestamp(s.index[-1]))
+    if latest_dates:
+        out.asof = max(latest_dates).date().isoformat()
     return out
 
 
@@ -135,6 +165,7 @@ def get_live_portfolio_data(broker: bool = False) -> dict:
     # 2. Fetch live quotes via yfinance for fallback and benchmarks
     bm_symbols = list(cfg.get("benchmarks", {}).keys())
     holding_symbols = [h["ticker"] for h in cfg.get("holdings", [])]
+    asset_symbols = holding_symbols + bm_symbols
     currencies = {_holding_currency(h) for h in cfg.get("holdings", [])}
     fx_symbols = []
     if "USD" in currencies:
@@ -142,14 +173,46 @@ def get_live_portfolio_data(broker: bool = False) -> dict:
     if "EUR" in currencies:
         fx_symbols.append("EURGBP=X")
     all_symbols = bm_symbols + holding_symbols + fx_symbols
+    entry_date_str = cfg.get("entry_date", "2026-11-12")
     try:
-        raw_quotes = _last_valid_quotes(all_symbols)
+        fetch_start = (
+            min(pd.Timestamp(entry_date_str), pd.Timestamp.today()) - pd.Timedelta(days=7)
+        ).date().isoformat()
+    except Exception:
+        fetch_start = None
+    try:
+        raw_quotes = _last_valid_quotes(all_symbols, start=fetch_start) if fetch_start else _last_valid_quotes(all_symbols)
+    except TypeError:
+        try:
+            raw_quotes = _last_valid_quotes(all_symbols)
+        except Exception:
+            raw_quotes = {}
     except Exception:
         raw_quotes = {}
     quotes = raw_quotes if hasattr(raw_quotes, "get") else {}
+    quote_frame = getattr(raw_quotes, "frame", None)
+    quote_asof = getattr(raw_quotes, "asof", None)
 
     fx_gbp_usd = float(quotes.get("GBPUSD=X", 1.3265))
     fx_eur_gbp = float(quotes.get("EURGBP=X", 0.85))
+
+    def _snapshot_for(day_quotes: dict[str, float]) -> tuple[float, float, dict[str, tuple[float, float]]]:
+        day_fx_usd = float(day_quotes.get("GBPUSD=X", fx_gbp_usd))
+        day_fx_eur = float(day_quotes.get("EURGBP=X", fx_eur_gbp))
+        day_val = 0.0
+        for h in cfg.get("holdings", []):
+            sh = float(h["shares"])
+            px_gbp = _fallback_price_gbp(h, day_quotes, day_fx_usd, day_fx_eur)
+            day_val += sh * px_gbp
+        day_pnl_pct = ((day_val - initial_cap) / initial_cap * 100.0) if initial_cap else 0.0
+        bm_vals: dict[str, tuple[float, float]] = {}
+        for sym, b in cfg.get("benchmarks", {}).items():
+            init_sh = float(b["initial_shares"])
+            px = float(day_quotes.get(sym, b["entry_price_gbp"]))
+            b_val = init_sh * px
+            b_ret = (b_val / initial_cap - 1) * 100.0 if initial_cap else 0.0
+            bm_vals[sym] = (round(b_val, 2), round(b_ret, 2))
+        return round(day_val, 2), round(day_pnl_pct, 2), bm_vals
 
     # 3. Calculate holdings current value and P&L
     holdings_out = []
@@ -225,17 +288,69 @@ def get_live_portfolio_data(broker: bool = False) -> dict:
         s_vall_val = [h.get("vall", initial_cap) for h in saved_history] + [bm_map.get("VALL.L", {}).get("current_value_gbp", initial_cap)]
         s_vall_pct = [h.get("vall_pct", 0.0) for h in saved_history] + [bm_map.get("VALL.L", {}).get("return_pct", 0.0)]
     else:
-        chart_dates = ["12 Nov (Fill)", "Live"]
-        s_lodestar_val = [initial_cap, round(total_val, 2)]
-        s_lodestar_pct = [0.0, round(total_pnl_pct, 2)]
-        s_vuag_val = [initial_cap, bm_map.get("VUAG.L", {}).get("current_value_gbp", initial_cap)]
-        s_vuag_pct = [0.0, bm_map.get("VUAG.L", {}).get("return_pct", 0.0)]
-        s_vwrp_val = [initial_cap, bm_map.get("VWRP.L", {}).get("current_value_gbp", initial_cap)]
-        s_vwrp_pct = [0.0, bm_map.get("VWRP.L", {}).get("return_pct", 0.0)]
-        s_vukg_val = [initial_cap, bm_map.get("VUKG.L", {}).get("current_value_gbp", initial_cap)]
-        s_vukg_pct = [0.0, bm_map.get("VUKG.L", {}).get("return_pct", 0.0)]
-        s_vall_val = [initial_cap, bm_map.get("VALL.L", {}).get("current_value_gbp", initial_cap)]
-        s_vall_pct = [0.0, bm_map.get("VALL.L", {}).get("return_pct", 0.0)]
+        entry_dt = pd.Timestamp(entry_date_str).normalize()
+        entry_label = f"{entry_dt.day} {entry_dt.strftime('%b')} (Fill)"
+        chart_dates = [entry_label]
+        s_lodestar_val = [initial_cap]
+        s_lodestar_pct = [0.0]
+        s_vuag_val = [initial_cap]
+        s_vuag_pct = [0.0]
+        s_vwrp_val = [initial_cap]
+        s_vwrp_pct = [0.0]
+        s_vukg_val = [initial_cap]
+        s_vukg_pct = [0.0]
+        s_vall_val = [initial_cap]
+        s_vall_pct = [0.0]
+
+        asset_dates: list[pd.Timestamp] = []
+        if isinstance(quote_frame, pd.DataFrame) and not quote_frame.empty:
+            present_assets = [c for c in asset_symbols if c in quote_frame.columns]
+            if present_assets:
+                for dt in quote_frame.index:
+                    dt_norm = pd.Timestamp(dt).normalize()
+                    if dt_norm <= entry_dt:
+                        continue
+                    row_vals = pd.to_numeric(quote_frame.loc[dt, present_assets], errors="coerce")
+                    if row_vals.map(lambda v: pd.notna(v) and math.isfinite(float(v)) and float(v) > 0).any():
+                        asset_dates.append(dt_norm)
+
+        if asset_dates:
+            ffilled = quote_frame.ffill()
+            for dt in asset_dates[:-1]:
+                row = ffilled.loc[dt]
+                day_quotes = {
+                    sym: float(row[sym])
+                    for sym in all_symbols
+                    if sym in row.index and pd.notna(row[sym]) and math.isfinite(float(row[sym])) and float(row[sym]) > 0
+                }
+                d_val, d_pct, d_bm = _snapshot_for(day_quotes)
+                chart_dates.append(f"{dt.day} {dt.strftime('%b')}")
+                s_lodestar_val.append(d_val)
+                s_lodestar_pct.append(d_pct)
+                s_vuag_val.append(d_bm.get("VUAG.L", (initial_cap, 0.0))[0])
+                s_vuag_pct.append(d_bm.get("VUAG.L", (initial_cap, 0.0))[1])
+                s_vwrp_val.append(d_bm.get("VWRP.L", (initial_cap, 0.0))[0])
+                s_vwrp_pct.append(d_bm.get("VWRP.L", (initial_cap, 0.0))[1])
+                s_vukg_val.append(d_bm.get("VUKG.L", (initial_cap, 0.0))[0])
+                s_vukg_pct.append(d_bm.get("VUKG.L", (initial_cap, 0.0))[1])
+                s_vall_val.append(d_bm.get("VALL.L", (initial_cap, 0.0))[0])
+                s_vall_pct.append(d_bm.get("VALL.L", (initial_cap, 0.0))[1])
+            last_dt = asset_dates[-1]
+            live_label = f"{last_dt.day} {last_dt.strftime('%b')} (Live)"
+        else:
+            live_label = "Live"
+
+        chart_dates.append(live_label)
+        s_lodestar_val.append(round(total_val, 2))
+        s_lodestar_pct.append(round(total_pnl_pct, 2))
+        s_vuag_val.append(bm_map.get("VUAG.L", {}).get("current_value_gbp", initial_cap))
+        s_vuag_pct.append(bm_map.get("VUAG.L", {}).get("return_pct", 0.0))
+        s_vwrp_val.append(bm_map.get("VWRP.L", {}).get("current_value_gbp", initial_cap))
+        s_vwrp_pct.append(bm_map.get("VWRP.L", {}).get("return_pct", 0.0))
+        s_vukg_val.append(bm_map.get("VUKG.L", {}).get("current_value_gbp", initial_cap))
+        s_vukg_pct.append(bm_map.get("VUKG.L", {}).get("return_pct", 0.0))
+        s_vall_val.append(bm_map.get("VALL.L", {}).get("current_value_gbp", initial_cap))
+        s_vall_pct.append(bm_map.get("VALL.L", {}).get("return_pct", 0.0))
 
     benchmark_chart = {
         "dates": chart_dates,
@@ -250,7 +365,9 @@ def get_live_portfolio_data(broker: bool = False) -> dict:
 
     return {
         "sync_source": broker_status,
-        "entry_date": cfg.get("entry_date", "2026-11-12"),
+        "asof": quote_asof or datetime.now(timezone.utc).date().isoformat(),
+        "computed_at": datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M UTC"),
+        "entry_date": entry_date_str,
         "initial_capital_gbp": initial_cap,
         "current_value_gbp": round(total_val, 2),
         "total_pnl_gbp": round(total_pnl, 2),
