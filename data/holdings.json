@@ -1,6 +1,6 @@
 {
   "as_at": "2026-10",
-  "fetched_at": "2026-11-16T11:55:28.703432+00:00",
+  "fetched_at": "2026-11-16T12:17:11.322973+00:00",
   "snapshot_date": "2026-10-30",
   "source": "iShares dated equity holdings",
   "legs": {
@@ -104,7 +104,7 @@
           "industry": "Drug Manufacturers - General",
           "market_cap": 164668768256.0,
           "pe": 41.271427,
-          "forward_pe": 9.7989,
+          "forward_pe": 9.779694,
           "revenue_growth": -0.004,
           "earnings_growth": -0.097,
           "profit_margin": 0.06339,
@@ -1370,7 +1370,7 @@
       "disclosure_rounding_tolerance": 0.007601,
       "source": "iShares dated equity holdings",
       "fundamentals_source": "Yahoo Finance",
-      "fundamentals_fetched_at": "2026-11-16T11:55:28.703432+00:00"
+      "fundamentals_fetched_at": "2026-11-16T12:17:11.322973+00:00"
     },
     "sector": {
       "slot": "INFOTECH",
@@ -1438,7 +1438,7 @@
           "industry": "Semiconductors",
           "market_cap": 1656497373184.0,
           "pe": 44.31801,
-          "forward_pe": 17.874178,
+          "forward_pe": 17.827318,
           "revenue_growth": 0.855,
           "earnings_growth": 2.153,
           "profit_margin": 0.42944,
@@ -1472,7 +1472,7 @@
           "industry": "Semiconductors",
           "market_cap": 875905024000.0,
           "pe": 114.11539,
-          "forward_pe": 30.27817,
+          "forward_pe": 30.188778,
           "revenue_growth": 0.447,
           "earnings_growth": 0.938,
           "profit_margin": 0.16769,
@@ -1489,7 +1489,7 @@
           "industry": "Software - Infrastructure",
           "market_cap": 404771504128.0,
           "pe": 118.302826,
-          "forward_pe": 66.16984,
+          "forward_pe": 66.2625,
           "revenue_growth": 0.959,
           "earnings_growth": 1.444,
           "profit_margin": 0.50343,
@@ -2160,7 +2160,7 @@
       "disclosure_rounding_tolerance": 0.0041010000000000005,
       "source": "iShares dated equity holdings",
       "fundamentals_source": "Yahoo Finance",
-      "fundamentals_fetched_at": "2026-11-16T11:55:28.703432+00:00"
+      "fundamentals_fetched_at": "2026-11-16T12:17:11.322973+00:00"
     }
   }
 }
