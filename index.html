@@ -890,7 +890,7 @@ html{scroll-behavior:smooth; scroll-padding-top:72px}
       <h2>Emerging Picture: Next Month's Target Allocation</h2>
     </div>
     <p class="lede" id="emergingLede">
-      Where the 8-month momentum signal stands on live prices today. If the month closed now, this is what the model would hold for next month.
+      Where the 8-month momentum signal stands on US proxy prices today (New York trading hours), mapped to the sterling London ETFs that would be held next month.
     </p>
   </div>
 
@@ -1879,7 +1879,7 @@ function glyph(key){
 
   var elEyebrow = $("#emergingEyebrow");
   if (elEyebrow && E.next_action_date){
-    var stamp = E.asof ? " · Prices to " + E.asof + (E.computed_at ? " (" + E.computed_at + ")" : "") : "";
+    var stamp = E.asof ? " · US proxy prices to " + E.asof + (E.computed_at ? " (" + E.computed_at + ")" : "") : "";
     elEyebrow.textContent = "Provisional Momentum Signal · Acting " + E.next_action_date + stamp;
   }
 
@@ -1994,7 +1994,8 @@ function glyph(key){
         var labelSpan = el("span");
         labelSpan.appendChild(el("b", null, r.name));
         labelSpan.appendChild(document.createTextNode(" "));
-        labelSpan.appendChild(el("small", {style:"color:var(--muted);font-size:11px"}, "(" + r.ticker + ")"));
+        var tickerLbl = (r.proxy && r.proxy !== r.ticker) ? (r.ticker + " · via " + r.proxy) : r.ticker;
+        labelSpan.appendChild(el("small", {style:"color:var(--muted);font-size:11px"}, "(" + tickerLbl + ")"));
         wrap.appendChild(labelSpan);
         tdAsset.appendChild(wrap);
         tr.appendChild(tdAsset);
@@ -2027,7 +2028,8 @@ function glyph(key){
 
     if (subEl){
       var baseTxt = chart.base_month ? pm(chart.base_month) + " close" : (chart.base_date || "8M base");
-      subEl.textContent = baseTxt + (chart.base_date ? " (" + chart.base_date + ")" : "") + " to " + chart.asof;
+      var srcPrefix = cfg.sourceLabel ? cfg.sourceLabel + " · " : "";
+      subEl.textContent = srcPrefix + baseTxt + (chart.base_date ? " (" + chart.base_date + ")" : "") + " to " + chart.asof;
     }
 
     function renderLegend(){
@@ -2035,9 +2037,11 @@ function glyph(key){
       legendEl.textContent = "";
       chart.series.forEach(function(s, i){
         var c = colorOf(s.code, i);
-        var btn = el("button", {type:"button", "data-em-code":s.code, "aria-pressed": on[s.code] ? "true" : "false", title: s.name + " (" + s.ticker + ")"});
+        var legTxt = (s.proxy && s.proxy !== s.ticker) ? ((s.ticker || s.code) + " (" + s.proxy + ")") : (s.ticker || s.code);
+        var tipTitle = s.name + " (" + ((s.proxy && s.proxy !== s.ticker) ? (s.ticker + " via " + s.proxy) : (s.ticker || s.code)) + ")";
+        var btn = el("button", {type:"button", "data-em-code":s.code, "aria-pressed": on[s.code] ? "true" : "false", title: tipTitle});
         btn.appendChild(el("i", {class:"sw", "data-em-sw":s.code, style:"background:" + c}));
-        btn.appendChild(el("span", null, s.ticker || s.code));
+        btn.appendChild(el("span", null, legTxt));
         btn.appendChild(el("span", {class:"pct"}, sgn(s.latest_pct, 1)));
         btn.addEventListener("click", function(){
           var liveCount = chart.series.filter(function(x){ return on[x.code]; }).length;
@@ -2208,8 +2212,11 @@ function glyph(key){
         items.sort(function(a, b){ return b.val - a.val; });
         var rowsHtml = "";
         items.forEach(function(it){
+          var tipTicker = (it.s.proxy && it.s.proxy !== it.s.ticker)
+            ? ((it.s.ticker || it.s.code) + " via " + it.s.proxy)
+            : (it.s.ticker || it.s.code);
           rowsHtml += '<div class="r"><i class="sw" style="background:' + it.c + '"></i>'
-                    + '<span class="nm">' + esc(it.s.ticker || it.s.code) + ' · ' + esc(it.s.name) + '</span>'
+                    + '<span class="nm">' + esc(tipTicker) + ' · ' + esc(it.s.name) + '</span>'
                     + '<span class="vl">' + sgn(it.val, 2) + '</span></div>';
         });
         var html = '<div class="h">' + esc(dates[i]) + '</div>' + rowsHtml;
@@ -2256,12 +2263,14 @@ function glyph(key){
   mountMomentumPanel({
     tbodyId:"#tblEmergingFactors tbody", rows:E.factors,
     chartData:E.factor_chart, chartId:"#emergingFactorChart",
-    legendId:"#emergingFactorLegend", subId:"#emergingFactorChartSub"
+    legendId:"#emergingFactorLegend", subId:"#emergingFactorChartSub",
+    sourceLabel:"US ETF proxies"
   });
   mountMomentumPanel({
     tbodyId:"#tblEmergingSectors tbody", rows:E.sectors,
     chartData:E.sector_chart, chartId:"#emergingSectorChart",
-    legendId:"#emergingSectorLegend", subId:"#emergingSectorChartSub"
+    legendId:"#emergingSectorLegend", subId:"#emergingSectorChartSub",
+    sourceLabel:E.sector_proxy ? "US SPDR proxies" : "S&P sector indices"
   });
 })();
 
