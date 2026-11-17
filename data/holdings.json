@@ -1,6 +1,6 @@
 {
   "as_at": "2026-10",
-  "fetched_at": "2026-11-17T13:50:27.230004+00:00",
+  "fetched_at": "2026-11-17T14:27:52.197441+00:00",
   "snapshot_date": "2026-10-30",
   "source": "iShares dated equity holdings",
   "legs": {
@@ -48,7 +48,7 @@
           "weight": 0.0388,
           "isin": null,
           "sector": "Consumer Discretionary",
-          "company": "General Motors Company",
+          "company": "General Motors Company Common Stock",
           "website": "https://www.gm.com",
           "industry": "Auto Manufacturers",
           "market_cap": 70579781632.0,
@@ -1370,7 +1370,7 @@
       "disclosure_rounding_tolerance": 0.007601,
       "source": "iShares dated equity holdings",
       "fundamentals_source": "Yahoo Finance",
-      "fundamentals_fetched_at": "2026-11-17T13:50:27.230004+00:00"
+      "fundamentals_fetched_at": "2026-11-17T14:27:52.197441+00:00"
     },
     "sector": {
       "slot": "INFOTECH",
@@ -2160,7 +2160,7 @@
       "disclosure_rounding_tolerance": 0.0041010000000000005,
       "source": "iShares dated equity holdings",
       "fundamentals_source": "Yahoo Finance",
-      "fundamentals_fetched_at": "2026-11-17T13:50:27.230004+00:00"
+      "fundamentals_fetched_at": "2026-11-17T14:27:52.197441+00:00"
     }
   }
 }
