@@ -1,6 +1,6 @@
 {
   "as_at": "2026-10",
-  "fetched_at": "2026-11-17T23:57:44.449953+00:00",
+  "fetched_at": "2026-11-18T01:20:33.491732+00:00",
   "snapshot_date": "2026-10-30",
   "source": "iShares dated equity holdings",
   "legs": {
@@ -48,7 +48,7 @@
           "weight": 0.0388,
           "isin": null,
           "sector": "Consumer Discretionary",
-          "company": "General Motors Company",
+          "company": "General Motors Company Common Stock",
           "website": "https://www.gm.com",
           "industry": "Auto Manufacturers",
           "market_cap": 70900334592.0,
@@ -120,7 +120,7 @@
           "website": "https://www.hpe.com",
           "industry": "Communication Equipment",
           "market_cap": 61182853120.0,
-          "pe": 23.75773,
+          "pe": 24.647058,
           "forward_pe": 9.733691,
           "revenue_growth": 0.337,
           "earnings_growth": 4.102,
@@ -172,7 +172,7 @@
           "industry": "Entertainment",
           "market_cap": 201918758912.0,
           "pe": 24.111341,
-          "forward_pe": 13.917485,
+          "forward_pe": 13.87475,
           "revenue_growth": 0.068,
           "earnings_growth": -0.483,
           "profit_margin": 0.086990006,
@@ -1370,7 +1370,7 @@
       "disclosure_rounding_tolerance": 0.007601,
       "source": "iShares dated equity holdings",
       "fundamentals_source": "Yahoo Finance",
-      "fundamentals_fetched_at": "2026-11-17T23:57:44.449953+00:00"
+      "fundamentals_fetched_at": "2026-11-18T01:20:33.491732+00:00"
     },
     "sector": {
       "slot": "INFOTECH",
@@ -1489,7 +1489,7 @@
           "industry": "Software - Infrastructure",
           "market_cap": 377230950400.0,
           "pe": 110.253525,
-          "forward_pe": 61.66766,
+          "forward_pe": 61.75401,
           "revenue_growth": 0.959,
           "earnings_growth": 1.444,
           "profit_margin": 0.50343,
@@ -2160,7 +2160,7 @@
       "disclosure_rounding_tolerance": 0.0041010000000000005,
       "source": "iShares dated equity holdings",
       "fundamentals_source": "Yahoo Finance",
-      "fundamentals_fetched_at": "2026-11-17T23:57:44.449953+00:00"
+      "fundamentals_fetched_at": "2026-11-18T01:20:33.491732+00:00"
     }
   }
 }
