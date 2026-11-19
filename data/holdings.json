@@ -1,6 +1,6 @@
 {
   "as_at": "2026-10",
-  "fetched_at": "2026-11-19T00:46:05.202668+00:00",
+  "fetched_at": "2026-11-19T09:29:28.830302+00:00",
   "snapshot_date": "2026-10-30",
   "source": "iShares dated equity holdings",
   "legs": {
@@ -172,7 +172,7 @@
           "industry": "Entertainment",
           "market_cap": 208994516992.0,
           "pe": 21.73357,
-          "forward_pe": 14.371995,
+          "forward_pe": 14.364064,
           "revenue_growth": 0.155,
           "earnings_growth": 1.073,
           "profit_margin": 0.09672,
@@ -1370,7 +1370,7 @@
       "disclosure_rounding_tolerance": 0.007601,
       "source": "iShares dated equity holdings",
       "fundamentals_source": "Yahoo Finance",
-      "fundamentals_fetched_at": "2026-11-19T00:46:05.202668+00:00"
+      "fundamentals_fetched_at": "2026-11-19T09:29:28.830302+00:00"
     },
     "sector": {
       "slot": "INFOTECH",
@@ -1403,7 +1403,7 @@
           "website": "https://www.nvidia.com",
           "industry": "Semiconductors",
           "market_cap": 3645231071232.0,
-          "pe": 19.084703,
+          "pe": 16.214823,
           "forward_pe": 9.0910845,
           "revenue_growth": 1.059,
           "earnings_growth": 1.278,
@@ -1421,7 +1421,7 @@
           "industry": "Software - Infrastructure",
           "market_cap": 3774660476928.0,
           "pe": 26.528706,
-          "forward_pe": 21.00641,
+          "forward_pe": 21.00299,
           "revenue_growth": 0.188,
           "earnings_growth": 0.323,
           "profit_margin": 0.41169998,
@@ -2160,7 +2160,7 @@
       "disclosure_rounding_tolerance": 0.0041010000000000005,
       "source": "iShares dated equity holdings",
       "fundamentals_source": "Yahoo Finance",
-      "fundamentals_fetched_at": "2026-11-19T00:46:05.202668+00:00"
+      "fundamentals_fetched_at": "2026-11-19T09:29:28.830302+00:00"
     }
   }
 }

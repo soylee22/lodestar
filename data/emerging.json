@@ -1,6 +1,6 @@
 {
   "asof": "2026-11-18",
-  "computed_at": "2026-11-19 00:46 UTC",
+  "computed_at": "2026-11-19 09:29 UTC",
   "factor_asof": "2026-11-18",
   "sector_asof": "2026-11-18",
   "month": "2026-11",
@@ -128,7 +128,7 @@
       "name": "USA Momentum",
       "ticker": "IUMF.L",
       "proxy": "MTUM",
-      "momentum_pct": 8.68,
+      "momentum_pct": 8.69,
       "is_held": false,
       "rank": 4,
       "lead_margin": "-18.3pp"
@@ -148,7 +148,7 @@
       "name": "Europe Small Cap",
       "ticker": "XXSC.L",
       "proxy": "IEUS",
-      "momentum_pct": 4.2,
+      "momentum_pct": 4.21,
       "is_held": false,
       "rank": 6,
       "lead_margin": "-22.8pp"
@@ -941,7 +941,7 @@
         "ticker": "IUMF.L",
         "proxy": "MTUM",
         "is_held": false,
-        "latest_pct": 8.68,
+        "latest_pct": 8.69,
         "values": [
           0.0,
           2.19,
@@ -1104,7 +1104,7 @@
           13.3,
           9.52,
           8.84,
-          8.68
+          8.69
         ]
       },
       {
@@ -1287,7 +1287,7 @@
         "ticker": "XXSC.L",
         "proxy": "IEUS",
         "is_held": false,
-        "latest_pct": 4.2,
+        "latest_pct": 4.21,
         "values": [
           0.0,
           2.08,
@@ -1450,7 +1450,7 @@
           7.03,
           5.8,
           4.61,
-          4.2
+          4.21
         ]
       },
       {
