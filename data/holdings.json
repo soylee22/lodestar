@@ -1,6 +1,6 @@
 {
   "as_at": "2026-10",
-  "fetched_at": "2026-11-19T09:29:28.830302+00:00",
+  "fetched_at": "2026-11-19T13:53:24.654764+00:00",
   "snapshot_date": "2026-10-30",
   "source": "iShares dated equity holdings",
   "legs": {
@@ -34,7 +34,7 @@
           "company": "Cisco Systems, Inc.",
           "website": "https://www.cisco.com",
           "industry": "Communication Equipment",
-          "market_cap": 382595727360.0,
+          "market_cap": 383127126016.0,
           "pe": 25.845745,
           "forward_pe": 16.044643,
           "revenue_growth": 0.244,
@@ -1370,7 +1370,7 @@
       "disclosure_rounding_tolerance": 0.007601,
       "source": "iShares dated equity holdings",
       "fundamentals_source": "Yahoo Finance",
-      "fundamentals_fetched_at": "2026-11-19T09:29:28.830302+00:00"
+      "fundamentals_fetched_at": "2026-11-19T13:53:24.654764+00:00"
     },
     "sector": {
       "slot": "INFOTECH",
@@ -1405,9 +1405,9 @@
           "market_cap": 3645231071232.0,
           "pe": 16.214823,
           "forward_pe": 9.0910845,
-          "revenue_growth": 1.059,
-          "earnings_growth": 1.278,
-          "profit_margin": 0.63663,
+          "revenue_growth": 1.032,
+          "earnings_growth": 1.077,
+          "profit_margin": 0.62535,
           "dividend_yield": 0.6624271330153683
         },
         {
@@ -1504,7 +1504,7 @@
           "company": "Cisco Systems, Inc.",
           "website": "https://www.cisco.com",
           "industry": "Communication Equipment",
-          "market_cap": 382595727360.0,
+          "market_cap": 383127126016.0,
           "pe": 25.845745,
           "forward_pe": 16.044643,
           "revenue_growth": 0.244,
@@ -2160,7 +2160,7 @@
       "disclosure_rounding_tolerance": 0.0041010000000000005,
       "source": "iShares dated equity holdings",
       "fundamentals_source": "Yahoo Finance",
-      "fundamentals_fetched_at": "2026-11-19T09:29:28.830302+00:00"
+      "fundamentals_fetched_at": "2026-11-19T13:53:24.654764+00:00"
     }
   }
 }
