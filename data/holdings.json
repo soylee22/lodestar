@@ -1,6 +1,6 @@
 {
   "as_at": "2026-10",
-  "fetched_at": "2026-11-20T01:27:30.247970+00:00",
+  "fetched_at": "2026-11-20T09:09:25.636459+00:00",
   "snapshot_date": "2026-10-30",
   "source": "iShares dated equity holdings",
   "legs": {
@@ -171,7 +171,7 @@
           "website": "https://thewaltdisneycompany.com",
           "industry": "Entertainment",
           "market_cap": 205390577664.0,
-          "pe": 21.358791,
+          "pe": 20.986038,
           "forward_pe": 14.123482,
           "revenue_growth": 0.155,
           "earnings_growth": 1.073,
@@ -1370,7 +1370,7 @@
       "disclosure_rounding_tolerance": 0.007601,
       "source": "iShares dated equity holdings",
       "fundamentals_source": "Yahoo Finance",
-      "fundamentals_fetched_at": "2026-11-20T01:27:30.247970+00:00"
+      "fundamentals_fetched_at": "2026-11-20T09:09:25.636459+00:00"
     },
     "sector": {
       "slot": "INFOTECH",
@@ -1421,7 +1421,7 @@
           "industry": "Software - Infrastructure",
           "market_cap": 3700472676352.0,
           "pe": 26.007307,
-          "forward_pe": 20.58771,
+          "forward_pe": 20.590195,
           "revenue_growth": 0.188,
           "earnings_growth": 0.323,
           "profit_margin": 0.41169998,
@@ -1438,7 +1438,7 @@
           "industry": "Semiconductors",
           "market_cap": 1654778757120.0,
           "pe": 44.27203,
-          "forward_pe": 17.855635,
+          "forward_pe": 17.88146,
           "revenue_growth": 0.855,
           "earnings_growth": 2.153,
           "profit_margin": 0.42944,
@@ -1540,7 +1540,7 @@
           "industry": "Semiconductor Equipment & Materials",
           "market_cap": 268973981696.0,
           "pe": 26.856577,
-          "forward_pe": 13.758787,
+          "forward_pe": 13.768111,
           "revenue_growth": 0.531,
           "earnings_growth": 0.431,
           "profit_margin": 0.29286,
@@ -2160,7 +2160,7 @@
       "disclosure_rounding_tolerance": 0.0041010000000000005,
       "source": "iShares dated equity holdings",
       "fundamentals_source": "Yahoo Finance",
-      "fundamentals_fetched_at": "2026-11-20T01:27:30.247970+00:00"
+      "fundamentals_fetched_at": "2026-11-20T09:09:25.636459+00:00"
     }
   }
 }
