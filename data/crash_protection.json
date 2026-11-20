@@ -1,7 +1,7 @@
 {
   "asof": "2026-11-20",
-  "computed_at": "2026-11-20 18:00 UTC",
-  "latest_price": 7016.49,
+  "computed_at": "2026-11-20 18:49 UTC",
+  "latest_price": 7015.88,
   "history": [
     {
       "month": "2024-12",
@@ -97,7 +97,7 @@
     },
     {
       "month": "2026-11",
-      "price": 7016.49
+      "price": 7015.88
     }
   ],
   "chart": [
@@ -195,7 +195,7 @@
     },
     {
       "month": "2026-11",
-      "price": 7016.49
+      "price": 7015.88
     }
   ],
   "checks": [
@@ -211,7 +211,7 @@
       "id": "m6",
       "name": "6-Month Momentum",
       "desc": "Latest close vs 6 months earlier",
-      "reading_pct": -7.43,
+      "reading_pct": -7.44,
       "pass": false,
       "rule": "Research Check 2"
     },
@@ -227,7 +227,7 @@
       "id": "floor19",
       "name": "19-Month Crash Floor",
       "desc": "Return vs 19 months earlier (threshold: -25%)",
-      "reading_pct": 25.99,
+      "reading_pct": 25.98,
       "pass": true,
       "rule": "Lodestar Circuit Breaker"
     }
@@ -236,7 +236,7 @@
   "research_cash_triggered": false,
   "method_note": "The three research checks do not recover the proprietary MarketFighter rule. The production gate uses the 19-month floor.",
   "cash_triggered": false,
-  "m19_pct": 25.99,
+  "m19_pct": 25.98,
   "base_month_19m": "2025-04",
   "status": "INVESTED",
   "status_text": "19M Floor Intact \u00b7 100% Invested",
