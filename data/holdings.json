@@ -1,6 +1,6 @@
 {
   "as_at": "2026-10",
-  "fetched_at": "2026-11-21T00:12:36.718365+00:00",
+  "fetched_at": "2026-11-21T00:16:36.837160+00:00",
   "snapshot_date": null,
   "source": "Yahoo Finance top-ten holdings",
   "legs": {
@@ -186,7 +186,7 @@
       "top10_weight": 0.42310229,
       "source": "Yahoo Finance top-ten holdings",
       "fundamentals_source": "Yahoo Finance",
-      "fundamentals_fetched_at": "2026-11-21T00:12:36.718365+00:00"
+      "fundamentals_fetched_at": "2026-11-21T00:16:36.837160+00:00"
     },
     "sector": {
       "slot": "INFOTECH",
@@ -234,7 +234,7 @@
           "industry": "Software - Infrastructure",
           "market_cap": 3598139523072.0,
           "pe": 25.2881,
-          "forward_pe": 20.020792,
+          "forward_pe": 20.018377,
           "revenue_growth": 0.188,
           "earnings_growth": 0.323,
           "profit_margin": 0.41169998,
@@ -250,7 +250,7 @@
           "industry": "Semiconductors",
           "market_cap": 1453140738048.0,
           "pe": 38.877396,
-          "forward_pe": 15.702569,
+          "forward_pe": 15.67989,
           "revenue_growth": 0.855,
           "earnings_growth": 2.153,
           "profit_margin": 0.42944,
@@ -281,7 +281,7 @@
           "website": "https://www.amd.com",
           "industry": "Semiconductors",
           "market_cap": 702393286656.0,
-          "pe": 90.68163,
+          "pe": 98.23843,
           "forward_pe": 24.060778,
           "revenue_growth": 0.447,
           "earnings_growth": 0.938,
@@ -360,7 +360,7 @@
       "top10_weight": 0.762761699,
       "source": "Yahoo Finance top-ten holdings",
       "fundamentals_source": "Yahoo Finance",
-      "fundamentals_fetched_at": "2026-11-21T00:12:36.718365+00:00"
+      "fundamentals_fetched_at": "2026-11-21T00:16:36.837160+00:00"
     }
   }
 }
