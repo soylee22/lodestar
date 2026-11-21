@@ -1,6 +1,6 @@
 {
   "as_at": "2026-10",
-  "fetched_at": "2026-11-21T13:30:02.721393+00:00",
+  "fetched_at": "2026-11-21T18:11:09.173032+00:00",
   "snapshot_date": "2026-10-30",
   "source": "iShares dated equity holdings",
   "legs": {
@@ -1370,7 +1370,7 @@
       "disclosure_rounding_tolerance": 0.007601,
       "source": "iShares dated equity holdings",
       "fundamentals_source": "Yahoo Finance",
-      "fundamentals_fetched_at": "2026-11-21T13:30:02.721393+00:00"
+      "fundamentals_fetched_at": "2026-11-21T18:11:09.173032+00:00"
     },
     "sector": {
       "slot": "INFOTECH",
@@ -1421,7 +1421,7 @@
           "industry": "Software - Infrastructure",
           "market_cap": 3598139523072.0,
           "pe": 25.2881,
-          "forward_pe": 20.018377,
+          "forward_pe": 20.020792,
           "revenue_growth": 0.188,
           "earnings_growth": 0.323,
           "profit_margin": 0.41169998,
@@ -1438,7 +1438,7 @@
           "industry": "Semiconductors",
           "market_cap": 1453140738048.0,
           "pe": 38.877396,
-          "forward_pe": 15.67989,
+          "forward_pe": 15.702569,
           "revenue_growth": 0.855,
           "earnings_growth": 2.153,
           "profit_margin": 0.42944,
@@ -2160,7 +2160,7 @@
       "disclosure_rounding_tolerance": 0.0041010000000000005,
       "source": "iShares dated equity holdings",
       "fundamentals_source": "Yahoo Finance",
-      "fundamentals_fetched_at": "2026-11-21T13:30:02.721393+00:00"
+      "fundamentals_fetched_at": "2026-11-21T18:11:09.173032+00:00"
     }
   }
 }
