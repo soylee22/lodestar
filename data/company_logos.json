@@ -1,6 +1,6 @@
 {
   "AAPL": {
-    "companyKey": "APPLE INC",
+    "companyKey": "APPLE",
     "path": "assets/company-logos/AAPL.png",
     "sha256": "41483c742e810831c12663ef2040d306f81440e15126f34b623dd08a09bbb63e",
     "source": "https://images.financialmodelingprep.com/symbol/AAPL.png"
@@ -54,7 +54,7 @@
     "source": "https://images.financialmodelingprep.com/symbol/AKAM.png"
   },
   "AMAT": {
-    "companyKey": "APPLIED MATERIALS INC",
+    "companyKey": "APPLIED MATERIAL INC",
     "path": "assets/company-logos/AMAT.png",
     "sha256": "7627d2610c4d9e8442c2c06969ebdf1b15169199fc3f836a95cc36021efab0ab",
     "source": "https://images.financialmodelingprep.com/symbol/AMAT.png"
@@ -66,7 +66,7 @@
     "source": "https://images.financialmodelingprep.com/symbol/AMCR.png"
   },
   "AMD": {
-    "companyKey": "ADVANCED MICRO DEVICES INC",
+    "companyKey": "ADVANCED MICRO DEVICES",
     "path": "assets/company-logos/AMD.png",
     "sha256": "2c94246f0c6dd24e4136d603400d486def9be17696db53d7841533011b3a99c9",
     "source": "https://images.financialmodelingprep.com/symbol/AMD.png"
@@ -90,7 +90,7 @@
     "source": "https://images.financialmodelingprep.com/symbol/AVGO.png"
   },
   "BAC": {
-    "companyKey": "BANK OF AMERICA CORP",
+    "companyKey": "BANK OF AMERICA",
     "path": "assets/company-logos/BAC.png",
     "sha256": "b3b40cd5048cab28bd39df62fb7f4da0c13547cff272cbfc6951dc1c1f591643",
     "source": "https://images.financialmodelingprep.com/symbol/BAC.png"
@@ -300,7 +300,7 @@
     "source": "https://images.financialmodelingprep.com/symbol/DHI.png"
   },
   "DIS": {
-    "companyKey": "THE WALT DISNEY CO",
+    "companyKey": "WALT DISNEY",
     "path": "assets/company-logos/DIS.png",
     "sha256": "a03f60cf9c7961578f75b24583227ffd175454ad17e5fecf9d0d31041761a559",
     "source": "https://images.financialmodelingprep.com/symbol/DIS.png"
@@ -516,7 +516,7 @@
     "source": "https://images.financialmodelingprep.com/symbol/GLW.png"
   },
   "GM": {
-    "companyKey": "GENERAL MOTORS CO",
+    "companyKey": "GENERAL MOTORS",
     "path": "assets/company-logos/GM.png",
     "sha256": "7679d292046aec78c7fd1b301e4bdb4ac3d1a77e479bfbd8af21ef3f4b593ec4",
     "source": "https://images.financialmodelingprep.com/symbol/GM.png"
@@ -540,7 +540,7 @@
     "source": "https://images.financialmodelingprep.com/symbol/HIG.png"
   },
   "HPE": {
-    "companyKey": "HEWLETT PACKARD ENTERPRISE CO",
+    "companyKey": "HEWLETT PACKARD ENTERPRISE",
     "path": "assets/company-logos/HPE.png",
     "sha256": "fd27c19464f594a4c8f41fff59bf0e361d0b26894b8533ae2fabf73d1d0e4796",
     "source": "https://images.financialmodelingprep.com/symbol/HPE.png"
@@ -570,7 +570,7 @@
     "source": "https://images.financialmodelingprep.com/symbol/IFF.png"
   },
   "INTC": {
-    "companyKey": "INTEL CORP",
+    "companyKey": "INTEL CORPORATION",
     "path": "assets/company-logos/INTC.png",
     "sha256": "fed34e20fa27940daa8aabdf3da83d87b4ec1bc73956f5fd773d9acb72d12d7d",
     "source": "https://images.financialmodelingprep.com/symbol/INTC.png"
@@ -720,7 +720,7 @@
     "source": "https://images.financialmodelingprep.com/symbol/MRVL.png"
   },
   "MSFT": {
-    "companyKey": "MICROSOFT CORP",
+    "companyKey": "MICROSOFT",
     "path": "assets/company-logos/MSFT.png",
     "sha256": "5464732326598baca91f5aaa9b19ca9b8ced1655465a41a54f3424485be5e33a",
     "source": "https://images.financialmodelingprep.com/symbol/MSFT.png"
@@ -744,7 +744,7 @@
     "source": "https://images.financialmodelingprep.com/symbol/MTB.png"
   },
   "MU": {
-    "companyKey": "MICRON TECHNOLOGY INC",
+    "companyKey": "MICRON TECHNOLOGY",
     "path": "assets/company-logos/MU.png",
     "sha256": "c4c6752eef5eeef3392c61484b4e971eb95c4a3876fe5ce416a68d7ab9d43985",
     "source": "https://images.financialmodelingprep.com/symbol/MU.png"
@@ -780,7 +780,7 @@
     "source": "https://images.financialmodelingprep.com/symbol/NUE.png"
   },
   "NVDA": {
-    "companyKey": "NVIDIA CORP",
+    "companyKey": "NVIDIA",
     "path": "assets/company-logos/NVDA.png",
     "sha256": "65adfc123c82dd816d8bebeaded5d0bdd72a4a799d1c0e23d310eaf6e2c457e6",
     "source": "https://images.financialmodelingprep.com/symbol/NVDA.png"
@@ -852,7 +852,7 @@
     "source": "https://images.financialmodelingprep.com/symbol/PCG.png"
   },
   "PFE": {
-    "companyKey": "PFIZER INC",
+    "companyKey": "PFIZER",
     "path": "assets/company-logos/PFE.png",
     "sha256": "9cddfdf72e5d9eb617674bd5dd0c958b651a9bc03ba2c9208b45c2dc4be55ccd",
     "source": "https://images.financialmodelingprep.com/symbol/PFE.png"
@@ -870,7 +870,7 @@
     "source": "https://images.financialmodelingprep.com/symbol/PHM.png"
   },
   "PLTR": {
-    "companyKey": "PALANTIR TECHNOLOGIES INC ORDINARY SHARES -",
+    "companyKey": "PALANTIR TECHNOLOGIES",
     "path": "assets/company-logos/PLTR.png",
     "sha256": "b33a15c8379a89328ea6a77282bbef4c65a3c419d69695278d82071fb398e236",
     "source": "https://images.financialmodelingprep.com/symbol/PLTR.png"
@@ -1002,7 +1002,7 @@
     "source": "https://images.financialmodelingprep.com/symbol/SYF.png"
   },
   "T": {
-    "companyKey": "AT&T INC",
+    "companyKey": "AT&T",
     "path": "assets/company-logos/T.png",
     "sha256": "b7c37fd6ed3e65097a28e2accedba8971cc17d681acb859f98c3e003bf57586c",
     "source": "https://images.financialmodelingprep.com/symbol/T.png"
