@@ -1,6 +1,6 @@
 {
   "as_at": "2026-10",
-  "fetched_at": "2026-11-23T22:14:26.361242+00:00",
+  "fetched_at": "2026-11-24T06:22:51.696504+00:00",
   "snapshot_date": "2026-10-30",
   "source": "iShares dated equity holdings",
   "legs": {
@@ -18,7 +18,7 @@
           "website": "https://www.micron.com",
           "industry": "Semiconductors",
           "market_cap": 800708231168.0,
-          "pe": 9.521054,
+          "pe": 7.9984174,
           "forward_pe": 3.4246724,
           "revenue_growth": 3.793,
           "earnings_growth": 10.595,
@@ -52,7 +52,7 @@
           "website": "https://www.gm.com",
           "industry": "Auto Manufacturers",
           "market_cap": 68867375104.0,
-          "pe": 17.864332,
+          "pe": 17.223629,
           "forward_pe": 5.549008,
           "revenue_growth": 0.029,
           "earnings_growth": 1.763,
@@ -137,7 +137,7 @@
           "website": "https://www.bankofamerica.com",
           "industry": "Banks - Diversified",
           "market_cap": 332176064512.0,
-          "pe": 11.48926,
+          "pe": 11.221445,
           "forward_pe": 9.293257,
           "revenue_growth": 0.034,
           "earnings_growth": -0.125,
@@ -171,8 +171,8 @@
           "website": "https://thewaltdisneycompany.com",
           "industry": "Entertainment",
           "market_cap": 205424721920.0,
-          "pe": 21.362343,
-          "forward_pe": 14.102045,
+          "pe": 20.952963,
+          "forward_pe": 14.047426,
           "revenue_growth": 0.155,
           "earnings_growth": 1.073,
           "profit_margin": 0.09672,
@@ -1370,7 +1370,7 @@
       "disclosure_rounding_tolerance": 0.007601,
       "source": "iShares dated equity holdings",
       "fundamentals_source": "Yahoo Finance",
-      "fundamentals_fetched_at": "2026-11-23T22:14:26.361242+00:00"
+      "fundamentals_fetched_at": "2026-11-24T06:22:51.696504+00:00"
     },
     "sector": {
       "slot": "INFOTECH",
@@ -1386,7 +1386,7 @@
           "website": "https://www.apple.com",
           "industry": "Consumer Electronics",
           "market_cap": 5072893771776.0,
-          "pe": 38.87305,
+          "pe": 38.15082,
           "forward_pe": 33.017014,
           "revenue_growth": 0.117,
           "earnings_growth": 0.141,
@@ -1403,7 +1403,7 @@
           "website": "https://www.nvidia.com",
           "industry": "Semiconductors",
           "market_cap": 3985462263808.0,
-          "pe": 17.728249,
+          "pe": 13.484478,
           "forward_pe": 9.93961,
           "revenue_growth": 1.032,
           "earnings_growth": 1.077,
@@ -1454,7 +1454,7 @@
           "website": "https://www.micron.com",
           "industry": "Semiconductors",
           "market_cap": 800708231168.0,
-          "pe": 9.521054,
+          "pe": 7.9984174,
           "forward_pe": 3.4246724,
           "revenue_growth": 3.793,
           "earnings_growth": 10.595,
@@ -1539,7 +1539,7 @@
           "website": "https://www.appliedmaterials.com",
           "industry": "Semiconductor Equipment & Materials",
           "market_cap": 275275153408.0,
-          "pe": 27.485737,
+          "pe": 23.988243,
           "forward_pe": 14.085885,
           "revenue_growth": 0.531,
           "earnings_growth": 0.431,
@@ -2160,7 +2160,7 @@
       "disclosure_rounding_tolerance": 0.0041010000000000005,
       "source": "iShares dated equity holdings",
       "fundamentals_source": "Yahoo Finance",
-      "fundamentals_fetched_at": "2026-11-23T22:14:26.361242+00:00"
+      "fundamentals_fetched_at": "2026-11-24T06:22:51.696504+00:00"
     }
   }
 }
