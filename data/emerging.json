@@ -1,6 +1,6 @@
 {
   "asof": "2026-11-25",
-  "computed_at": "2026-11-25 23:47 UTC",
+  "computed_at": "2026-11-26 10:01 UTC",
   "factor_asof": "2026-11-25",
   "sector_asof": "2026-11-25",
   "month": "2026-11",
@@ -8,9 +8,9 @@
   "held_factor": "USA_VAL",
   "held_sector": "INFOTECH",
   "held_cash": false,
-  "days_out": 6,
+  "days_out": 5,
   "next_action_date": "1 Dec 2026",
-  "days_run": "25 of 30 days",
+  "days_run": "26 of 30 days",
   "cash_triggered": false,
   "action": "ROTATE",
   "action_text": "ROTATE \u00b7 REBALANCE PROJECTED",
@@ -158,7 +158,7 @@
       "name": "Europe Small Cap",
       "ticker": "XXSC.L",
       "proxy": "IEUS",
-      "momentum_pct": 2.25,
+      "momentum_pct": 2.26,
       "is_held": false,
       "rank": 7,
       "lead_margin": "-22.2pp"
@@ -1495,7 +1495,7 @@
         "ticker": "XXSC.L",
         "proxy": "IEUS",
         "is_held": false,
-        "latest_pct": 2.25,
+        "latest_pct": 2.26,
         "values": [
           0.0,
           2.08,
@@ -1663,7 +1663,7 @@
           -0.3,
           2.1,
           2.08,
-          2.25
+          2.26
         ]
       },
       {

@@ -1,6 +1,6 @@
 {
   "as_at": "2026-10",
-  "fetched_at": "2026-11-25T23:47:23.622585+00:00",
+  "fetched_at": "2026-11-26T10:01:40.027784+00:00",
   "snapshot_date": "2026-10-30",
   "source": "iShares dated equity holdings",
   "legs": {
@@ -53,7 +53,7 @@
           "industry": "Auto Manufacturers",
           "market_cap": 70849716224.0,
           "pe": 18.378555,
-          "forward_pe": 5.7087355,
+          "forward_pe": 5.6996818,
           "revenue_growth": 0.029,
           "earnings_growth": 1.763,
           "profit_margin": 0.021170001,
@@ -121,7 +121,7 @@
           "industry": "Communication Equipment",
           "market_cap": 53719117824.0,
           "pe": 13.296417,
-          "forward_pe": 6.835735,
+          "forward_pe": 6.867418,
           "revenue_growth": 0.503,
           "earnings_growth": 10.472,
           "profit_margin": 0.094849996,
@@ -1370,7 +1370,7 @@
       "disclosure_rounding_tolerance": 0.007601,
       "source": "iShares dated equity holdings",
       "fundamentals_source": "Yahoo Finance",
-      "fundamentals_fetched_at": "2026-11-25T23:47:23.622585+00:00"
+      "fundamentals_fetched_at": "2026-11-26T10:01:40.027784+00:00"
     },
     "sector": {
       "slot": "INFOTECH",
@@ -1421,7 +1421,7 @@
           "industry": "Software - Infrastructure",
           "market_cap": 3638315450368.0,
           "pe": 25.57046,
-          "forward_pe": 20.241896,
+          "forward_pe": 20.244339,
           "revenue_growth": 0.188,
           "earnings_growth": 0.323,
           "profit_margin": 0.41169998,
@@ -1438,7 +1438,7 @@
           "industry": "Semiconductors",
           "market_cap": 1436194177024.0,
           "pe": 38.424007,
-          "forward_pe": 15.562379,
+          "forward_pe": 15.519446,
           "revenue_growth": 0.855,
           "earnings_growth": 2.153,
           "profit_margin": 0.42944,
@@ -1472,7 +1472,7 @@
           "industry": "Semiconductors",
           "market_cap": 672006275072.0,
           "pe": 86.75855,
-          "forward_pe": 23.049273,
+          "forward_pe": 23.019857,
           "revenue_growth": 0.447,
           "earnings_growth": 0.938,
           "profit_margin": 0.16769,
@@ -2160,7 +2160,7 @@
       "disclosure_rounding_tolerance": 0.0041010000000000005,
       "source": "iShares dated equity holdings",
       "fundamentals_source": "Yahoo Finance",
-      "fundamentals_fetched_at": "2026-11-25T23:47:23.622585+00:00"
+      "fundamentals_fetched_at": "2026-11-26T10:01:40.027784+00:00"
     }
   }
 }
