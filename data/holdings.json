@@ -1,6 +1,6 @@
 {
   "as_at": "2026-10",
-  "fetched_at": "2026-11-27T03:15:59.795353+00:00",
+  "fetched_at": "2026-11-27T14:18:33.431509+00:00",
   "snapshot_date": "2026-10-30",
   "source": "iShares dated equity holdings",
   "legs": {
@@ -36,7 +36,7 @@
           "industry": "Communication Equipment",
           "market_cap": 371378585600.0,
           "pe": 25.05319,
-          "forward_pe": 15.552638,
+          "forward_pe": 15.571921,
           "revenue_growth": 0.244,
           "earnings_growth": 0.583,
           "profit_margin": 0.22341,
@@ -104,7 +104,7 @@
           "industry": "Drug Manufacturers - General",
           "market_cap": 162217836544.0,
           "pe": 40.657143,
-          "forward_pe": 9.634132,
+          "forward_pe": 9.636841,
           "revenue_growth": -0.004,
           "earnings_growth": -0.097,
           "profit_margin": 0.06339,
@@ -121,7 +121,7 @@
           "industry": "Communication Equipment",
           "market_cap": 53719117824.0,
           "pe": 13.296417,
-          "forward_pe": 6.867418,
+          "forward_pe": 6.835735,
           "revenue_growth": 0.503,
           "earnings_growth": 10.472,
           "profit_margin": 0.094849996,
@@ -155,7 +155,7 @@
           "industry": "Auto Manufacturers",
           "market_cap": 48597458944.0,
           "pe": null,
-          "forward_pe": 6.522916,
+          "forward_pe": 6.51635,
           "revenue_growth": -0.02,
           "earnings_growth": -0.167,
           "profit_margin": -0.041690003,
@@ -172,7 +172,7 @@
           "industry": "Entertainment",
           "market_cap": 214528524288.0,
           "pe": 22.309057,
-          "forward_pe": 14.652031,
+          "forward_pe": 14.685937,
           "revenue_growth": 0.155,
           "earnings_growth": 1.073,
           "profit_margin": 0.09672,
@@ -1370,7 +1370,7 @@
       "disclosure_rounding_tolerance": 0.007601,
       "source": "iShares dated equity holdings",
       "fundamentals_source": "Yahoo Finance",
-      "fundamentals_fetched_at": "2026-11-27T03:15:59.795353+00:00"
+      "fundamentals_fetched_at": "2026-11-27T14:18:33.431509+00:00"
     },
     "sector": {
       "slot": "INFOTECH",
@@ -1421,7 +1421,7 @@
           "industry": "Software - Infrastructure",
           "market_cap": 3638315450368.0,
           "pe": 25.57046,
-          "forward_pe": 20.244339,
+          "forward_pe": 20.241896,
           "revenue_growth": 0.188,
           "earnings_growth": 0.323,
           "profit_margin": 0.41169998,
@@ -1438,7 +1438,7 @@
           "industry": "Semiconductors",
           "market_cap": 1436194177024.0,
           "pe": 38.424007,
-          "forward_pe": 15.519446,
+          "forward_pe": 15.562379,
           "revenue_growth": 0.855,
           "earnings_growth": 2.153,
           "profit_margin": 0.42944,
@@ -1472,7 +1472,7 @@
           "industry": "Semiconductors",
           "market_cap": 672006275072.0,
           "pe": 86.75855,
-          "forward_pe": 23.019857,
+          "forward_pe": 23.060766,
           "revenue_growth": 0.447,
           "earnings_growth": 0.938,
           "profit_margin": 0.16769,
@@ -1506,7 +1506,7 @@
           "industry": "Communication Equipment",
           "market_cap": 371378585600.0,
           "pe": 25.05319,
-          "forward_pe": 15.552638,
+          "forward_pe": 15.571921,
           "revenue_growth": 0.244,
           "earnings_growth": 0.583,
           "profit_margin": 0.22341,
@@ -1540,7 +1540,7 @@
           "industry": "Semiconductor Equipment & Materials",
           "market_cap": 246951641088.0,
           "pe": 24.657686,
-          "forward_pe": 12.678909,
+          "forward_pe": 12.560597,
           "revenue_growth": 0.531,
           "earnings_growth": 0.431,
           "profit_margin": 0.29286,
@@ -2160,7 +2160,7 @@
       "disclosure_rounding_tolerance": 0.0041010000000000005,
       "source": "iShares dated equity holdings",
       "fundamentals_source": "Yahoo Finance",
-      "fundamentals_fetched_at": "2026-11-27T03:15:59.795353+00:00"
+      "fundamentals_fetched_at": "2026-11-27T14:18:33.431509+00:00"
     }
   }
 }
